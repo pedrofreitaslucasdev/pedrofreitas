@@ -240,3 +240,12 @@ desenvolvi para projetos reais." Três trabalhos reais, só com o que existe nos
   Quando as fotos reais entrarem e a tarja sair, pôr o link e tirar o "em andamento".
 Print na largura toda (16:9) com o celular por cima; a tarja #pendencias do Banquinhos é removida só no print.
 A transição pros sistemas é a virada que já existia. Sistemas: sem mudança.
+
+## Prévias (26/09/2026)
+
+- Velocidade relativa à moldura: o print anda 1/5 da largura da moldura por segundo (8s a 40s). Com 70px/s
+  fixos, no celular (moldura de 73px) o site inteiro passava em 5s.
+- Estilo Animado (Forno de Pedra): vídeo no lugar do print, porque print parado não mostra a pizza assando.
+  `scripts/video_forno.py` grava o site rolando de 0 a 1380px (Playwright) e gera forno-pc.mp4 / forno-cel.mp4
+  (H.264, ida e volta = loop sem emenda). O endereço fica em data-src e só é posto quando a seção aparece
+  (o WebKit baixava mesmo com preload="none"). Sem JS ou com "reduzir movimento": fica o poster (o print).

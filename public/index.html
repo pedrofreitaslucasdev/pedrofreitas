@@ -189,8 +189,11 @@
             <p class="estilo__frase sobe"><strong>Movimento na medida certa.</strong> Transições e animações que deixam a navegação mais marcante sem pesar.</p>
           </div>
           <a class="projeto__midia" href="https://forno-de-pedra.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Ver o site Forno de Pedra (abre em nova aba)">
-            <span class="projeto__tela"><img src="prints/forno-de-pedra-pc.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></span>
-            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/forno-de-pedra.webp" srcset="prints/forno-de-pedra-p.webp 300w, prints/forno-de-pedra.webp 540w" sizes="(min-width: 1000px) 190px, 26vw" alt="" width="540" height="3600" loading="lazy" decoding="async"></span>
+            <!-- estilo Animado: vídeo do site rolando (a pizza assa), porque um print parado não mostra o movimento.
+                 o endereço fica em data-src e o app.js só põe quando aparece na tela (o WebKit baixava mesmo com
+                 preload="none"); sem JS fica o poster, que é o print de antes -->
+            <span class="projeto__tela"><video class="video-previa" muted playsinline loop preload="none" poster="prints/forno-de-pedra-pc.webp" width="1280" height="800" aria-hidden="true"><source data-src="videos/forno-pc.mp4" type="video/mp4"></video></span>
+            <span class="projeto__fone fone fone--video" aria-hidden="true"><video class="video-previa" muted playsinline loop preload="none" poster="prints/forno-de-pedra-p.webp" width="390" height="844"><source data-src="videos/forno-cel.mp4" type="video/mp4"></video></span>
           </a>
           <div class="estilo__exemplo sobe">
             <p class="mono">Exemplo · Fig. 02</p>

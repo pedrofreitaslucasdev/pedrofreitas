@@ -170,6 +170,22 @@ if (!semMovimento) {
   fones.forEach((f) => olhoFone.observe(f));
 }
 
+// ---------- vídeos de prévia (estilo Animado): tocam só enquanto aparecem na tela ----------
+// Sem movimento pedido, ficam parados no poster (o print). O vídeo só é baixado quando aparece.
+if (!semMovimento) {
+  const olhoVideo = new IntersectionObserver((entradas) => {
+    entradas.forEach((e) => {
+      if (e.isIntersecting) {
+        const fonte = e.target.querySelector("source[data-src]");
+        if (fonte) { fonte.src = fonte.dataset.src; fonte.removeAttribute("data-src"); e.target.load(); }
+        e.target.play().catch(() => { /* navegador recusou autoplay: fica o poster */ });
+      }
+      else e.target.pause();
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll(".video-previa").forEach((v) => olhoVideo.observe(v));
+}
+
 // ---------- só no computador: cursor próprio, ímã nos botões e imagem que segue o mouse ----------
 if (temMouse) {
   const cursor = document.createElement("div");

@@ -394,6 +394,10 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   transition: scale 1s var(--curva);
 }
 .projeto__midia:hover .projeto__tela img { scale: 1.035; }
+/* estilo Animado: vídeo no lugar do print (sem parallax: o próprio vídeo já rola) */
+.projeto__tela video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; transition: scale 1s var(--curva); }
+.projeto__midia:hover .projeto__tela video { scale: 1.035; }
+.fone--video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
 .fone.projeto__fone {
   position: absolute;
   right: 5%;
@@ -627,5 +631,5 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   .topo__titulo .linha > span, .topo__meta, .topo__pergunta, .topo__assinatura, .topo__baixo, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }
   .topo__assinatura::before { animation: none; transform: none; }
   [data-tema="claro"] .topo__titulo .marca { animation: none; background-size: 100% 34%; }
-  .barra, .menu, .menu__lista a, .zap-fixo, .projeto__tela img, .projeto__fone, .sistema__tela img, .sistema__fone, .seta, body { transition: none; }
+  .barra, .menu, .menu__lista a, .zap-fixo, .projeto__tela img, .projeto__tela video, .projeto__fone, .sistema__tela img, .sistema__fone, .seta, body { transition: none; }
 }
