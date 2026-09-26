@@ -178,7 +178,13 @@ if (!semMovimento) {
     entradas.forEach((e) => {
       if (e.isIntersecting) {
         const fonte = e.target.querySelector("source[data-src]");
-        if (fonte) { fonte.src = fonte.dataset.src; fonte.removeAttribute("data-src"); e.target.load(); }
+        if (fonte) {
+          // tela pequena recebe a versão de 640px do vídeo grande, quando existe
+          const celular = fonte.dataset.srcCelular && innerWidth < 760;
+          fonte.src = celular ? fonte.dataset.srcCelular : fonte.dataset.src;
+          fonte.removeAttribute("data-src");
+          e.target.load();
+        }
         e.target.play().catch(() => { /* navegador recusou autoplay: fica o poster */ });
       }
       else e.target.pause();
