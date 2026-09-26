@@ -67,8 +67,8 @@ function mede(fone) {
   if (sobra <= 0 || animacoes.get(fone)?.sobra === sobra) return;
 
   animacoes.get(fone)?.anim.cancel();
-  // velocidade constante: ~110px de tela por segundo, pra print curto não passar voando
-  const duracao = Math.max(4000, (sobra / 110) * 1000);
+  // velocidade constante: ~70px de tela por segundo (era 110; o Pedro pediu mais devagar em 26/09)
+  const duracao = Math.max(5000, (sobra / 70) * 1000);
   // pausa curta e FIXA nas pontas: pausa longa faz a pessoa achar que o print travou
   const pausa = 600 / duracao;
   const anim = img.animate([
