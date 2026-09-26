@@ -81,6 +81,17 @@ def main():
             img.save(destino, "WEBP", quality=72, method=6)
             print(f"{nome}: {img.width}x{img.height} -> {destino.stat().st_size // 1024} KB")
             pg.close()
+
+            # print de computador: a primeira tela do site, pra imagem grande dos trabalhos
+            pg = nav.new_page(viewport={"width": 1440, "height": 900}, device_scale_factor=1)
+            pg.goto(url, wait_until="networkidle")
+            pg.wait_for_timeout(2000)
+            img = Image.open(BytesIO(pg.screenshot())).convert("RGB")
+            img = img.resize((1280, 800), Image.LANCZOS)
+            destino = SAIDA / f"{nome}-pc.webp"
+            img.save(destino, "WEBP", quality=74, method=6)
+            print(f"{nome}-pc: {img.width}x{img.height} -> {destino.stat().st_size // 1024} KB")
+            pg.close()
         nav.close()
 
 

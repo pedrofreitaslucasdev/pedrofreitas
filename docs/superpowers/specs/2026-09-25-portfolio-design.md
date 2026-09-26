@@ -123,3 +123,23 @@ Um botão de WhatsApp preso embaixo da tela, que aparece depois que a pessoa sai
 - O botão do WhatsApp abre o número do Pedro com a mensagem pronta.
 - Com "reduzir movimento" ligado, a página continua completa e legível.
 - A página carrega rápido na rede de celular (Lighthouse mobile com Performance acima de 85).
+
+## Redesign de 26/09/2026 (inspirado na apresentação do landonorris.com, sem copiar)
+
+Pedido pelo Pedro. Decisões dele: **claro por padrão com botão pro escuro**, **tudo em
+português**, **GitHub no contato** (sem Instagram, que não existe).
+
+- Página única: topo (PEDRO / FREITAS enorme, com o celular do Forno de Pedra passando
+  NA FRENTE do "PEDRO" e ATRÁS do "FREITAS"), faixa correndo, Sobre, Trabalhos (SITES e
+  SISTEMAS), Como funciona, Contato. Menu em tela cheia (01 Trabalhos, 02 Sobre, 03 Contato).
+- Cada projeto: número vazado gigante, nome enorme, print de computador grande com o celular
+  do print rolando por cima, ficha (tipo, ano, pra quem) e "Ver projeto ↗" / "Testar ↗".
+  Os modelos seguem declarados como **empresas fictícias**; os sistemas, como **demonstração
+  com dados inventados**. Gráfica continua "em breve".
+- SISTEMAS é um bloco de cor invertida que abre das bordas pra tela toda na rolagem.
+- GSAP 3.15 + ScrollTrigger em `public/vendor/` (licença padrão gratuita, sem CDN). Sem
+  rolagem suavizada artificial (atrapalha no iPhone). Sem JS ou com "reduzir movimento",
+  tudo aparece parado.
+- Computador: cursor próprio ("Ver ↗" em cima de projeto), ímã nos botões, imagem que
+  inclina com o mouse. Nada disso no celular.
+- Prints de computador (`<nome>-pc.webp`, 1280×800) saem do mesmo `scripts/prints.py`.

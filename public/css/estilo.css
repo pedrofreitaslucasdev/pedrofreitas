@@ -1,5 +1,12 @@
-/* Pedro Freitas · portfólio
-   Escuro, nome gigante, um verde-limão de destaque. Celular primeiro. */
+/* Pedro Freitas · portfólio (redesign 26/09/2026)
+   Tipografia enorme, bastante espaço, uma cor de destaque. Claro por padrão, escuro no botão.
+   Celular primeiro. Tudo aparece sem JavaScript: as animações só entram com html.js.
+
+   Três regras que já custaram bug e não podem voltar:
+   1. Nada position: fixed/sticky COM cor de fundo. O Safari do iOS 26 pinta as barras de
+      cima e de baixo com essa cor (o celular do Pedro ficou laranja). A cor vai num filho.
+   2. Nada passa da largura da tela (nem brilho, nem celular inclinado): a página balança.
+   3. A altura dos prints é calculada pela proporção no app.js, não medida (Safari mede 0). */
 
 :root {
   --fundo: #0e0e0e;
@@ -12,11 +19,24 @@
   --sobre-limao: #0e0e0e;     /* texto em cima de fundo verde: escuro nos dois temas */
   --titulo: "Bricolage Grotesque", system-ui, sans-serif;
   --sem: "Manrope", system-ui, sans-serif;
-  --lado: clamp(1rem, 5vw, 3rem);
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --lado: clamp(1rem, 4.5vw, 3.5rem);
+  --curva: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* tema claro (padrão). Verde-limão em cima de branco não se lê: aqui ele deixa de ser
+   cor de texto e vira marca-texto. */
+:root[data-tema="claro"] {
+  --fundo: #fbfaf6;
+  --fundo-2: #f0ede5;
+  --texto: #121212;
+  --apagado: #69655d;
+  --linha: #dcd8ce;
+  --destaque: #3f5c00;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; background: var(--fundo); }
+html { background: var(--fundo); }
 body {
   margin: 0;
   background: var(--fundo);
@@ -24,219 +44,288 @@ body {
   font: 400 1rem/1.55 var(--sem);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
+  transition: background-color .35s, color .35s;
 }
 img { display: block; max-width: 100%; }
-h1, h2, h3 { margin: 0; font-family: var(--titulo); font-weight: 800; line-height: 1; }
-p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; font-family: var(--titulo); font-weight: 800; line-height: .86; letter-spacing: -.04em; text-transform: uppercase; }
+p, dl, dd, ol { margin: 0; }
 a { color: inherit; }
-:focus-visible { outline: 2px solid var(--destaque); outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--destaque); outline-offset: 4px; }
 
-.rotulo {
-  font-size: .75rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--apagado);
+.mono { font-family: var(--mono); font-size: .72rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+.rotulo { color: var(--apagado); margin-bottom: 1.6rem; }
+.secao { padding: clamp(5rem, 13vw, 11rem) var(--lado); }
+
+.pular { position: absolute; left: var(--lado); top: -4rem; z-index: 60; padding: .6rem 1rem; background: var(--texto); color: var(--fundo); }
+.pular:focus { top: 1rem; }
+
+/* linha com máscara: o texto de dentro sobe de baixo (animado no app.js) */
+.linha { display: block; overflow: clip; padding-bottom: .04em; }
+.linha > span { display: inline-block; }
+
+/* palavra de destaque: verde no escuro, marca-texto no claro */
+.marca { color: var(--destaque); }
+[data-tema="claro"] .marca {
+  color: var(--texto);
+  background: linear-gradient(var(--limao), var(--limao)) no-repeat 0 82% / 100% 34%;
 }
 
-/* ---------- botões ---------- */
-.botao {
-  display: inline-flex;
-  align-items: center;
-  gap: .5em;
-  min-height: 48px;
-  padding: .7rem 1.3rem;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  font-weight: 800;
+/* sublinhado que corre da esquerda pra direita */
+.sublinha {
   text-decoration: none;
-  transition: background .2s, color .2s, transform .2s;
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1px;
+  transition: background-size .45s var(--curva);
+  padding-bottom: 2px;
 }
-.botao:hover { background: var(--texto); color: var(--fundo); }
-.botao--limao { background: var(--limao); border-color: var(--limao); color: var(--sobre-limao); }
-.botao--limao:hover { background: var(--texto); border-color: var(--texto); }
-.botao--grande { font-size: 1.15rem; padding: 1rem 2rem; }
-.botao--apagado { color: var(--apagado); border-style: dashed; font-weight: 600; }
-.botao--apagado:hover { background: none; color: var(--apagado); }
+.sublinha:hover, .sublinha:focus-visible { background-size: 100% 1px; }
 
-/* ---------- 1 · topo ---------- */
-.topo {
-  --sai: 0;
-  min-height: 100svh;
-  padding: 1.5rem var(--lado) 2rem;
+/* ---------- barra ---------- */
+.barra {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  position: relative;
+  align-items: center;
+  justify-content: space-between;
+  padding: .9rem var(--lado);
+  color: #fff;
+  mix-blend-mode: difference;   /* branco no escuro, preto no claro, invertido em cima de foto */
+  pointer-events: none;
 }
-.topo__lugar { position: absolute; top: 1.5rem; left: var(--lado); font-size: .75rem; letter-spacing: .18em; text-transform: uppercase; color: var(--apagado); }
-/* botão de trocar o fundo: rola junto com a página, de propósito. Se ficasse
-   position: fixed com cor, o Safari do iOS 26 pintaria as barras com ela. */
-.tema {
-  position: absolute;
-  top: 1.05rem;
-  right: var(--lado);
+.barra > * { pointer-events: auto; }
+.barra__marca { font: 800 1.35rem/1 var(--titulo); letter-spacing: -.05em; text-decoration: none; }
+.barra__lado { display: flex; align-items: center; gap: .6rem; }
+.barra__menu, .tema {
   display: inline-flex;
   align-items: center;
   gap: .45rem;
-  min-height: 40px;
-  padding: .4rem .9rem;
-  border: 1px solid var(--linha);
+  min-height: 44px;
+  padding: 0 .9rem;
+  border: 1px solid currentColor;
   border-radius: 999px;
   background: none;
-  color: var(--texto);
-  font: 600 .8rem var(--sem);
+  color: inherit;
+  font: 500 .72rem var(--mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
   cursor: pointer;
 }
-.tema:hover { border-color: var(--texto); }
-.tema__icone { width: .9rem; height: .9rem; border-radius: 50%; background: var(--texto); }
-/* no escuro mostra um sol (vai pro claro); no claro, uma lua (vai pro escuro) */
-[data-tema="claro"] .tema__icone { box-shadow: inset -.3rem -.1rem 0 0 var(--fundo); }
-body { transition: background-color .35s, color .35s; }
-.topo__nome {
-  font-size: clamp(4.2rem, 21vw, 15rem);
-  letter-spacing: -.035em;
-  line-height: .9;
-  transform: translateY(calc(var(--sai) * -12vh));
-  opacity: calc(1 - var(--sai) * .8);
+.barra__menu-sinal { display: inline-block; font-size: 1rem; line-height: 1; transition: transform .45s var(--curva); }
+.barra__menu[aria-expanded="true"] .barra__menu-sinal { transform: rotate(45deg); }
+.tema__icone {
+  width: .85rem; height: .85rem;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  background: linear-gradient(90deg, currentColor 50%, transparent 50%);
 }
-.linha { display: block; overflow: clip; padding-bottom: .06em; }
-.linha--limao { color: var(--limao); }
-.linha > span {
-  display: inline-block;
-  transform: translateY(105%);
-  animation: letra .9s cubic-bezier(.2, .8, .2, 1) forwards;
-  animation-delay: calc(150ms + var(--i) * 55ms);
-}
-@keyframes letra { to { transform: none; } }
 
-.topo__frase {
-  margin-top: 1.4rem;
-  max-width: 26ch;
-  font-size: clamp(1.1rem, 4.4vw, 1.5rem);
-  line-height: 1.35;
-  opacity: 0;
-  animation: aparece .8s .95s forwards;
+/* ---------- menu em tela cheia ---------- */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2.5rem;
+  padding: 6rem var(--lado) 2rem;
+  background: var(--texto);
+  color: var(--fundo);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path .7s cubic-bezier(.7, 0, .2, 1);
 }
-.topo__frase em { font-style: normal; color: var(--destaque); }
-.topo__rolar {
-  align-self: flex-start;
-  margin-top: 2.2rem;
-  font-size: .85rem;
-  color: var(--apagado);
-  text-decoration: none;
-  opacity: 0;
-  animation: aparece .8s 1.2s forwards;
-}
-.topo__rolar span { display: inline-block; animation: balanca 1.8s ease-in-out infinite; }
-@keyframes aparece { to { opacity: 1; } }
-@keyframes balanca { 50% { transform: translateY(5px); } }
-
-/* ---------- cabeça das seções ---------- */
-.cabeca { padding: 4rem var(--lado) 2rem; max-width: 46rem; }
-.cabeca h2 { margin-top: .8rem; font-size: clamp(2.5rem, 11vw, 5rem); letter-spacing: -.02em; }
-.cabeca__apoio { margin-top: 1.1rem; color: var(--apagado); max-width: 38ch; }
-
-/* ---------- 2 · modelos: três blocos abertos ----------
-   Sem caixa colorida e sem grudar na tela: o Pedro não gostou das cartas empilhando
-   (26/09). O único movimento aqui é o print descendo dentro do celular. */
-.vitrine { padding: 0 var(--lado) 1rem; }
-.modelo {
-  display: grid;
-  gap: 2rem;
-  padding: 3rem 0 3.5rem;
-  border-top: 1px solid var(--linha);
-}
-.modelo__num { font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; color: var(--apagado); }
-.modelo h3 { margin-top: .5rem; font-size: clamp(2.2rem, 10vw, 4rem); letter-spacing: -.02em; }
-.modelo__frase { margin-top: .8rem; font-size: 1.15rem; line-height: 1.4; max-width: 30ch; }
-.modelo__praquem { margin-top: .6rem; font-size: .92rem; color: var(--apagado); max-width: 34ch; }
-.modelo .botao { margin-top: 1.4rem; }
-/* a cor de cada modelo vira só um brilho atrás do celular */
-.modelo__palco { position: relative; display: grid; place-items: center; padding: 1.5rem 0; isolation: isolate; }
-.modelo__palco::before {
-  content: "";
-  position: absolute;
-  inset: 0;  /* não passar das bordas: com -10% a página ficava mais larga que o celular */
-  z-index: -1;
-  background: radial-gradient(closest-side, var(--cor), transparent);
-  opacity: .38;
-}
-.modelo .fone { width: min(240px, 64vw); }
-
-/* ---------- celular com o print rolando ---------- */
-.fone {
-  position: relative;
-  aspect-ratio: 9 / 19;
-  border: 7px solid #111;
-  border-radius: 2rem;
-  background: #111;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgb(0 0 0 / .45), inset 0 0 0 1px #333;
-}
-/* a descida do print é feita no app.js (Web Animations): o Safari não relê
-   var() dentro de @keyframes depois que a animação começa, e o print ficava parado */
-.fone img { width: 100%; height: auto; }
-.fone--vazio { display: grid; place-items: center; background: var(--fundo-2); border-style: solid; }
-.fone--vazio span { font-family: var(--titulo); font-size: 1.2rem; color: var(--apagado); }
-
-/* ---------- 3 · já entreguei ---------- */
-.grade { padding: 0 var(--lado); display: grid; gap: 1rem; }
-.sistema {
-  display: grid;
-  grid-template-columns: clamp(5rem, 24vw, 7.5rem) minmax(0, 1fr);
-  gap: 1.2rem;
-  align-items: center;
-  padding: 1.2rem;
-  border: 1px solid var(--linha);
-  border-radius: 1.25rem;
-  background: var(--fundo-2);
-}
-.sistema h3 { font-size: 1.5rem; overflow-wrap: break-word; }
-.sistema p { margin-top: .5rem; font-size: .93rem; color: var(--apagado); }
-.sistema .botao { margin-top: 1rem; min-height: 44px; padding: .5rem 1.1rem; font-size: .9rem; }
-.fone--menor { width: 100%; height: auto; flex: none; border-width: 5px; border-radius: 1.2rem; }
-.sistema--embreve { border-style: dashed; }
-
-/* surgir ao entrar na tela */
-.surgir { opacity: 0; transform: translateY(40px); transition: opacity .7s, transform .7s cubic-bezier(.2, .8, .2, 1); }
-.surgir.visivel { opacity: 1; transform: none; }
-
-/* ---------- 4 · como funciona ---------- */
-.passos { padding: 5rem var(--lado) 2rem; }
-.passos ol { list-style: none; margin: 1.2rem 0 0; padding: 0; }
-.passos li {
+.menu[hidden] { display: none; }
+.menu.aberto { clip-path: inset(0); }
+.menu__lista { list-style: none; padding: 0; }
+.menu__lista li { overflow: clip; border-top: 1px solid color-mix(in srgb, var(--fundo) 20%, transparent); }
+.menu__lista a {
   display: flex;
   align-items: baseline;
   gap: 1rem;
-  padding: 1.1rem 0;
-  border-bottom: 1px solid var(--linha);
-  font-family: var(--titulo);
-  font-weight: 600;
-  font-size: clamp(1.8rem, 8vw, 3.4rem);
-  line-height: 1.1;
+  padding: .3rem 0;
+  text-decoration: none;
+  transform: translateY(105%);
+  transition: transform .8s var(--curva);
 }
-.passos li:nth-child(2) { transition-delay: .1s; }
-.passos li:nth-child(3) { transition-delay: .2s; }
-.passos__n { color: var(--destaque); font-size: .6em; min-width: 1.2em; }
+.menu.aberto .menu__lista a { transform: none; }
+.menu.aberto li:nth-child(1) a { transition-delay: .25s; }
+.menu.aberto li:nth-child(2) a { transition-delay: .32s; }
+.menu.aberto li:nth-child(3) a { transition-delay: .39s; }
+.menu__palavra { font: 800 clamp(3.2rem, 15vw, 10rem)/.9 var(--titulo); letter-spacing: -.045em; text-transform: uppercase; transition: transform .45s var(--curva); }
+.menu__lista a:hover .menu__palavra { transform: translateX(.15em); }
+.menu__rodape { display: flex; flex-wrap: wrap; gap: 1rem 2rem; }
 
-/* ---------- 5 · fechamento ---------- */
-.fecho { padding: 5rem var(--lado) 6rem; }
-.fecho h2 { font-size: clamp(2.6rem, 12vw, 6rem); letter-spacing: -.02em; max-width: 12ch; margin-bottom: 2rem; }
+/* ---------- 1 · topo ---------- */
+.topo {
+  position: relative;
+  min-height: 100svh;
+  padding: 5.2rem var(--lado) 1.4rem;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: clip;
+}
+.topo__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1rem; color: var(--apagado); }
+.topo__palco { position: relative; align-self: end; margin-top: 3rem; }
+.topo__nome { font-size: min(20.5vw, 19rem); line-height: .8; letter-spacing: -.05em; margin-left: -.03em; }
+.topo__nome .linha { position: relative; }
+.topo__nome .linha--1 { z-index: 1; }
+.topo__nome .linha--2 { z-index: 3; }
+.topo__nome .linha > span {
+  transform: translateY(105%);
+  animation: letra 1s var(--curva) forwards;
+  animation-delay: calc(120ms + var(--i) * 45ms);
+}
+@keyframes letra { to { transform: none; } }
+.marca-nome { color: var(--destaque); width: fit-content; }
+[data-tema="claro"] .marca-nome {
+  color: var(--texto);
+  background: linear-gradient(var(--limao), var(--limao)) no-repeat 0 78% / 0 36%;
+  animation: marca-nome .8s var(--curva) .8s forwards;
+}
+@keyframes marca-nome { to { background-size: 100% 36%; } }
 
-.rodape { padding: 1.5rem var(--lado) 6rem; border-top: 1px solid var(--linha); font-size: .8rem; color: var(--apagado); }
+.fone.topo__fone {
+  position: absolute;
+  z-index: 2;
+  right: 5%;   /* no celular fica só encostando no "S": mais pra dentro, escondia o "O" do PEDRO */
+  bottom: 30%;
+  width: clamp(100px, 15vw, 230px);
+  rotate: 7deg;
+  opacity: 0;
+  animation: surge 1s var(--curva) .55s forwards;
+}
+@keyframes surge { from { opacity: 0; translate: 0 18%; } to { opacity: 1; translate: 0 0; } }
 
-/* ---------- botão fixo ---------- */
+.topo__baixo { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.2rem; margin-top: 1.6rem; }
+.topo__frase { font-size: clamp(1.05rem, 2.4vw, 1.45rem); line-height: 1.3; max-width: 26ch; }
+.topo__rolar { text-decoration: none; color: var(--apagado); }
+.topo__rolar span { display: inline-block; animation: balanca 1.8s ease-in-out infinite; }
+@keyframes balanca { 50% { transform: translateY(4px); } }
+
+/* ---------- faixa ---------- */
+.faixa { border-block: 1px solid var(--linha); overflow: clip; padding: 1rem 0; }
+.faixa__trilho { display: flex; width: max-content; animation: faixa 42s linear infinite; }
+.faixa__trilho span { padding-right: .5em; font: 800 clamp(1.7rem, 5.5vw, 3.6rem)/1 var(--titulo); letter-spacing: -.03em; text-transform: uppercase; white-space: nowrap; }
+.faixa__trilho span:nth-child(even) { color: transparent; -webkit-text-stroke: 1.2px var(--texto); }
+@keyframes faixa { to { transform: translateX(-50%); } }
+
+/* ---------- 2 · sobre ---------- */
+.sobre__titulo { font-size: clamp(3rem, 12.4vw, 11.5rem); }
+.sobre__lado { display: grid; gap: 1.6rem; max-width: 30rem; margin: 2.8rem 0 0 auto; }
+.sobre__lado p:first-child { font-size: clamp(1.05rem, 1.8vw, 1.3rem); line-height: 1.45; }
+.sobre__lado .mono { color: var(--apagado); line-height: 1.9; }
+
+/* ---------- 3 · trabalhos ---------- */
+.trabalhos__cabeca { padding-bottom: 2rem; }
+.gigante { font-size: clamp(2.4rem, 11.2vw, 14rem); }
+.linha--recuo { padding-left: 0; }
+
+.categoria { position: relative; padding: 3rem var(--lado) 2rem; background: var(--fundo); color: var(--texto); }
+.categoria__cabeca { display: grid; gap: 1.2rem; padding-top: 1.1rem; margin-bottom: 2.5rem; border-top: 1px solid var(--texto); }
+.categoria__nome { font-size: clamp(3.4rem, 13vw, 9.5rem); }
+.categoria__cabeca p { max-width: 38ch; color: var(--apagado); }
+.categoria__cabeca strong { color: var(--texto); font-weight: 600; }
+
+/* sistemas: cores invertidas em relação ao tema */
+.categoria--sistemas {
+  --fundo: #f3efe6; --fundo-2: #e6e2d9; --texto: #0e0e0e; --apagado: #69655d; --linha: #d6d2c8; --destaque: #3f5c00;
+  padding-top: 5rem;
+}
+[data-tema="claro"] .categoria--sistemas {
+  --fundo: #121212; --fundo-2: #1c1c1c; --texto: #f3efe6; --apagado: #a39f96; --linha: #2c2c2c; --destaque: var(--limao);
+}
+
+.projeto { display: grid; gap: 1.4rem; padding: 2rem 0 5rem; }
+.projeto__topo { display: flex; align-items: flex-end; gap: .9rem; }
+.projeto__num {
+  font: 800 clamp(4.2rem, 19vw, 13rem)/.78 var(--titulo);
+  letter-spacing: -.06em;
+  color: transparent;
+  -webkit-text-stroke: 1.4px var(--texto);
+}
+.projeto__nome { font-size: clamp(2.2rem, 9.6vw, 7rem); line-height: .84; }
+
+.projeto__midia { position: relative; display: block; margin-bottom: 1.6rem; text-decoration: none; }
+.projeto__tela {
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--fundo-2);
+  outline: 1px solid var(--linha);
+  transition: transform .5s var(--curva);
+}
+.projeto__tela img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.fone.projeto__fone {
+  position: absolute;
+  right: 4%;
+  bottom: -10%;
+  width: 26%;
+  rotate: 5deg;
+  transition: translate .5s var(--curva);
+}
+.projeto__tela--vazia { display: grid; place-content: center; justify-items: center; gap: .6rem; outline-style: dashed; }
+.projeto__tela--vazia .mono { color: var(--apagado); }
+.projeto__embreve { font: 800 clamp(2.4rem, 10vw, 6rem)/.9 var(--titulo); letter-spacing: -.04em; text-transform: uppercase; color: transparent; -webkit-text-stroke: 1.2px var(--texto); }
+
+.projeto__info { display: grid; gap: 1.2rem; }
+.projeto__info dl { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: .3rem 1.6rem; }
+.projeto__info dl > div { display: grid; gap: .25rem; }
+.projeto__info dt { color: var(--apagado); }
+.projeto__desc { font-size: clamp(1.05rem, 1.7vw, 1.3rem); line-height: 1.4; max-width: 30ch; }
+.link-seta { justify-self: start; font: 600 .95rem var(--sem); letter-spacing: .02em; text-transform: uppercase; }
+.link-seta--apagado { color: var(--apagado); border-bottom: 1px dashed var(--apagado); font: 500 .72rem var(--mono); }
+
+/* ---------- 4 · como funciona ---------- */
+.passos ol { list-style: none; padding: 0; display: grid; }
+.passos li { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: .2rem 1.2rem; padding: 1.4rem 0; border-top: 1px solid var(--linha); }
+.passos__n { grid-row: span 2; font: 800 clamp(4rem, 16vw, 9rem)/.8 var(--titulo); letter-spacing: -.06em; color: transparent; -webkit-text-stroke: 1.3px var(--texto); }
+.passos strong { font: 800 clamp(1.5rem, 5vw, 2.6rem)/1 var(--titulo); letter-spacing: -.03em; }
+.passos li .mono { color: var(--apagado); }
+
+/* ---------- 5 · contato ---------- */
+.contato { min-height: 88svh; display: flex; flex-direction: column; padding-bottom: 7rem; }
+.contato__titulo { font-size: clamp(3rem, 14vw, 13.5rem); }
+.contato__acao { margin: 2.6rem 0 4rem; }
+.botao-zap {
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+  min-height: 64px;
+  padding: 1.1rem 1.8rem;
+  border-radius: 6px;
+  background: var(--limao);
+  color: var(--sobre-limao);
+  font: 800 clamp(1rem, 2.6vw, 1.35rem)/1 var(--titulo);
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform .35s var(--curva), background-color .25s;
+}
+.botao-zap:hover { background: var(--texto); color: var(--fundo); }
+.contato__rodape {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .8rem 1rem;
+  margin-top: auto;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--linha);
+  color: var(--apagado);
+}
+.contato__rodape a { color: var(--texto); justify-self: start; }
+
+/* ---------- botão fixo do WhatsApp ---------- */
 .zap-fixo {
   position: fixed;
   left: 50%;
   bottom: max(1rem, env(safe-area-inset-bottom));
-  z-index: 10;
+  z-index: 30;
   color: var(--sobre-limao);
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
   transform: translate(-50%, 180%);
-  transition: transform .45s cubic-bezier(.2, .8, .2, 1);
+  transition: transform .45s var(--curva);
 }
 .zap-fixo.aparece { transform: translate(-50%, 0); }
 .zap-fixo__pilula {
@@ -246,59 +335,82 @@ body { transition: background-color .35s, color .35s; }
   padding: .85rem 1.4rem;
   border-radius: 999px;
   background: var(--limao);
-  box-shadow: 0 10px 30px rgb(0 0 0 / .5);
+  box-shadow: 0 10px 30px rgb(0 0 0 / .25);
 }
 
-/* ---------- tema claro: /?tema=claro (26/09, pra comparar) ----------
-   Verde-limão em cima de branco não se lê. Aqui ele deixa de ser cor de texto:
-   o "Freitas" e as palavras em destaque viram texto escuro com marca-texto verde. */
-:root[data-tema="claro"] {
-  --fundo: #fbfaf6;
-  --fundo-2: #f2efe8;
-  --texto: #121212;
-  --apagado: #69655d;
-  --linha: #e2ded5;
-  --destaque: #3f5c00;
+/* ---------- celular com o print rolando ---------- */
+.fone {
+  position: relative;
+  display: block;
+  aspect-ratio: 9 / 19;
+  border: 6px solid #111;
+  border-radius: 1.6rem;
+  background: #111;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--linha), 0 24px 50px rgb(0 0 0 / .28), inset 0 0 0 1px #333;
 }
-[data-tema="claro"] .linha--limao,
-[data-tema="claro"] .topo__frase em {
-  color: var(--texto);
-  width: fit-content;
-  background: linear-gradient(var(--limao), var(--limao)) no-repeat 0 88% / 0 38%;
-  animation: marca .7s cubic-bezier(.2, .8, .2, 1) .75s forwards;
-}
-[data-tema="claro"] .topo__frase em { background-position: 0 92%; background-size: 0 45%; animation-delay: 1.3s; }
-@keyframes marca { to { background-size: 100% 38%; } }
-[data-tema="claro"] .topo__frase em { animation-name: marca-frase; }
-@keyframes marca-frase { to { background-size: 100% 45%; } }
-[data-tema="claro"] .botao--limao:hover { color: var(--fundo); }
-[data-tema="claro"] .modelo__palco::before { opacity: .22; }
-[data-tema="claro"] .fone { box-shadow: 0 20px 45px rgb(0 0 0 / .2), inset 0 0 0 1px #333; }
-[data-tema="claro"] .zap-fixo__pilula { box-shadow: 0 10px 28px rgb(0 0 0 / .18); }
+/* a descida do print é feita no app.js (Web Animations).
+   O print fica position: absolute DE PROPÓSITO: no Safari, moldura posicionada por cima
+   ignorava o aspect-ratio e crescia até a altura do print inteiro (683px em vez de 194). */
+.fone img { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
 
-/* ---------- computador ---------- */
-@media (min-width: 900px) {
-  .topo { padding-bottom: 3.5rem; }
-  .vitrine, .grade, .cabeca, .passos, .fecho { max-width: 76rem; margin-inline: auto; }
-  .cabeca { padding-top: 7rem; }
-  .modelo { grid-template-columns: 1fr 1fr; align-items: center; gap: 4rem; padding: 5rem 0; }
-  .modelo:nth-child(even) .modelo__texto { order: 2; }
-  .modelo .fone { width: 270px; }
-  .modelo__frase { font-size: 1.35rem; }
-  .grade { grid-template-columns: repeat(3, 1fr); }
-  .sistema { grid-template-columns: 1fr; align-content: start; }
-  .sistema .fone--menor { width: 58%; justify-self: center; }
-  .passos ol { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
-  .passos li { flex-direction: column; gap: .5rem; border-bottom: 0; border-top: 1px solid var(--linha); }
+/* ---------- cursor próprio (só mouse; o app.js cria o elemento) ---------- */
+.cursor-proprio, .cursor-proprio a, .cursor-proprio button { cursor: none; }
+.cursor {
+  position: fixed;
+  left: 0; top: 0;
+  z-index: 100;
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  transition: width .35s var(--curva), height .35s var(--curva), margin .35s var(--curva), background-color .25s;
+}
+.cursor span { font: 500 0/1 var(--mono); letter-spacing: .06em; color: var(--sobre-limao); opacity: 0; transition: opacity .2s; }
+.cursor.ver { width: 104px; height: 104px; margin: -52px 0 0 -52px; background: var(--limao); mix-blend-mode: normal; }
+.cursor.ver span { font-size: .75rem; opacity: 1; }
+.cursor.botao { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
+
+/* ---------- tablet e computador ---------- */
+@media (min-width: 760px) {
+  .fone.topo__fone { right: 21%; bottom: 22%; }
+  .categoria__cabeca { grid-template-columns: 1fr 1fr; align-items: end; }
+  .categoria__cabeca p { justify-self: end; }
+  .passos ol { grid-template-columns: repeat(3, 1fr); gap: 0 2rem; }
+  .passos li { grid-template-columns: 1fr; align-content: start; gap: 1rem; }
+  .passos__n { grid-row: auto; }
+  .contato__rodape { grid-template-columns: repeat(4, auto); justify-content: space-between; }
+}
+
+@media (min-width: 1000px) {
+  .projeto {
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: 2rem;
+    row-gap: 1rem;
+    padding: 4rem 0 9rem;
+  }
+  .projeto__topo { grid-column: 1 / -1; }
+  .projeto__midia { grid-column: 1 / span 8; margin: 0; }
+  .projeto__info { grid-column: 9 / -1; align-self: end; padding-bottom: 1rem; }
+  /* projetos pares: tudo espelhado, pra não ficar a mesma coluna a página inteira */
+  .projeto:nth-of-type(even) .projeto__topo { justify-content: flex-end; text-align: right; }
+  .projeto:nth-of-type(even) .projeto__topo .projeto__num { order: 2; }
+  .projeto:nth-of-type(even) .projeto__midia { grid-column: 5 / -1; grid-row: 2; }
+  .projeto:nth-of-type(even) .projeto__info { grid-column: 1 / span 4; grid-row: 2; }
+  .projeto:nth-of-type(even) .fone.projeto__fone { right: auto; left: 4%; rotate: -5deg; }
+  .fone.projeto__fone { width: 21%; }
+  .projeto__info dl { grid-template-columns: 1fr; gap: .9rem; }
+  .sobre__lado { margin-right: 6vw; }
+  .linha--recuo { padding-left: 8vw; }
 }
 
 /* ---------- quem pediu menos movimento ---------- */
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .linha > span, .topo__frase, .topo__rolar, .topo__rolar span { animation: none; transform: none; opacity: 1; }
-  .topo__nome { transform: none; opacity: 1; }
-  [data-tema="claro"] .linha--limao { animation: none; background-size: 100% 38%; }
-  [data-tema="claro"] .topo__frase em { animation: none; background-size: 100% 45%; }
-  .surgir { opacity: 1; transform: none; transition: none; }
-  .zap-fixo { transition: none; }
+  .topo__nome .linha > span, .topo__fone, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }
+  [data-tema="claro"] .marca-nome { animation: none; background-size: 100% 36%; }
+  .menu, .menu__lista a, .zap-fixo, .projeto__tela, .projeto__fone, body { transition: none; }
 }

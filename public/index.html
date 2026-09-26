@@ -3,26 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pedro Freitas · Sites para empresas de Lorena e região</title>
-  <meta name="description" content="Sites que fazem o cliente chamar no WhatsApp. Veja os modelos e os sistemas que eu já entreguei.">
-  <meta name="theme-color" content="#0e0e0e">
+  <title>Pedro Freitas · Sites e sistemas para empresas de Lorena e região</title>
+  <meta name="description" content="Sites que fazem o cliente chamar no WhatsApp, e sistemas pra organizar o negócio. Veja os modelos e os sistemas que eu já fiz.">
+  <meta name="theme-color" content="#fbfaf6">
   <script>
-    // Tema: claro por padrão; a pessoa troca no botão do topo e o navegador dela lembra.
+    // Tema: claro por padrão; a pessoa troca no botão da barra e o navegador dela lembra.
     // /?tema=escuro ou /?tema=claro força um dos dois (bom pra mandar link).
-    // Roda antes do CSS pra não piscar o tema errado.
+    // Roda antes do CSS pra não piscar o tema errado. A classe "js" libera as animações.
     (function () {
+      var raiz = document.documentElement;
+      raiz.classList.add("js");
       var pedido = new URLSearchParams(location.search).get("tema");
       var salvo = null;
       try { salvo = localStorage.getItem("tema"); } catch (e) {}
       var tema = pedido === "escuro" || pedido === "claro" ? pedido : salvo === "escuro" ? "escuro" : "claro";
-      document.documentElement.dataset.tema = tema;
+      raiz.dataset.tema = tema;
       document.querySelector('meta[name="theme-color"]').content = tema === "claro" ? "#fbfaf6" : "#0e0e0e";
     })();
   </script>
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://pedrofreitasdev.vercel.app/">
-  <meta property="og:title" content="Pedro Freitas · Sites para empresas">
+  <meta property="og:title" content="Pedro Freitas · Sites e sistemas para empresas">
   <meta property="og:description" content="Sites que fazem o cliente chamar no WhatsApp. Lorena e região.">
   <meta property="og:image" content="https://pedrofreitasdev.vercel.app/og.jpg">
   <meta property="og:image:width" content="1200">
@@ -32,148 +34,269 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=JetBrains+Mono:wght@500&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/estilo.css">
+  <script src="vendor/gsap.min.js" defer></script>
+  <script src="vendor/ScrollTrigger.min.js" defer></script>
   <script src="js/app.js" defer></script>
 </head>
 <body>
 
-  <!-- 1 · TOPO -->
-  <header class="topo" id="topo">
-    <p class="topo__lugar">Lorena · SP</p>
-    <button class="tema" type="button" aria-label="Trocar fundo claro ou escuro">
-      <span class="tema__icone" aria-hidden="true"></span><span class="tema__texto"></span>
-    </button>
-    <h1 class="topo__nome" aria-label="Pedro Freitas">
-      <span class="linha" aria-hidden="true"><span style="--i:0">P</span><span style="--i:1">e</span><span style="--i:2">d</span><span style="--i:3">r</span><span style="--i:4">o</span></span>
-      <span class="linha linha--limao" aria-hidden="true"><span style="--i:5">F</span><span style="--i:6">r</span><span style="--i:7">e</span><span style="--i:8">i</span><span style="--i:9">t</span><span style="--i:10">a</span><span style="--i:11">s</span></span>
-    </h1>
-    <p class="topo__frase">Sites que fazem o cliente <em>chamar no WhatsApp</em>. Para empresas de Lorena e região.</p>
-    <a class="topo__rolar" href="#modelos">role <span aria-hidden="true">↓</span></a>
+  <a class="pular" href="#trabalhos">Pular para os trabalhos</a>
+
+  <!-- barra: sem fundo, de propósito (o Safari do iOS 26 pinta as barras com a cor de elemento fixo) -->
+  <header class="barra">
+    <a class="barra__marca" href="#topo" aria-label="Pedro Freitas, voltar ao topo">PF</a>
+    <div class="barra__lado">
+      <button class="tema" type="button" aria-label="Trocar fundo claro ou escuro">
+        <span class="tema__icone" aria-hidden="true"></span><span class="tema__texto">Escuro</span>
+      </button>
+      <button class="barra__menu" type="button" aria-expanded="false" aria-controls="menu">
+        <span class="barra__menu-texto">Menu</span> <span class="barra__menu-sinal" aria-hidden="true">+</span>
+      </button>
+    </div>
   </header>
+
+  <nav class="menu" id="menu" aria-label="Menu principal" hidden>
+    <ol class="menu__lista">
+      <li><a href="#trabalhos"><span class="mono">01</span><span class="menu__palavra">Trabalhos</span></a></li>
+      <li><a href="#sobre"><span class="mono">02</span><span class="menu__palavra">Sobre</span></a></li>
+      <li><a href="#contato"><span class="mono">03</span><span class="menu__palavra">Contato</span></a></li>
+    </ol>
+    <div class="menu__rodape mono">
+      <a class="sublinha" data-zap href="#" target="_blank" rel="noopener">WhatsApp ↗</a>
+      <a class="sublinha" href="https://github.com/pedrofreitaslucasdev" target="_blank" rel="noopener">GitHub ↗</a>
+      <span>Lorena — SP</span>
+    </div>
+  </nav>
 
   <main>
 
-    <!-- 2 · MODELOS -->
-    <section class="modelos" id="modelos" aria-labelledby="modelos-titulo">
-      <div class="cabeca">
-        <p class="rotulo">Modelos</p>
-        <h2 id="modelos-titulo">Escolha o jeito<br>do seu site.</h2>
-        <p class="cabeca__apoio">Três estilos prontos. Você escolhe um e ele ganha a cara, as fotos e o WhatsApp da sua empresa.</p>
+    <!-- 1 · TOPO -->
+    <section class="topo" id="topo" aria-label="Apresentação">
+      <div class="topo__meta mono">
+        <span>Desenvolvedor criativo</span>
+        <span>Lorena — SP</span>
+        <span>2026</span>
       </div>
 
-      <div class="vitrine">
-        <article class="modelo surgir" style="--cor:#c9481f">
-          <div class="modelo__texto">
-            <p class="modelo__num">Modelo 01 · Vídeo</p>
-            <h3>Forno de Pedra</h3>
-            <p class="modelo__frase">A pizza gira e assa enquanto a pessoa rola a tela.</p>
-            <p class="modelo__praquem">Para quem tem produto bonito de mostrar: restaurante, doceria, loja.</p>
-            <a class="botao" href="https://forno-de-pedra.vercel.app" target="_blank" rel="noopener">ver o site <span aria-hidden="true">→</span></a>
-          </div>
-          <div class="modelo__palco">
-            <div class="fone" aria-hidden="true">
-              <img src="prints/forno-de-pedra.webp" alt="" width="540" height="4529" decoding="async">
-            </div>
-          </div>
-        </article>
+      <div class="topo__palco">
+        <h1 class="topo__nome" aria-label="Pedro Freitas">
+          <span class="linha linha--1" aria-hidden="true"><span style="--i:0">P</span><span style="--i:1">E</span><span style="--i:2">D</span><span style="--i:3">R</span><span style="--i:4">O</span></span>
+          <span class="linha linha--2 marca-nome" aria-hidden="true"><span style="--i:5">F</span><span style="--i:6">R</span><span style="--i:7">E</span><span style="--i:8">I</span><span style="--i:9">T</span><span style="--i:10">A</span><span style="--i:11">S</span></span>
+        </h1>
+        <!-- o celular fica NA FRENTE do "PEDRO" e ATRÁS do "FREITAS" -->
+        <div class="topo__fone fone" aria-hidden="true">
+          <img src="prints/forno-de-pedra.webp" alt="" width="540" height="4529" decoding="async" fetchpriority="low">
+        </div>
+      </div>
 
-        <article class="modelo surgir" style="--cor:#2a8f8a">
-          <div class="modelo__texto">
-            <p class="modelo__num">Modelo 02 · Estático</p>
-            <h3>Fontes Odontologia</h3>
-            <p class="modelo__frase">Rápido, limpo e passa confiança logo de cara.</p>
-            <p class="modelo__praquem">Para quem vende confiança: consultório, escritório, prestador de serviço.</p>
-            <a class="botao" href="https://fontes-odontologia.vercel.app" target="_blank" rel="noopener">ver o site <span aria-hidden="true">→</span></a>
-          </div>
-          <div class="modelo__palco">
-            <div class="fone" aria-hidden="true">
-              <img src="prints/fontes-odontologia.webp" alt="" width="540" height="4000" loading="lazy" decoding="async">
-            </div>
-          </div>
-        </article>
-
-        <article class="modelo surgir" style="--cor:#e0701f">
-          <div class="modelo__texto">
-            <p class="modelo__num">Modelo 03 · Interativo</p>
-            <h3>Casa Forte</h3>
-            <p class="modelo__frase">O cliente monta a lista e o pedido chega pronto no WhatsApp.</p>
-            <p class="modelo__praquem">Para quem recebe pedido: depósito, loja de peças, encomenda.</p>
-            <a class="botao" href="https://deposito-casa-forte.vercel.app" target="_blank" rel="noopener">ver o site <span aria-hidden="true">→</span></a>
-          </div>
-          <div class="modelo__palco">
-            <div class="fone" aria-hidden="true">
-              <img src="prints/casa-forte.webp" alt="" width="540" height="4700" loading="lazy" decoding="async">
-            </div>
-          </div>
-        </article>
+      <div class="topo__baixo">
+        <p class="topo__frase">Sites, experiências digitais<br>e sistemas para negócios.</p>
+        <a class="topo__rolar mono" href="#sobre">Role para explorar <span aria-hidden="true">↓</span></a>
       </div>
     </section>
 
-    <!-- 3 · JÁ ENTREGUEI -->
-    <section class="entregues" aria-labelledby="entregues-titulo">
-      <div class="cabeca">
-        <p class="rotulo">Já entreguei</p>
-        <h2 id="entregues-titulo">Sistemas feitos<br>pra gente de verdade.</h2>
-        <p class="cabeca__apoio">Feitos para negócios de Lorena. Aqui é a versão de demonstração, com dados inventados: pode mexer à vontade.</p>
+    <!-- faixa correndo -->
+    <div class="faixa" aria-hidden="true">
+      <div class="faixa__trilho">
+        <span>Sites para empresas —</span><span>Sistemas sob medida —</span><span>Pedido pelo WhatsApp —</span><span>Lorena e região —</span>
+        <span>Sites para empresas —</span><span>Sistemas sob medida —</span><span>Pedido pelo WhatsApp —</span><span>Lorena e região —</span>
+      </div>
+    </div>
+
+    <!-- 2 · SOBRE -->
+    <section class="secao sobre" id="sobre" aria-labelledby="sobre-titulo">
+      <p class="rotulo mono">(01) Sobre</p>
+      <h2 class="sobre__titulo revela" id="sobre-titulo">
+        <span class="linha"><span>Faço sites</span></span>
+        <span class="linha"><span>que as pessoas</span></span>
+        <span class="linha"><span class="marca">lembram.</span></span>
+      </h2>
+      <div class="sobre__lado">
+        <p class="sobe">Crio sites rápidos, modernos e pensados pra transformar visita em conversa no WhatsApp. Para comércio, consultório, restaurante e quem mais tiver o que mostrar.</p>
+        <p class="mono sobe">HTML · CSS · JavaScript<br>Feito à mão, sem template<br>No ar pela Vercel</p>
+      </div>
+    </section>
+
+    <!-- 3 · TRABALHOS -->
+    <section class="trabalhos" id="trabalhos" aria-labelledby="trabalhos-titulo">
+      <div class="secao trabalhos__cabeca">
+        <p class="rotulo mono">(02) Trabalhos · 06 projetos</p>
+        <h2 class="gigante revela" id="trabalhos-titulo">
+          <span class="linha"><span>Trabalhos</span></span>
+          <span class="linha linha--recuo"><span>selecionados</span></span>
+        </h2>
       </div>
 
-      <div class="grade">
-        <article class="sistema surgir">
-          <div class="fone fone--menor" aria-hidden="true">
-            <img src="prints/demo-salao.webp" alt="" width="540" height="1632" loading="lazy" decoding="async">
+      <!-- SITES -->
+      <div class="categoria" id="sites">
+        <div class="categoria__cabeca">
+          <h3 class="categoria__nome revela"><span class="linha"><span>Sites</span></span></h3>
+          <p class="sobe">Experiências digitais pra apresentar empresas, produtos e serviços. Estes três são <strong>modelos prontos, com empresas fictícias</strong>: você escolhe um e ele ganha a cara, as fotos e o WhatsApp da sua.</p>
+        </div>
+
+        <article class="projeto">
+          <div class="projeto__topo">
+            <span class="projeto__num" aria-hidden="true">01</span>
+            <h4 class="projeto__nome revela"><span class="linha"><span>Forno</span></span><span class="linha"><span>de Pedra</span></span></h4>
           </div>
-          <div>
-            <h3>Salão de beleza</h3>
-            <p>Agenda, atendimentos e fiado. Mostra quem deve o quê, e cobra pelo WhatsApp com um toque.</p>
-            <a class="botao" href="https://demo-salao.vercel.app" target="_blank" rel="noopener">testar <span aria-hidden="true">→</span></a>
+          <a class="projeto__midia" href="https://forno-de-pedra.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Ver o site Forno de Pedra (abre em nova aba)">
+            <span class="projeto__tela"><img src="prints/forno-de-pedra-pc.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></span>
+            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/forno-de-pedra.webp" alt="" width="540" height="4529" loading="lazy" decoding="async"></span>
+          </a>
+          <div class="projeto__info">
+            <dl class="mono sobe">
+              <div><dt>Tipo</dt><dd>Site · modelo vídeo</dd></div>
+              <div><dt>Ano</dt><dd>2026</dd></div>
+              <div><dt>Pra quem</dt><dd>Restaurante, doceria, loja</dd></div>
+            </dl>
+            <p class="projeto__desc sobe">A pizza gira e assa enquanto a pessoa rola a tela.</p>
+            <a class="link-seta sublinha sobe" href="https://forno-de-pedra.vercel.app" target="_blank" rel="noopener">Ver projeto <span aria-hidden="true">↗</span></a>
           </div>
         </article>
 
-        <article class="sistema surgir">
-          <div class="fone fone--menor" aria-hidden="true">
-            <img src="prints/bolos.webp" alt="" width="540" height="2573" loading="lazy" decoding="async">
+        <article class="projeto">
+          <div class="projeto__topo">
+            <span class="projeto__num" aria-hidden="true">02</span>
+            <h4 class="projeto__nome revela"><span class="linha"><span>Fontes</span></span><span class="linha"><span>Odontologia</span></span></h4>
           </div>
-          <div>
-            <h3>Encomendas de bolo</h3>
-            <p>Encomendas com data de entrega, clientes e caixa. Mostra quanto falta receber de cada bolo.</p>
-            <a class="botao" href="https://demo-bolos.vercel.app" target="_blank" rel="noopener">testar <span aria-hidden="true">→</span></a>
+          <a class="projeto__midia" href="https://fontes-odontologia.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Ver o site Fontes Odontologia (abre em nova aba)">
+            <span class="projeto__tela"><img src="prints/fontes-odontologia-pc.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></span>
+            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/fontes-odontologia.webp" alt="" width="540" height="4000" loading="lazy" decoding="async"></span>
+          </a>
+          <div class="projeto__info">
+            <dl class="mono sobe">
+              <div><dt>Tipo</dt><dd>Site · modelo estático</dd></div>
+              <div><dt>Ano</dt><dd>2026</dd></div>
+              <div><dt>Pra quem</dt><dd>Consultório, escritório, serviço</dd></div>
+            </dl>
+            <p class="projeto__desc sobe">Rápido, limpo e passa confiança logo de cara.</p>
+            <a class="link-seta sublinha sobe" href="https://fontes-odontologia.vercel.app" target="_blank" rel="noopener">Ver projeto <span aria-hidden="true">↗</span></a>
           </div>
         </article>
 
-        <article class="sistema sistema--embreve surgir">
-          <div class="fone fone--menor fone--vazio" aria-hidden="true"><span>em breve</span></div>
-          <div>
-            <h3>Gráfica</h3>
-            <p>Quadro de pedidos do balcão: o que entrou, o que está sendo feito e o que já está pronto.</p>
-            <span class="botao botao--apagado">demonstração em breve</span>
+        <article class="projeto">
+          <div class="projeto__topo">
+            <span class="projeto__num" aria-hidden="true">03</span>
+            <h4 class="projeto__nome revela"><span class="linha"><span>Casa</span></span><span class="linha"><span>Forte</span></span></h4>
+          </div>
+          <a class="projeto__midia" href="https://deposito-casa-forte.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Ver o site Casa Forte (abre em nova aba)">
+            <span class="projeto__tela"><img src="prints/casa-forte-pc.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></span>
+            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/casa-forte.webp" alt="" width="540" height="4700" loading="lazy" decoding="async"></span>
+          </a>
+          <div class="projeto__info">
+            <dl class="mono sobe">
+              <div><dt>Tipo</dt><dd>Site · modelo interativo</dd></div>
+              <div><dt>Ano</dt><dd>2026</dd></div>
+              <div><dt>Pra quem</dt><dd>Depósito, loja de peças, encomenda</dd></div>
+            </dl>
+            <p class="projeto__desc sobe">O cliente monta a lista e o pedido chega pronto no WhatsApp.</p>
+            <a class="link-seta sublinha sobe" href="https://deposito-casa-forte.vercel.app" target="_blank" rel="noopener">Ver projeto <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+      </div>
+
+      <!-- SISTEMAS: cor invertida, abre por cima dos sites -->
+      <div class="categoria categoria--sistemas" id="sistemas">
+        <div class="categoria__cabeca">
+          <h3 class="categoria__nome revela"><span class="linha"><span>Sistemas</span></span></h3>
+          <p class="sobe">Ferramentas pra organizar e automatizar o dia a dia do negócio, feitas para negócios de Lorena. Aqui é a <strong>versão de demonstração, com dados inventados</strong>: pode mexer à vontade.</p>
+        </div>
+
+        <article class="projeto">
+          <div class="projeto__topo">
+            <span class="projeto__num" aria-hidden="true">04</span>
+            <h4 class="projeto__nome revela"><span class="linha"><span>Salão de</span></span><span class="linha"><span>beleza</span></span></h4>
+          </div>
+          <a class="projeto__midia" href="https://demo-salao.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Testar o sistema do salão de beleza (abre em nova aba)">
+            <span class="projeto__tela"><img src="prints/demo-salao-pc.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></span>
+            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/demo-salao.webp" alt="" width="540" height="1632" loading="lazy" decoding="async"></span>
+          </a>
+          <div class="projeto__info">
+            <dl class="mono sobe">
+              <div><dt>Tipo</dt><dd>Sistema · controle</dd></div>
+              <div><dt>Ano</dt><dd>2026</dd></div>
+              <div><dt>Faz</dt><dd>Agenda, atendimentos e fiado</dd></div>
+            </dl>
+            <p class="projeto__desc sobe">Mostra quem deve o quê, e cobra pelo WhatsApp com um toque.</p>
+            <a class="link-seta sublinha sobe" href="https://demo-salao.vercel.app" target="_blank" rel="noopener">Testar <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+
+        <article class="projeto">
+          <div class="projeto__topo">
+            <span class="projeto__num" aria-hidden="true">05</span>
+            <h4 class="projeto__nome revela"><span class="linha"><span>Encomendas</span></span><span class="linha"><span>de bolo</span></span></h4>
+          </div>
+          <a class="projeto__midia" href="https://demo-bolos.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Testar o sistema de encomendas de bolo (abre em nova aba)">
+            <span class="projeto__tela"><img src="prints/bolos-pc.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></span>
+            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/bolos.webp" alt="" width="540" height="2573" loading="lazy" decoding="async"></span>
+          </a>
+          <div class="projeto__info">
+            <dl class="mono sobe">
+              <div><dt>Tipo</dt><dd>Sistema · encomendas</dd></div>
+              <div><dt>Ano</dt><dd>2026</dd></div>
+              <div><dt>Faz</dt><dd>Entregas, clientes e caixa</dd></div>
+            </dl>
+            <p class="projeto__desc sobe">Mostra quanto falta receber de cada bolo e o que entrega hoje.</p>
+            <a class="link-seta sublinha sobe" href="https://demo-bolos.vercel.app" target="_blank" rel="noopener">Testar <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+
+        <article class="projeto projeto--embreve">
+          <div class="projeto__topo">
+            <span class="projeto__num" aria-hidden="true">06</span>
+            <h4 class="projeto__nome revela"><span class="linha"><span>Gráfica</span></span></h4>
+          </div>
+          <div class="projeto__midia">
+            <span class="projeto__tela projeto__tela--vazia"><span class="mono">Demonstração</span><span class="projeto__embreve">Em breve</span></span>
+          </div>
+          <div class="projeto__info">
+            <dl class="mono sobe">
+              <div><dt>Tipo</dt><dd>Sistema · balcão</dd></div>
+              <div><dt>Ano</dt><dd>2026</dd></div>
+              <div><dt>Faz</dt><dd>Quadro de pedidos</dd></div>
+            </dl>
+            <p class="projeto__desc sobe">O que entrou, o que está sendo feito e o que já está pronto.</p>
+            <span class="link-seta link-seta--apagado mono sobe">Demonstração em breve</span>
           </div>
         </article>
       </div>
     </section>
 
     <!-- 4 · COMO FUNCIONA -->
-    <section class="passos" aria-labelledby="passos-titulo">
-      <p class="rotulo" id="passos-titulo">Como funciona</p>
+    <section class="secao passos" aria-labelledby="passos-titulo">
+      <p class="rotulo mono" id="passos-titulo">(03) Como funciona</p>
       <ol>
-        <li class="surgir"><span class="passos__n">1</span> Você me chama.</li>
-        <li class="surgir"><span class="passos__n">2</span> Escolhe o modelo.</li>
-        <li class="surgir"><span class="passos__n">3</span> Seu site no ar.</li>
+        <li class="sobe"><span class="passos__n" aria-hidden="true">01</span><strong>Você me chama.</strong><span class="mono">Pelo WhatsApp</span></li>
+        <li class="sobe"><span class="passos__n" aria-hidden="true">02</span><strong>Escolhe o modelo.</strong><span class="mono">Ou me conta o que precisa</span></li>
+        <li class="sobe"><span class="passos__n" aria-hidden="true">03</span><strong>Seu site no ar.</strong><span class="mono">Pronto pra receber cliente</span></li>
       </ol>
     </section>
 
-    <!-- 5 · FECHAMENTO -->
-    <section class="fecho" id="fecho" aria-labelledby="fecho-titulo">
-      <h2 id="fecho-titulo">Bora colocar sua empresa na internet?</h2>
-      <a class="botao botao--limao botao--grande" data-zap href="#" target="_blank" rel="noopener">Chamar no WhatsApp</a>
+    <!-- 5 · CONTATO -->
+    <section class="secao contato" id="contato" aria-labelledby="contato-titulo">
+      <p class="rotulo mono">(04) Contato</p>
+      <h2 class="contato__titulo revela" id="contato-titulo">
+        <span class="linha"><span>Bora colocar</span></span>
+        <span class="linha"><span>sua empresa</span></span>
+        <span class="linha"><span class="marca">no ar?</span></span>
+      </h2>
+      <div class="contato__acao">
+        <a class="botao-zap magnetico" data-zap href="#" target="_blank" rel="noopener">Chamar no WhatsApp <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="contato__rodape mono">
+        <span>Pedro Freitas</span>
+        <span>Lorena — SP</span>
+        <a class="sublinha" href="https://github.com/pedrofreitaslucasdev" target="_blank" rel="noopener">GitHub ↗</a>
+        <span>© 2026</span>
+      </div>
     </section>
 
   </main>
 
-  <footer class="rodape">
-    <p>Pedro Freitas · Lorena, SP</p>
-  </footer>
-
+  <!-- botão fixo: o <a> fica sem cor; a cor mora na pílula de dentro (Safari do iOS 26) -->
   <a class="zap-fixo" data-zap href="#" target="_blank" rel="noopener" aria-label="Chamar o Pedro no WhatsApp">
     <span class="zap-fixo__pilula">
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>
