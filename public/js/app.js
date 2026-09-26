@@ -151,35 +151,22 @@ if (temMouse) {
   document.addEventListener("pointerenter", () => { cursor.style.opacity = "1"; });
 
   if (!semMovimento) {
-    // ímã: o botão anda um pouco na direção do mouse
+    // ímã leve: o botão anda um pouco na direção do mouse (o zoom da imagem e o celular
+    // subindo no hover dos projetos são só CSS)
     document.querySelectorAll(".magnetico, .barra__menu, .tema").forEach((el) => {
       el.addEventListener("pointermove", (e) => {
         const r = el.getBoundingClientRect();
         const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
-        el.style.transform = `translate(${dx * 0.22}px, ${dy * 0.32}px)`;
+        el.style.transform = `translate(${dx * 0.12}px, ${dy * 0.18}px)`;
       });
       el.addEventListener("pointerleave", () => { el.style.transform = ""; });
-    });
-
-    // imagem do projeto inclina de leve e o celular anda pro lado contrário
-    document.querySelectorAll(".projeto__midia[data-cursor]").forEach((midia) => {
-      const tela = midia.querySelector(".projeto__tela");
-      const fone = midia.querySelector(".projeto__fone");
-      midia.addEventListener("pointermove", (e) => {
-        const r = midia.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
-        tela.style.transform = `perspective(1200px) rotateY(${px * 5}deg) rotateX(${-py * 4}deg) scale(1.015)`;
-        if (fone) fone.style.translate = `${px * -22}px ${py * -18}px`;
-      });
-      midia.addEventListener("pointerleave", () => {
-        tela.style.transform = "";
-        if (fone) fone.style.translate = "";
-      });
     });
   }
 }
 
 // ---------- rolagem: GSAP + ScrollTrigger ----------
+// Regra do refino (26/09): o impacto fica nos projetos. O topo quase não se mexe, e nada
+// anda de lado só pra mostrar que anda.
 function animaRolagem() {
   gsap.registerPlugin(ScrollTrigger);
 
@@ -187,71 +174,61 @@ function animaRolagem() {
   document.querySelectorAll(".revela").forEach((bloco) => {
     if (bloco.getBoundingClientRect().top < innerHeight) return;   // já está na tela
     gsap.from(bloco.querySelectorAll(".linha > span"), {
-      yPercent: 110,
-      duration: 1.05,
+      yPercent: 105,
+      duration: 1.1,
       ease: "power4.out",
-      stagger: 0.08,
+      stagger: 0.07,
       scrollTrigger: { trigger: bloco, start: "top 88%", once: true },
     });
   });
 
-  // textos pequenos, fichas e passos: sobem juntos, em lotes
+  // textos pequenos, legendas e passos: sobem juntos, em lotes
   const abaixo = gsap.utils.toArray(".sobe").filter((el) => el.getBoundingClientRect().top > innerHeight);
-  gsap.set(abaixo, { y: 36, autoAlpha: 0 });
+  gsap.set(abaixo, { y: 22, autoAlpha: 0 });
   ScrollTrigger.batch(abaixo, {
     start: "top 92%",
     once: true,
-    onEnter: (lote) => gsap.to(lote, { y: 0, autoAlpha: 1, duration: 0.9, ease: "power3.out", stagger: 0.07, overwrite: true }),
+    onEnter: (lote) => gsap.to(lote, { y: 0, autoAlpha: 1, duration: 1, ease: "power3.out", stagger: 0.06, overwrite: true }),
   });
 
-  // projetos: a imagem abre de dentro pra fora e desinfla o zoom enquanto a pessoa rola
+  // projetos: a imagem entra como uma cortina subindo, e o celular chega logo depois
   document.querySelectorAll(".projeto__midia").forEach((midia) => {
+    if (midia.getBoundingClientRect().top < innerHeight) return;
     const tela = midia.querySelector(".projeto__tela");
-    const img = tela.querySelector("img");
-    const passo = { trigger: midia, start: "top 95%", end: "top 40%", scrub: 0.6 };
-    gsap.fromTo(tela, { clipPath: "inset(12% 8% 12% 8%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "none", scrollTrigger: passo });
-    if (img) gsap.fromTo(img, { scale: 1.22 }, { scale: 1, ease: "none", scrollTrigger: passo });
+    const fone = midia.querySelector(".projeto__fone");
+    const tl = gsap.timeline({ scrollTrigger: { trigger: midia, start: "top 85%", once: true } });
+    tl.fromTo(tela, { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.3, ease: "power4.inOut" });
+    if (fone) tl.from(fone, { yPercent: 18, autoAlpha: 0, duration: 1, ease: "power3.out" }, "-=0.45");
   });
 
   const mm = gsap.matchMedia();
-
-  // parallax: mais forte com tela grande, discreto no celular (e nada de efeito pesado lá)
   mm.add({ grande: "(min-width: 760px)", pequeno: "(max-width: 759px)" }, (ctx) => {
-    const forca = ctx.conditions.grande ? 1 : 0.45;
+    const forca = ctx.conditions.grande ? 1 : 0.5;
 
-    // topo: as duas palavras se afastam e o celular sobe girando
+    // topo: quase nada. O nome só sobe um pouco mais devagar que a página
     const topo = { trigger: ".topo", start: "top top", end: "bottom top", scrub: true };
-    gsap.to(".topo__nome .linha--1", { xPercent: -7 * forca, ease: "none", scrollTrigger: topo });
-    gsap.to(".topo__nome .linha--2", { xPercent: 7 * forca, ease: "none", scrollTrigger: topo });
-    gsap.to(".topo__fone", { yPercent: -45 * forca, rotate: 9, ease: "none", scrollTrigger: topo });
+    gsap.to(".topo__palco", { y: -36 * forca, ease: "none", scrollTrigger: topo });
 
-    // títulos gigantes andam de lado bem devagar
-    gsap.utils.toArray(".gigante .linha, .sobre__titulo .linha").forEach((linha, i) => {
-      gsap.fromTo(linha, { xPercent: (i % 2 ? -4 : 4) * forca }, {
-        xPercent: (i % 2 ? 4 : -4) * forca, ease: "none",
-        scrollTrigger: { trigger: linha, start: "top bottom", end: "bottom top", scrub: true },
-      });
-    });
-
-    // número do projeto e celular em velocidades diferentes da imagem
-    document.querySelectorAll(".projeto").forEach((projeto) => {
-      const faixa = { trigger: projeto, start: "top bottom", end: "bottom top", scrub: true };
-      gsap.fromTo(projeto.querySelector(".projeto__num"), { yPercent: 18 * forca }, { yPercent: -18 * forca, ease: "none", scrollTrigger: faixa });
-      const fone = projeto.querySelector(".projeto__fone");
-      if (fone) gsap.fromTo(fone, { y: 90 * forca }, { y: -90 * forca, ease: "none", scrollTrigger: faixa });
+    // projetos: dentro da moldura a imagem desliza devagar; o celular vai um pouco mais rápido
+    document.querySelectorAll(".projeto__midia").forEach((midia) => {
+      const passagem = { trigger: midia, start: "top bottom", end: "bottom top", scrub: true };
+      const img = midia.querySelector(".projeto__tela img");
+      if (img) gsap.fromTo(img, { yPercent: -12 }, { yPercent: 0, ease: "none", scrollTrigger: passagem });
+      const fone = midia.querySelector(".projeto__fone");
+      if (fone) gsap.fromTo(fone, { y: 36 * forca }, { y: -36 * forca, ease: "none", scrollTrigger: passagem });
     });
   });
 
   // SITES -> SISTEMAS: o bloco invertido abre por cima, das bordas pra tela toda
   gsap.fromTo(".categoria--sistemas",
-    { clipPath: "inset(0% 5% 0% 5% round 28px)" },
+    { clipPath: "inset(0% 3% 0% 3% round 16px)" },
     { clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "none",
-      scrollTrigger: { trigger: ".categoria--sistemas", start: "top bottom", end: "top 25%", scrub: true } });
+      scrollTrigger: { trigger: ".categoria--sistemas", start: "top bottom", end: "top 30%", scrub: true } });
 
-  // números dos passos
-  gsap.from(".passos__n", {
-    yPercent: 60, autoAlpha: 0, duration: 1, ease: "power3.out", stagger: 0.12,
-    scrollTrigger: { trigger: ".passos", start: "top 80%", once: true },
+  // números do "como funciona" entram um pouco depois do texto
+  gsap.utils.toArray(".passo__n").forEach((n) => {
+    if (n.getBoundingClientRect().top < innerHeight) return;
+    gsap.from(n, { yPercent: 40, autoAlpha: 0, duration: 1.1, ease: "power3.out", scrollTrigger: { trigger: n, start: "top 90%", once: true } });
   });
 
   // as imagens lazy mudam a altura da página quando chegam: recalcula as posições

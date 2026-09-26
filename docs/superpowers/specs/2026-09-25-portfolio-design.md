@@ -151,3 +151,16 @@ fontes servidas do próprio site com preload (o CSS do Google travava 0,85s); GS
 rolagem/toque ou 3,5s depois; print de 300px pros celulares via srcset (decodificar 540×3600 travava);
 e dois "pulos" do topo quando a fonte chegava (FREITAS quebrando linha; "Role para explorar" mudando
 de lugar). Computador: 100.
+
+## Refino de 26/09/2026 (segunda etapa, mesma estrutura)
+
+Pedido do Pedro: menos espetáculo no nome, mais qualidade na apresentação dos projetos.
+- Topo: tamanho do nome mantido; saíram as palavras se afastando e o celular girando. Só um
+  deslocamento mínimo pra cima na rolagem.
+- Projetos viraram peças editoriais: linha de índice (01 / 06 · tipo · ano), imagem em 9 de 12
+  colunas com legenda "Fig.", nome e texto na coluna ao lado. Saiu o número vazado gigante.
+  A imagem entra como cortina subindo e desliza dentro da moldura (parallax); hover = zoom
+  leve + celular subindo (só CSS).
+- Títulos de seção ~40% menores; faixa menor e mais lenta; botões com canto de 4px.
+- Como funciona: título curto + índice numerado. Contato: título moderado, texto curto,
+  WhatsApp como botão principal, "Voltar ao topo" no rodapé.
