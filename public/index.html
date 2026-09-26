@@ -6,6 +6,13 @@
   <title>Pedro Freitas · Sites para empresas de Lorena e região</title>
   <meta name="description" content="Sites que fazem o cliente chamar no WhatsApp. Veja os modelos e os sistemas que eu já entreguei.">
   <meta name="theme-color" content="#0e0e0e">
+  <script>
+    // tema claro pra comparar: /?tema=claro. Roda antes do CSS pra não piscar escuro.
+    if (new URLSearchParams(location.search).get("tema") === "claro") {
+      document.documentElement.dataset.tema = "claro";
+      document.querySelector('meta[name="theme-color"]').content = "#fbfaf6";
+    }
+  </script>
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://pedrofreitasdev.vercel.app/">
