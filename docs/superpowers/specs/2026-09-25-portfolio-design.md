@@ -228,3 +228,15 @@ Pedido do Pedro: a divisão entre sites e sistemas estava rasa.
   de um sistema." — a primeira apaga (GSAP scrub) enquanto a segunda chega.
 - "02 SISTEMAS" no fundo invertido, com composição técnica diferente dos sites: recorte 4:3 da interface com o
   celular por cima + ficha (S—01, nome, Faz / Tipo / Acesso). Não alterna lado; a tela abre da esquerda.
+
+## Sites que já criei (26/09/2026)
+
+Seção nova entre os estilos e a virada: "SITES / QUE JÁ / CRIEI." + "Além dos exemplos, estes são sites que já
+desenvolvi para projetos reais." Três trabalhos reais, só com o que existe nos sites no ar:
+- 01 Toys Kids · Site · Catálogo · pedrofreitaslucasdev.github.io/sitemamae
+- 02 Fiorella Promos · Site · Landing page · fiorella-promos.vercel.app
+- 03 Banquinhos do Ezequias · Site · Vendas · EM ANDAMENTO: o site no ar ainda tem a tarja de pendência e
+  fotos de exemplo; decisão do Pedro foi mostrar marcado "Em andamento — fotos reais chegando", SEM link.
+  Quando as fotos reais entrarem e a tarja sair, pôr o link e tirar o "em andamento".
+Print na largura toda (16:9) com o celular por cima; a tarja #pendencias do Banquinhos é removida só no print.
+A transição pros sistemas é a virada que já existia. Sistemas: sem mudança.

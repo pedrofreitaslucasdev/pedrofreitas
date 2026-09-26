@@ -353,7 +353,29 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 }
 .capitulo__nota strong { display: block; margin-bottom: .3rem; color: var(--texto); font-weight: 600; }
 
-/* imagem do site com o celular por cima (usada pelos estilos) */
+/* ---------- sites que já criei: trabalhos reais, print na largura toda ----------
+   Mesma família dos estilos (número vazado, máscara, cortina), mas mais largo e sem
+   alternar: aqui o que importa é ver o site de verdade, grande. */
+.reais { padding: 0 var(--lado) clamp(2rem, 6vw, 4rem); }
+.reais__abre { display: grid; gap: 1.6rem; padding: clamp(5rem, 12vw, 10rem) 0 clamp(2rem, 6vw, 4rem); border-top: 1px solid var(--linha); }
+.reais__titulo { font-size: clamp(3rem, 13vw, 10rem); letter-spacing: -.05em; }
+.reais__intro { max-width: 30ch; font-size: clamp(1.1rem, 2vw, 1.5rem); line-height: 1.35; }
+.real { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.6rem; padding: clamp(3rem, 8vw, 6rem) 0 clamp(4rem, 9vw, 7rem); }
+.real__cabeca { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .4rem 1rem; }
+.real__num {
+  font: 800 clamp(3rem, 13vw, 7rem)/.78 var(--titulo);
+  letter-spacing: -.06em;
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--texto);
+}
+.real__nome { min-width: 0; font-size: clamp(1.9rem, 7vw, 5.2rem); letter-spacing: -.04em; }
+.real__tag { flex-basis: 100%; color: var(--apagado); }
+.real .projeto__tela { aspect-ratio: 16 / 9; }
+.real__rodape { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-top: 1.4rem; }
+.real__desc { max-width: 46ch; font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.45; }
+.real__status { color: var(--apagado); border-bottom: 1px dashed var(--apagado); }
+
+/* imagem do site com o celular por cima (usada pelos estilos e pelos sites reais) */
 .projeto__midia { position: relative; display: block; text-decoration: none; }
 .projeto__tela {
   display: block;
@@ -571,6 +593,12 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   .estilo:nth-of-type(even) .estilo__exemplo { grid-column: 1 / span 3; grid-row: 2; }
   .estilo:nth-of-type(even) .fone.projeto__fone { right: auto; left: 5%; rotate: -4deg; }
   .fone.projeto__fone { width: 19%; }
+  /* sites reais: título à esquerda, introdução à direita; print na largura toda */
+  .reais__abre { grid-template-columns: 7fr 4fr; align-items: end; column-gap: 4rem; }
+  .reais__intro { justify-self: end; }
+  .real .projeto__midia { grid-column: 1 / -1; grid-row: auto; }
+  .real__tag { flex-basis: auto; margin-left: auto; padding-bottom: .6rem; }
+  .real .fone.projeto__fone { width: 15%; right: 4%; }
   .capitulo__nota { margin-left: auto; }
   /* sistema: tela à esquerda (7 colunas), ficha à direita; todos iguais, sem alternar */
   .sistema { grid-template-columns: repeat(12, 1fr); column-gap: 2rem; padding: 4rem 0 7rem; }

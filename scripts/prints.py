@@ -17,7 +17,19 @@ SITES = {
     "casa-forte": ("https://deposito-casa-forte.vercel.app", 3600),
     "demo-salao": ("https://demo-salao.vercel.app", 4700),
     "bolos": ("https://demo-bolos.vercel.app", 4700),
+    # sites reais ("Sites que já criei")
+    "toyskids": ("https://pedrofreitaslucasdev.github.io/sitemamae/", 3600),
+    "fiorella": ("https://fiorella-promos.vercel.app", 3600),
+    # o Banquinhos ainda está em andamento: a tarja de pendência não entra no print
+    "banquinhos": ("https://banquinhos.vercel.app", 3600),
 }
+# elementos escondidos antes do print (só o que é aviso de obra, nunca conteúdo)
+ESCONDER = {"banquinhos": ["#pendencias"]}
+
+# rodar só alguns: python scripts/prints.py toyskids fiorella
+import sys
+if len(sys.argv) > 1:
+    SITES = {k: v for k, v in SITES.items() if k in sys.argv[1:]}
 
 LARGURA = 390          # celular comum, em pixel de CSS
 SAIDA = Path(__file__).resolve().parent.parent / "public" / "prints"
@@ -70,6 +82,8 @@ def main():
                               device_scale_factor=2, is_mobile=True, has_touch=True)
             pg.goto(url, wait_until="networkidle")
             pg.wait_for_timeout(1500)  # as demos carregam os dados de mentira depois
+            for sel in ESCONDER.get(nome, []):
+                pg.evaluate(f"document.querySelectorAll('{sel}').forEach(e => e.remove())")
             rolar_ate_o_fim(pg)
             png = pg.screenshot(full_page=True)
             img = Image.open(BytesIO(png)).convert("RGB")
@@ -92,6 +106,9 @@ def main():
             pg = nav.new_page(viewport={"width": 1440, "height": 900}, device_scale_factor=1)
             pg.goto(url, wait_until="networkidle")
             pg.wait_for_timeout(2000)
+            for sel in ESCONDER.get(nome, []):
+                pg.evaluate(f"document.querySelectorAll('{sel}').forEach(e => e.remove())")
+            pg.wait_for_timeout(300)
             img = Image.open(BytesIO(pg.screenshot())).convert("RGB")
             img = img.resize((1280, 800), Image.LANCZOS)
             destino = SAIDA / f"{nome}-pc.webp"
