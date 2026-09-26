@@ -199,3 +199,8 @@ como o Pedro passou; NÃO escrever "procuram o site") → "Se sua empresa não t
 O antigo "Faço sites que as pessoas lembram" (sobre mim) saiu; o id "sobre" ficou no dado pro menu funcionar.
 ATENÇÃO: não achei esse "8 em cada 10" na página da BrightLocal que consegui abrir (ela traz "97% dos
 consumidores leem avaliações de negócios locais"). O Pedro precisa confirmar o número.
+
+Lapidação de 26/09/2026 (só texto): o dado virou "consumidores pesquisam negócios locais na internet."
+(Fonte: BrightLocal, 2026); "Se sua empresa não tem um site, outra pode ter." virou "Enquanto seu / cliente
+pesquisa, / ele também / compara." (4 linhas: em 3, "ENQUANTO SEU CLIENTE" vazava no celular); textos em volta
+encurtados pra não repetir "comparar". "Seu site precisa fazer esse trabalho por você." ficou intacta.
