@@ -8,7 +8,7 @@
   --apagado: #a39f96;
   --linha: #2c2c2c;
   --limao: #d4ff3a;
-  --serifa: "Fraunces", Georgia, serif;
+  --titulo: "Bricolage Grotesque", system-ui, sans-serif;
   --sem: "Manrope", system-ui, sans-serif;
   --lado: clamp(1rem, 5vw, 3rem);
 }
@@ -24,7 +24,7 @@ body {
   overflow-x: clip;
 }
 img { display: block; max-width: 100%; }
-h1, h2, h3 { margin: 0; font-family: var(--serifa); font-weight: 800; line-height: 1; }
+h1, h2, h3 { margin: 0; font-family: var(--titulo); font-weight: 800; line-height: 1; }
 p { margin: 0; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--limao); outline-offset: 3px; }
@@ -131,7 +131,7 @@ a { color: inherit; }
 .modelo__palco::before {
   content: "";
   position: absolute;
-  inset: 0 -10%;
+  inset: 0;  /* não passar das bordas: com -10% a página ficava mais larga que o celular */
   z-index: -1;
   background: radial-gradient(closest-side, var(--cor), transparent);
   opacity: .38;
@@ -152,13 +152,13 @@ a { color: inherit; }
    var() dentro de @keyframes depois que a animação começa, e o print ficava parado */
 .fone img { width: 100%; height: auto; }
 .fone--vazio { display: grid; place-items: center; background: var(--fundo-2); border-style: solid; }
-.fone--vazio span { font-family: var(--serifa); font-size: 1.2rem; color: var(--apagado); }
+.fone--vazio span { font-family: var(--titulo); font-size: 1.2rem; color: var(--apagado); }
 
 /* ---------- 3 · já entreguei ---------- */
 .grade { padding: 0 var(--lado); display: grid; gap: 1rem; }
 .sistema {
   display: grid;
-  grid-template-columns: 7.5rem 1fr;
+  grid-template-columns: clamp(5rem, 24vw, 7.5rem) minmax(0, 1fr);
   gap: 1.2rem;
   align-items: center;
   padding: 1.2rem;
@@ -166,7 +166,7 @@ a { color: inherit; }
   border-radius: 1.25rem;
   background: var(--fundo-2);
 }
-.sistema h3 { font-size: 1.5rem; }
+.sistema h3 { font-size: 1.5rem; overflow-wrap: break-word; }
 .sistema p { margin-top: .5rem; font-size: .93rem; color: var(--apagado); }
 .sistema .botao { margin-top: 1rem; min-height: 44px; padding: .5rem 1.1rem; font-size: .9rem; }
 .fone--menor { width: 100%; height: auto; flex: none; border-width: 5px; border-radius: 1.2rem; }
@@ -185,7 +185,7 @@ a { color: inherit; }
   gap: 1rem;
   padding: 1.1rem 0;
   border-bottom: 1px solid var(--linha);
-  font-family: var(--serifa);
+  font-family: var(--titulo);
   font-weight: 600;
   font-size: clamp(1.8rem, 8vw, 3.4rem);
   line-height: 1.1;
