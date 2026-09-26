@@ -1,7 +1,9 @@
 // Pedro Freitas · portfólio
 // Sem JavaScript a página continua inteira e os links funcionam: tudo aqui é por cima.
-// As animações de rolagem usam GSAP + ScrollTrigger (em /vendor, sem CDN). Se eles não
-// carregarem, nada fica escondido: os estados iniciais só são aplicados pelo próprio GSAP.
+// As animações de rolagem usam GSAP + ScrollTrigger (em /vendor, sem CDN), buscados só
+// DEPOIS que a página carregou: no celular eles ocupavam ~1,6s de processador bem na hora
+// da primeira pintura. O topo não depende deles (a entrada é em CSS). Se não carregarem,
+// nada fica escondido: os estados iniciais só são aplicados pelo próprio GSAP.
 
 const CONFIG = {
   numero: "5512991703098",
@@ -178,11 +180,12 @@ if (temMouse) {
 }
 
 // ---------- rolagem: GSAP + ScrollTrigger ----------
-if (!semMovimento && window.gsap && window.ScrollTrigger) {
+function animaRolagem() {
   gsap.registerPlugin(ScrollTrigger);
 
   // títulos: cada linha sobe de trás da máscara quando o bloco entra na tela
   document.querySelectorAll(".revela").forEach((bloco) => {
+    if (bloco.getBoundingClientRect().top < innerHeight) return;   // já está na tela
     gsap.from(bloco.querySelectorAll(".linha > span"), {
       yPercent: 110,
       duration: 1.05,
@@ -193,8 +196,9 @@ if (!semMovimento && window.gsap && window.ScrollTrigger) {
   });
 
   // textos pequenos, fichas e passos: sobem juntos, em lotes
-  gsap.set(".sobe", { y: 36, autoAlpha: 0 });
-  ScrollTrigger.batch(".sobe", {
+  const abaixo = gsap.utils.toArray(".sobe").filter((el) => el.getBoundingClientRect().top > innerHeight);
+  gsap.set(abaixo, { y: 36, autoAlpha: 0 });
+  ScrollTrigger.batch(abaixo, {
     start: "top 92%",
     once: true,
     onEnter: (lote) => gsap.to(lote, { y: 0, autoAlpha: 1, duration: 0.9, ease: "power3.out", stagger: 0.07, overwrite: true }),
@@ -251,5 +255,24 @@ if (!semMovimento && window.gsap && window.ScrollTrigger) {
   });
 
   // as imagens lazy mudam a altura da página quando chegam: recalcula as posições
-  addEventListener("load", () => ScrollTrigger.refresh());
+  document.querySelectorAll("img[loading=lazy]").forEach((img) => {
+    if (!img.complete) img.addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
+  });
+}
+
+function carrega(src) {
+  return new Promise((ok, erro) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = ok; s.onerror = erro;
+    document.head.append(s);
+  });
+}
+
+if (!semMovimento) {
+  const depois = () => (window.requestIdleCallback ? requestIdleCallback(comeca, { timeout: 1500 }) : setTimeout(comeca, 200));
+  const comeca = () => carrega("vendor/gsap.min.js")
+    .then(() => carrega("vendor/ScrollTrigger.min.js"))
+    .then(animaRolagem)
+    .catch(() => { /* sem GSAP a página só fica sem as animações de rolagem */ });
+  document.readyState === "complete" ? depois() : addEventListener("load", depois, { once: true });
 }

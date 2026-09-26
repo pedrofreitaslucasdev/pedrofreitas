@@ -32,12 +32,9 @@
   <meta property="og:locale" content="pt_BR">
 
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=JetBrains+Mono:wght@500&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="preload" href="fontes/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fontes/manrope.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/estilo.css">
-  <script src="vendor/gsap.min.js" defer></script>
-  <script src="vendor/ScrollTrigger.min.js" defer></script>
   <script src="js/app.js" defer></script>
 </head>
 <body>
@@ -46,7 +43,7 @@
 
   <!-- barra: sem fundo, de propósito (o Safari do iOS 26 pinta as barras com a cor de elemento fixo) -->
   <header class="barra">
-    <a class="barra__marca" href="#topo" aria-label="Pedro Freitas, voltar ao topo">PF</a>
+    <a class="barra__marca" href="#topo" aria-label="PF, Pedro Freitas: voltar ao topo">PF</a>
     <div class="barra__lado">
       <button class="tema" type="button" aria-label="Trocar fundo claro ou escuro">
         <span class="tema__icone" aria-hidden="true"></span><span class="tema__texto">Escuro</span>
@@ -87,7 +84,7 @@
         </h1>
         <!-- o celular fica NA FRENTE do "PEDRO" e ATRÁS do "FREITAS" -->
         <div class="topo__fone fone" aria-hidden="true">
-          <img src="prints/forno-de-pedra.webp" alt="" width="540" height="4529" decoding="async" fetchpriority="low">
+          <img src="prints/forno-de-pedra.webp" alt="" width="540" height="3600" decoding="async" fetchpriority="low">
         </div>
       </div>
 
@@ -143,7 +140,7 @@
           </div>
           <a class="projeto__midia" href="https://forno-de-pedra.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Ver o site Forno de Pedra (abre em nova aba)">
             <span class="projeto__tela"><img src="prints/forno-de-pedra-pc.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></span>
-            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/forno-de-pedra.webp" alt="" width="540" height="4529" loading="lazy" decoding="async"></span>
+            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/forno-de-pedra.webp" alt="" width="540" height="3600" loading="lazy" decoding="async"></span>
           </a>
           <div class="projeto__info">
             <dl class="mono sobe">
@@ -163,7 +160,7 @@
           </div>
           <a class="projeto__midia" href="https://fontes-odontologia.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Ver o site Fontes Odontologia (abre em nova aba)">
             <span class="projeto__tela"><img src="prints/fontes-odontologia-pc.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></span>
-            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/fontes-odontologia.webp" alt="" width="540" height="4000" loading="lazy" decoding="async"></span>
+            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/fontes-odontologia.webp" alt="" width="540" height="3600" loading="lazy" decoding="async"></span>
           </a>
           <div class="projeto__info">
             <dl class="mono sobe">
@@ -183,7 +180,7 @@
           </div>
           <a class="projeto__midia" href="https://deposito-casa-forte.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Ver o site Casa Forte (abre em nova aba)">
             <span class="projeto__tela"><img src="prints/casa-forte-pc.webp" alt="" width="1280" height="800" loading="lazy" decoding="async"></span>
-            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/casa-forte.webp" alt="" width="540" height="4700" loading="lazy" decoding="async"></span>
+            <span class="projeto__fone fone" aria-hidden="true"><img src="prints/casa-forte.webp" alt="" width="540" height="3600" loading="lazy" decoding="async"></span>
           </a>
           <div class="projeto__info">
             <dl class="mono sobe">

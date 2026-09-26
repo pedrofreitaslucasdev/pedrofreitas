@@ -8,6 +8,12 @@
    2. Nada passa da largura da tela (nem brilho, nem celular inclinado): a página balança.
    3. A altura dos prints é calculada pela proporção no app.js, não medida (Safari mede 0). */
 
+/* fontes servidas do próprio site (licença OFL), só o conjunto latin, que cobre o português.
+   Vinham do Google Fonts e travavam a primeira pintura por ~0,85s no celular. */
+@font-face { font-family: "Bricolage Grotesque"; font-weight: 800; font-display: swap; src: url("../fontes/bricolage.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Manrope"; font-weight: 400 800; font-display: swap; src: url("../fontes/manrope.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "JetBrains Mono"; font-weight: 500; font-display: swap; src: url("../fontes/jetbrains-mono.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
 :root {
   --fundo: #0e0e0e;
   --fundo-2: #171717;
@@ -47,6 +53,9 @@ body {
   transition: background-color .35s, color .35s;
 }
 img { display: block; max-width: 100%; }
+/* trava geral: enquanto a fonte não chega, a reserva do sistema é mais larga e um título
+   gigante vazava 25px; clip não cria barra de rolagem nem atrapalha o sticky */
+main { overflow-x: clip; }
 h1, h2, h3, h4 { margin: 0; font-family: var(--titulo); font-weight: 800; line-height: .86; letter-spacing: -.04em; text-transform: uppercase; }
 p, dl, dd, ol { margin: 0; }
 a { color: inherit; }
@@ -238,12 +247,12 @@ a { color: inherit; }
 .projeto { display: grid; gap: 1.4rem; padding: 2rem 0 5rem; }
 .projeto__topo { display: flex; align-items: flex-end; gap: .9rem; }
 .projeto__num {
-  font: 800 clamp(4.2rem, 19vw, 13rem)/.78 var(--titulo);
+  font: 800 clamp(3.4rem, 16vw, 13rem)/.78 var(--titulo);
   letter-spacing: -.06em;
   color: transparent;
   -webkit-text-stroke: 1.4px var(--texto);
 }
-.projeto__nome { font-size: clamp(2.2rem, 9.6vw, 7rem); line-height: .84; }
+.projeto__nome { min-width: 0; font-size: clamp(1.9rem, 8.2vw, 7rem); line-height: .84; }  /* "ODONTOLOGIA" + "02" no limite de 390px */
 
 .projeto__midia { position: relative; display: block; margin-bottom: 1.6rem; text-decoration: none; }
 .projeto__tela {

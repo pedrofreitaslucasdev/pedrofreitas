@@ -11,10 +11,10 @@ from playwright.sync_api import sync_playwright
 
 # nome -> (endereço, altura máxima do print final em px, já na largura de 540)
 SITES = {
-    "forno-de-pedra": ("https://forno-de-pedra.vercel.app", 4700),
+    "forno-de-pedra": ("https://forno-de-pedra.vercel.app", 3600),
     # as avaliações do Fontes carregam depois e saem como esqueleto cinza: cortar antes delas
-    "fontes-odontologia": ("https://fontes-odontologia.vercel.app", 4000),
-    "casa-forte": ("https://deposito-casa-forte.vercel.app", 4700),
+    "fontes-odontologia": ("https://fontes-odontologia.vercel.app", 3600),
+    "casa-forte": ("https://deposito-casa-forte.vercel.app", 3600),
     "demo-salao": ("https://demo-salao.vercel.app", 4700),
     "bolos": ("https://demo-bolos.vercel.app", 4700),
 }
@@ -78,7 +78,7 @@ def main():
             img = encolher_vazios(img)
             img = img.crop((0, 0, img.width, min(img.height, altura_max)))
             destino = SAIDA / f"{nome}.webp"
-            img.save(destino, "WEBP", quality=72, method=6)
+            img.save(destino, "WEBP", quality=62, method=6)
             print(f"{nome}: {img.width}x{img.height} -> {destino.stat().st_size // 1024} KB")
             pg.close()
 
