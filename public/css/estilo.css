@@ -1,0 +1,271 @@
+/* Pedro Freitas · portfólio
+   Escuro, nome gigante, um verde-limão de destaque. Celular primeiro. */
+
+:root {
+  --fundo: #0e0e0e;
+  --fundo-2: #171717;
+  --texto: #f3efe6;
+  --apagado: #a39f96;
+  --linha: #2c2c2c;
+  --limao: #d4ff3a;
+  --serifa: "Fraunces", Georgia, serif;
+  --sem: "Manrope", system-ui, sans-serif;
+  --lado: clamp(1rem, 5vw, 3rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font: 400 1rem/1.55 var(--sem);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+img { display: block; max-width: 100%; }
+h1, h2, h3 { margin: 0; font-family: var(--serifa); font-weight: 800; line-height: 1; }
+p { margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--limao); outline-offset: 3px; }
+
+.rotulo {
+  font-size: .75rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--apagado);
+}
+
+/* ---------- botões ---------- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  min-height: 48px;
+  padding: .7rem 1.3rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background .2s, color .2s, transform .2s;
+}
+.botao:hover { background: var(--texto); color: var(--fundo); }
+.botao--limao { background: var(--limao); border-color: var(--limao); color: var(--fundo); }
+.botao--limao:hover { background: var(--texto); border-color: var(--texto); }
+.botao--grande { font-size: 1.15rem; padding: 1rem 2rem; }
+.botao--apagado { color: var(--apagado); border-style: dashed; font-weight: 600; }
+.botao--apagado:hover { background: none; color: var(--apagado); }
+
+/* ---------- 1 · topo ---------- */
+.topo {
+  --sai: 0;
+  min-height: 100svh;
+  padding: 1.5rem var(--lado) 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+}
+.topo__lugar { position: absolute; top: 1.5rem; left: var(--lado); font-size: .75rem; letter-spacing: .18em; text-transform: uppercase; color: var(--apagado); }
+.topo__nome {
+  font-size: clamp(4.2rem, 21vw, 15rem);
+  letter-spacing: -.035em;
+  line-height: .9;
+  transform: translateY(calc(var(--sai) * -12vh));
+  opacity: calc(1 - var(--sai) * .8);
+}
+.linha { display: block; overflow: clip; padding-bottom: .06em; }
+.linha--limao { color: var(--limao); }
+.linha > span {
+  display: inline-block;
+  transform: translateY(105%);
+  animation: letra .9s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation-delay: calc(150ms + var(--i) * 55ms);
+}
+@keyframes letra { to { transform: none; } }
+
+.topo__frase {
+  margin-top: 1.4rem;
+  max-width: 26ch;
+  font-size: clamp(1.1rem, 4.4vw, 1.5rem);
+  line-height: 1.35;
+  opacity: 0;
+  animation: aparece .8s .95s forwards;
+}
+.topo__frase em { font-style: normal; color: var(--limao); }
+.topo__rolar {
+  align-self: flex-start;
+  margin-top: 2.2rem;
+  font-size: .85rem;
+  color: var(--apagado);
+  text-decoration: none;
+  opacity: 0;
+  animation: aparece .8s 1.2s forwards;
+}
+.topo__rolar span { display: inline-block; animation: balanca 1.8s ease-in-out infinite; }
+@keyframes aparece { to { opacity: 1; } }
+@keyframes balanca { 50% { transform: translateY(5px); } }
+
+/* ---------- cabeça das seções ---------- */
+.cabeca { padding: 4rem var(--lado) 2rem; max-width: 46rem; }
+.cabeca h2 { margin-top: .8rem; font-size: clamp(2.5rem, 11vw, 5rem); letter-spacing: -.02em; }
+.cabeca__apoio { margin-top: 1.1rem; color: var(--apagado); max-width: 38ch; }
+
+/* ---------- 2 · modelos: cartas empilhando ---------- */
+.pilha { padding: 0 var(--lado) 3rem; }
+.carta {
+  --encolhe: 0;
+  position: sticky;
+  top: calc(.75rem + var(--n) * 14px);
+  height: calc(100svh - 1.5rem - var(--n) * 14px);
+  max-height: 58rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  background: var(--cor);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  overflow: hidden;
+  transform-origin: 50% 0;
+  transform: scale(calc(1 - var(--encolhe) * .07));
+  filter: brightness(calc(1 - var(--encolhe) * .5));
+  box-shadow: 0 -10px 40px rgb(0 0 0 / .35);
+}
+.carta:last-child { margin-bottom: 0; }
+.carta__num { font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; opacity: .75; }
+.carta h3 { margin-top: .4rem; font-size: clamp(2rem, 9vw, 3.6rem); letter-spacing: -.02em; }
+.carta__frase { margin-top: .6rem; font-size: 1.05rem; line-height: 1.4; max-width: 30ch; }
+.carta__praquem { margin-top: .5rem; font-size: .88rem; opacity: .72; max-width: 34ch; }
+.carta .botao { margin-top: 1rem; }
+
+/* ---------- celular com o print rolando ---------- */
+.fone {
+  --desloc: 0px;
+  --dur: 14s;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-self: center;
+  aspect-ratio: 9 / 19;
+  max-height: 34rem;
+  border: 7px solid #111;
+  border-radius: 2rem;
+  background: #111;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgb(0 0 0 / .45), inset 0 0 0 1px #333;
+}
+.fone img {
+  width: 100%;
+  height: auto;
+  animation: rolar var(--dur) ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.fone.rodando img { animation-play-state: running; }
+@keyframes rolar {
+  0%, 8% { transform: translateY(0); }
+  92%, 100% { transform: translateY(var(--desloc)); }
+}
+.fone--vazio { display: grid; place-items: center; background: var(--fundo-2); border-style: solid; }
+.fone--vazio span { font-family: var(--serifa); font-size: 1.2rem; color: var(--apagado); }
+
+/* ---------- 3 · já entreguei ---------- */
+.grade { padding: 0 var(--lado); display: grid; gap: 1rem; }
+.sistema {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 1.2rem;
+  align-items: center;
+  padding: 1.2rem;
+  border: 1px solid var(--linha);
+  border-radius: 1.25rem;
+  background: var(--fundo-2);
+}
+.sistema h3 { font-size: 1.5rem; }
+.sistema p { margin-top: .5rem; font-size: .93rem; color: var(--apagado); }
+.sistema .botao { margin-top: 1rem; min-height: 44px; padding: .5rem 1.1rem; font-size: .9rem; }
+.fone--menor { width: 100%; height: auto; flex: none; border-width: 5px; border-radius: 1.2rem; }
+.sistema--embreve { border-style: dashed; }
+
+/* surgir ao entrar na tela */
+.surgir { opacity: 0; transform: translateY(40px); transition: opacity .7s, transform .7s cubic-bezier(.2, .8, .2, 1); }
+.surgir.visivel { opacity: 1; transform: none; }
+
+/* ---------- 4 · como funciona ---------- */
+.passos { padding: 5rem var(--lado) 2rem; }
+.passos ol { list-style: none; margin: 1.2rem 0 0; padding: 0; }
+.passos li {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--linha);
+  font-family: var(--serifa);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 8vw, 3.4rem);
+  line-height: 1.1;
+}
+.passos li:nth-child(2) { transition-delay: .1s; }
+.passos li:nth-child(3) { transition-delay: .2s; }
+.passos__n { color: var(--limao); font-size: .6em; min-width: 1.2em; }
+
+/* ---------- 5 · fechamento ---------- */
+.fecho { padding: 5rem var(--lado) 6rem; }
+.fecho h2 { font-size: clamp(2.6rem, 12vw, 6rem); letter-spacing: -.02em; max-width: 12ch; margin-bottom: 2rem; }
+
+.rodape { padding: 1.5rem var(--lado) 6rem; border-top: 1px solid var(--linha); font-size: .8rem; color: var(--apagado); }
+
+/* ---------- botão fixo ---------- */
+.zap-fixo {
+  position: fixed;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .85rem 1.4rem;
+  border-radius: 999px;
+  background: var(--limao);
+  color: var(--fundo);
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 10px 30px rgb(0 0 0 / .5);
+  transform: translate(-50%, 180%);
+  transition: transform .45s cubic-bezier(.2, .8, .2, 1);
+}
+.zap-fixo.aparece { transform: translate(-50%, 0); }
+
+/* ---------- computador ---------- */
+@media (min-width: 900px) {
+  .topo { padding-bottom: 3.5rem; }
+  .pilha, .grade, .cabeca, .passos, .fecho { max-width: 76rem; margin-inline: auto; }
+  .cabeca { padding-top: 7rem; }
+  .carta {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3rem 4rem;
+    max-height: 44rem;
+  }
+  .carta .fone { flex: none; height: 100%; max-height: 36rem; }
+  .carta__frase { font-size: 1.35rem; }
+  .grade { grid-template-columns: repeat(3, 1fr); }
+  .sistema { grid-template-columns: 1fr; align-content: start; }
+  .sistema .fone--menor { width: 58%; justify-self: center; }
+  .passos ol { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .passos li { flex-direction: column; gap: .5rem; border-bottom: 0; border-top: 1px solid var(--linha); }
+}
+
+/* ---------- quem pediu menos movimento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .linha > span, .topo__frase, .topo__rolar, .topo__rolar span { animation: none; transform: none; opacity: 1; }
+  .topo__nome { transform: none; opacity: 1; }
+  .carta { position: relative; top: auto; height: auto; min-height: 36rem; transform: none; filter: none; }
+  .carta .fone { flex: none; height: 26rem; }
+  .fone img { animation: none; }
+  .surgir { opacity: 1; transform: none; transition: none; }
+  .zap-fixo { transition: none; }
+}

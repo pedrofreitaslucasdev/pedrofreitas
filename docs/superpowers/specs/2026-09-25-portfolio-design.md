@@ -82,7 +82,7 @@ Um botão de WhatsApp preso embaixo da tela, que aparece depois que a pessoa sai
   rolando é uma animação CSS de `transform` numa imagem alta dentro da moldura do celular.
 - **`prefers-reduced-motion`:** com ele ligado, nada se mexe. As letras aparecem prontas,
   as cartas viram uma lista normal e a prévia fica parada no topo do site.
-- **Prints:** um script com Playwright (`scripts/prints.mjs`) abre cada site na largura de
+- **Prints:** um script com Playwright em Python (`scripts/prints.py`) abre cada site na largura de
   celular, tira o print da página inteira e salva em WebP. O script fica no projeto para
   refazer os prints quando algum modelo mudar. As demos precisam de uma espera até os dados
   de mentira carregarem antes do print.
