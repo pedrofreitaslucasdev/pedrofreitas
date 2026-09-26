@@ -34,12 +34,29 @@ botaoTema.addEventListener("click", () => {
 });
 mostraTema();
 
+// ---------- barra: some quando a pessoa desce, volta quando sobe ----------
+const barra = document.querySelector(".barra");
+let ultimoY = scrollY, pedidoBarra = false;
+addEventListener("scroll", () => {
+  if (pedidoBarra) return;
+  pedidoBarra = true;
+  requestAnimationFrame(() => {
+    pedidoBarra = false;
+    const y = scrollY, delta = y - ultimoY;
+    if (Math.abs(delta) < 6) return;              // tremidinha do dedo não conta
+    const menuAberto = document.getElementById("menu").classList.contains("aberto");
+    barra.classList.toggle("barra--escondida", delta > 0 && y > 120 && !menuAberto);
+    ultimoY = y;
+  });
+}, { passive: true });
+
 // ---------- menu em tela cheia ----------
 const menu = document.getElementById("menu");
 const botaoMenu = document.querySelector(".barra__menu");
 const textoMenu = botaoMenu.querySelector(".barra__menu-texto");
 
 function abreMenu() {
+  barra.classList.remove("barra--escondida");
   menu.hidden = false;
   menu.getBoundingClientRect();            // força o navegador a desenhar antes da transição
   menu.classList.add("aberto");

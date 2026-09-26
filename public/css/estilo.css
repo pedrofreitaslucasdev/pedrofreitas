@@ -102,8 +102,11 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   color: #fff;
   mix-blend-mode: difference;   /* branco no escuro, preto no claro, invertido em cima de foto */
   pointer-events: none;
+  transition: transform .5s var(--curva);
 }
 .barra > * { pointer-events: auto; }
+/* some descendo, volta subindo (app.js); com foco de teclado dentro, aparece sempre */
+.barra--escondida:not(:focus-within) { transform: translateY(-110%); }
 .barra__marca { font: 800 1.35rem/1 var(--titulo); letter-spacing: -.05em; text-decoration: none; }
 .barra__lado { display: flex; align-items: center; gap: .6rem; }
 .barra__menu, .tema {
@@ -453,5 +456,5 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 @media (prefers-reduced-motion: reduce) {
   .topo__nome .linha > span, .topo__fone, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }
   [data-tema="claro"] .marca-nome { animation: none; background-size: 100% 36%; }
-  .menu, .menu__lista a, .zap-fixo, .projeto__tela img, .projeto__fone, .seta, body { transition: none; }
+  .barra, .menu, .menu__lista a, .zap-fixo, .projeto__tela img, .projeto__fone, .seta, body { transition: none; }
 }
