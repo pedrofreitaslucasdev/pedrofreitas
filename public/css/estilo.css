@@ -551,7 +551,7 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 /* a descida do print é feita no app.js (Web Animations).
    O print fica position: absolute DE PROPÓSITO: no Safari, moldura posicionada por cima
    ignorava o aspect-ratio e crescia até a altura do print inteiro (683px em vez de 194). */
-.fone img { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
+.fone img { position: absolute; top: 0; left: 0; width: 100%; height: auto; will-change: transform; }   /* camada própria: desliza liso em vez de pular de pixel em pixel */
 
 /* ---------- cursor próprio (só mouse; o app.js cria o elemento) ---------- */
 .cursor-proprio, .cursor-proprio a, .cursor-proprio button { cursor: none; }
