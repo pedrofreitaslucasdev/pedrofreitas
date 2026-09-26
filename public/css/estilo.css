@@ -194,7 +194,7 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 .topo__centro { align-self: center; display: grid; gap: 2.4rem; padding: 3rem 0 2rem; }
 
 .topo__titulo {
-  font-size: clamp(2.2rem, min(10.6vw, 8.4vw + 1rem), 7.6rem);   /* ~120px no computador: forte, sem ocupar a tela de ponta a ponta */
+  font-size: clamp(2.4rem, min(12.4vw, 8.4vw + 1rem), 7.6rem);   /* ~120px no computador; no celular cresce até caber "PROCURANDO." */
   letter-spacing: -.045em;
   line-height: .9;
   translate: 0 calc(var(--p) * -70px);
@@ -241,6 +241,15 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 }
 @keyframes risca { to { transform: scaleX(1); } }
 .topo__nome { font: 600 1rem/1.2 var(--sem); letter-spacing: -.01em; }
+/* a pergunta que o dono da empresa tem que se fazer: logo abaixo do título, antes da assinatura */
+.topo__pergunta {
+  max-width: 30ch;
+  font-size: clamp(1.05rem, 1.9vw, 1.4rem);
+  line-height: 1.4;
+  translate: 0 calc(var(--p) * -40px);
+  opacity: 0;
+  animation: aparece-leve .8s ease .6s forwards;
+}
 .topo__assinatura .mono { color: var(--apagado); }
 @keyframes aparece-leve { to { opacity: 1; } }
 
@@ -266,16 +275,40 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 .faixa__trilho span { padding-right: .5em; font: 800 clamp(1.1rem, 2.8vw, 2rem)/1 var(--titulo); letter-spacing: -.03em; text-transform: uppercase; white-space: nowrap; }
 @keyframes faixa { to { transform: translateX(-50%); } }
 
-/* ---------- 2 · sobre ---------- */
-.sobre__titulo { font-size: clamp(2.3rem, 7.4vw, 6.4rem); }
-.sobre__lado { display: grid; gap: 1.6rem; max-width: 30rem; margin: 2.8rem 0 0 auto; }
-.sobre__lado p:first-child { font-size: clamp(1.05rem, 1.8vw, 1.3rem); line-height: 1.45; }
-.sobre__lado .mono { color: var(--apagado); line-height: 1.9; }
+/* ---------- 2 · o dado: o número é a peça principal, o texto vem em blocos curtos ---------- */
+.dado__grade { display: grid; gap: 3rem; }
+.dado__numero { font-size: clamp(3.2rem, 15vw, 11rem); letter-spacing: -.05em; line-height: .86; }
+.dado__numero .linha { white-space: nowrap; }   /* "8 em cada 10" nunca quebra: é uma coisa só */
+.dado__legenda { margin-top: 1.2rem; font-size: clamp(1.1rem, 2vw, 1.5rem); line-height: 1.35; max-width: 28ch; }
+.dado__fonte { margin-top: 1rem; color: var(--apagado); }
+.dado__textos { display: grid; gap: 1.4rem; max-width: 30rem; }
+.dado__textos p { font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.5; color: var(--apagado); }
+.dado__textos strong { color: var(--texto); font-weight: 600; }
+
+/* ---------- 3 · a comparação: título forte + os 4 pontos como índice, não como cards ---------- */
+.comparar__titulo { font-size: clamp(2.2rem, 7vw, 6rem); }
+.comparar__grade { display: grid; gap: 2.4rem; margin-top: 3rem; }
+.comparar__textos { display: grid; gap: 1rem; max-width: 30rem; }
+.comparar__textos p { font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.5; color: var(--apagado); }
+.comparar__textos p:last-child { color: var(--texto); }
+.pontos { list-style: none; padding: 0; }
+.pontos li {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--linha);
+  font: 800 clamp(1.35rem, 3.4vw, 2.4rem)/1.05 var(--titulo);
+  letter-spacing: -.025em;
+}
+.pontos li:last-child { border-bottom: 1px solid var(--linha); }
+.pontos .mono { flex: none; width: 2.2rem; color: var(--apagado); letter-spacing: .06em; }
 
 /* ---------- 3 · trabalhos ---------- */
 .trabalhos__cabeca { padding-bottom: 2rem; }
 .gigante { font-size: clamp(2.2rem, 7.4vw, 6.4rem); }
 .linha--recuo { padding-left: 0; }
+.trabalhos__apoio { margin-top: 1.4rem; font-size: clamp(1.05rem, 1.6vw, 1.3rem); color: var(--apagado); max-width: 30ch; }
 
 .categoria { position: relative; padding: 3rem var(--lado) 2rem; background: var(--fundo); color: var(--texto); }
 .categoria__cabeca { display: grid; gap: 1rem; padding-top: 1.1rem; margin-bottom: 3rem; border-top: 1px solid var(--texto); }
@@ -484,7 +517,14 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   .projeto:nth-of-type(even) .fone.projeto__fone { right: auto; left: 5%; rotate: -4deg; }
   .fone.projeto__fone { width: 19%; }
   .projeto__nome { font-size: clamp(1.8rem, 2.5vw, 2.7rem); }  /* coluna de 3/12: "ODONTOLOGIA" invadia a imagem */
-  .sobre__lado { margin-right: 6vw; }
+  /* o número ocupa a largura toda; embaixo, a legenda à esquerda e os textos à direita */
+  .dado__grade { grid-template-columns: 7fr 4fr; column-gap: 4rem; row-gap: 0; }
+  .dado__destaque { display: contents; }
+  .dado__numero { grid-column: 1 / -1; }
+  .dado__legenda, .dado__fonte { grid-column: 1; }
+  .dado__textos { grid-column: 2; grid-row: 2 / span 2; align-self: start; margin-top: 1.2rem; }
+  .comparar__grade { grid-template-columns: 4fr 7fr; column-gap: 4rem; align-items: start; }
+  .trabalhos__apoio { margin-left: 8vw; }
   .linha--recuo { padding-left: 8vw; }
   /* como funciona: cabeça à esquerda, índice à direita */
   .passos { display: grid; grid-template-columns: 5fr 7fr; column-gap: 4rem; align-items: start; }
@@ -496,7 +536,7 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 
 /* ---------- quem pediu menos movimento ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .topo__titulo .linha > span, .topo__meta, .topo__assinatura, .topo__baixo, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }
+  .topo__titulo .linha > span, .topo__meta, .topo__pergunta, .topo__assinatura, .topo__baixo, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }
   .topo__assinatura::before { animation: none; transform: none; }
   [data-tema="claro"] .topo__titulo .marca { animation: none; background-size: 100% 34%; }
   .barra, .menu, .menu__lista a, .zap-fixo, .projeto__tela img, .projeto__fone, .seta, body { transition: none; }

@@ -188,3 +188,14 @@ As três janelas flutuando ficaram carregadas e com cara de agência genérica. 
 - Nenhuma imagem. Único detalhe: "Recente — Forno de Pedra ↓" levando pros trabalhos.
 - Movimento: linhas surgem da máscara; rolagem sobe o título e os textos pequenos em
   velocidades diferentes; mouse move as linhas poucos pixels (a do meio um pouco mais).
+
+## Texto focado no cliente, 26/09/2026 (sem redesign)
+
+Pedido do Pedro: fazer o visitante pensar "se alguém procurar minha empresa hoje, o que vai encontrar?".
+Sequência: topo "SEU CLIENTE / JÁ ESTÁ / PROCURANDO." + a pergunta → dado "8 em cada 10 consumidores
+pesquisaram negócios locais na internet recentemente. Fonte: BrightLocal, 2026" (texto e fonte exatamente
+como o Pedro passou; NÃO escrever "procuram o site") → "Se sua empresa não tem um site, outra pode ter."
++ os 4 pontos → "É isso que eu construo." → projetos (intactos) → como funciona → contato.
+O antigo "Faço sites que as pessoas lembram" (sobre mim) saiu; o id "sobre" ficou no dado pro menu funcionar.
+ATENÇÃO: não achei esse "8 em cada 10" na página da BrightLocal que consegui abrir (ela traz "97% dos
+consumidores leem avaliações de negócios locais"). O Pedro precisa confirmar o número.
