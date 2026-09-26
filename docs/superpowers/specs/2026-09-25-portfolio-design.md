@@ -216,3 +216,15 @@ Pedido do Pedro: deixar claro que o cliente escolhe o ESTILO DA EXPERIÊNCIA, n�
   cima da identidade e das necessidades da sua empresa." (discreto, linha fina em cima).
 - Como funciona, passo 02: "Definimos o estilo / Juntos, escolhemos o nível de movimento e interação que mais
   combina com sua empresa."
+
+## Dois capítulos: 01 Sites e 02 Sistemas (26/09/2026)
+
+Pedido do Pedro: a divisão entre sites e sistemas estava rasa.
+- Abertura de capítulo: "01" vazado enorme + "SITES" + "Escolha a experiência que combina com sua empresa."
+- Estilos na ordem 01 Estático (Fontes), 02 Animado (Forno), 03 Interativo (Casa Forte). O ESTILO é o
+  título (número vazado + nome + frase); o projeto é o exemplo ("Exemplo · Fig. 0X"). Separação por espaço e
+  escala, sem linha de índice.
+- A virada, entre os capítulos: "Mas nem todo problema se resolve com um site." / "Às vezes, o negócio precisa
+  de um sistema." — a primeira apaga (GSAP scrub) enquanto a segunda chega.
+- "02 SISTEMAS" no fundo invertido, com composição técnica diferente dos sites: recorte 4:3 da interface com o
+  celular por cima + ficha (S—01, nome, Faz / Tipo / Acesso). Não alterna lado; a tela abre da esquerda.

@@ -310,47 +310,51 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 .linha--recuo { padding-left: 0; }
 .trabalhos__apoio { margin-top: 1.4rem; font-size: clamp(1.05rem, 1.6vw, 1.3rem); color: var(--apagado); max-width: 30ch; }
 
-.categoria { position: relative; padding: 3rem var(--lado) 2rem; background: var(--fundo); color: var(--texto); }
-.categoria__cabeca { display: grid; gap: 1rem; padding-top: 1.1rem; margin-bottom: 3rem; border-top: 1px solid var(--texto); }
-.categoria__nome { font-size: clamp(2rem, 5vw, 4.2rem); letter-spacing: -.03em; }
-.categoria__cabeca > p { max-width: 38ch; color: var(--apagado); }
-.categoria__cabeca strong { color: var(--texto); font-weight: 600; }
-.categoria__rotulo { margin-bottom: .9rem; color: var(--apagado); }
-/* depois dos três estilos: o recado de que não é template, discreto, sem caixa */
-.categoria__nota {
+/* Os trabalhos são dois CAPÍTULOS: 01 Sites e 02 Sistemas. A separação vem de escala, espaço
+   e composição, não de caixas. Entre os dois, a "virada" fecha um capítulo e abre o outro. */
+
+/* abertura de capítulo: número vazado enorme + nome grande + frase */
+.capitulo { display: grid; gap: 1.2rem; padding: clamp(5rem, 12vw, 10rem) 0 clamp(2.5rem, 7vw, 5rem); }
+.capitulo__num {
+  font: 800 clamp(5rem, 26vw, 16rem)/.78 var(--titulo);
+  letter-spacing: -.06em;
+  color: transparent;
+  -webkit-text-stroke: 1.4px var(--texto);
+}
+.capitulo__nome { font-size: clamp(3.2rem, 15vw, 11rem); letter-spacing: -.05em; }
+.capitulo__texto { display: grid; gap: 1rem; margin-top: 1.2rem; max-width: 34rem; }
+.capitulo__frase { font: 600 clamp(1.3rem, 2.6vw, 2rem)/1.2 var(--sem); letter-spacing: -.015em; }
+.capitulo__apoio { color: var(--apagado); max-width: 40ch; }
+
+/* ---------- capítulo 01 · sites ---------- */
+.capitulo-sites { padding: 0 var(--lado); }
+.estilo { display: grid; gap: 1.8rem; padding: clamp(3rem, 8vw, 6rem) 0 clamp(5rem, 12vw, 10rem); }
+.estilo__cabeca { display: grid; grid-template-columns: auto 1fr; column-gap: 1rem; align-items: end; }
+.estilo__num {
+  font: 800 clamp(3.4rem, 16vw, 9rem)/.78 var(--titulo);
+  letter-spacing: -.06em;
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--texto);
+}
+.estilo__nome { font-size: clamp(2.4rem, 11vw, 7rem); letter-spacing: -.045em; }
+.estilo__frase { grid-column: 1 / -1; margin-top: 1.2rem; max-width: 34ch; font-size: clamp(1.02rem, 1.4vw, 1.2rem); line-height: 1.45; color: var(--apagado); }
+.estilo__frase strong { display: block; color: var(--texto); font-weight: 600; }
+.estilo__exemplo { display: grid; gap: .45rem; margin-top: 1.4rem; }
+.estilo__exemplo .mono { color: var(--apagado); }
+.estilo__projeto { font: 800 clamp(1.3rem, 2.2vw, 1.8rem)/1 var(--titulo); letter-spacing: -.025em; text-transform: uppercase; }
+.estilo__desc { max-width: 32ch; color: var(--apagado); }
+.capitulo__nota {
   max-width: 36rem;
-  margin: 0 0 4rem;
-  padding-top: 1.2rem;
+  padding: 1.2rem 0 clamp(4rem, 10vw, 8rem);
   border-top: 1px solid var(--linha);
   font-size: clamp(1.02rem, 1.4vw, 1.18rem);
   line-height: 1.5;
   color: var(--apagado);
 }
-.categoria__nota strong { display: block; margin-bottom: .3rem; color: var(--texto); font-weight: 600; }
+.capitulo__nota strong { display: block; margin-bottom: .3rem; color: var(--texto); font-weight: 600; }
 
-/* sistemas: cores invertidas em relação ao tema */
-.categoria--sistemas {
-  --fundo: #f3efe6; --fundo-2: #e6e2d9; --texto: #0e0e0e; --apagado: #69655d; --linha: #d6d2c8; --destaque: #3f5c00;
-  padding-top: 5rem;
-}
-[data-tema="claro"] .categoria--sistemas {
-  --fundo: #121212; --fundo-2: #1c1c1c; --texto: #f3efe6; --apagado: #a39f96; --linha: #2c2c2c; --destaque: var(--limao);
-}
-
-/* cada projeto é uma peça editorial: linha de índice, imagem grande com legenda, texto ao lado.
-   O impacto do site mora aqui, não no nome do topo. */
-.projeto { display: grid; gap: 1.1rem; padding: 1.5rem 0 5.5rem; }
-.projeto__indice {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: .8rem;
-  border-top: 1px solid var(--linha);
-  color: var(--apagado);
-}
-.projeto__indice span:first-child { color: var(--texto); }
-
-.projeto__midia { position: relative; display: block; margin: .6rem 0 0; text-decoration: none; }
+/* imagem do site com o celular por cima (usada pelos estilos) */
+.projeto__midia { position: relative; display: block; text-decoration: none; }
 .projeto__tela {
   display: block;
   aspect-ratio: 16 / 10;
@@ -377,20 +381,57 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   transition: translate .7s var(--curva);
 }
 .projeto__midia:hover .fone.projeto__fone { translate: 0 -10px; }
-.projeto__tela--vazia { display: grid; place-content: center; justify-items: center; gap: .6rem; box-shadow: inset 0 0 0 1px var(--linha); }
-.projeto__tela--vazia .mono { color: var(--apagado); }
-.projeto__embreve { font: 800 clamp(2rem, 7vw, 4.5rem)/.9 var(--titulo); letter-spacing: -.04em; text-transform: uppercase; color: transparent; -webkit-text-stroke: 1px var(--texto); }
 
-.projeto__legenda { margin-top: 1.6rem; color: var(--apagado); }
-.projeto__texto { display: grid; gap: 1rem; margin-top: .4rem; }
-.projeto__nome { font-size: clamp(1.9rem, 5.4vw, 3.4rem); letter-spacing: -.035em; line-height: .9; }
-.projeto__desc { font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.45; max-width: 32ch; }
-.projeto__desc strong { display: block; color: var(--texto); font-weight: 600; }
-.projeto__texto dl { display: grid; gap: .3rem; }
-.projeto__texto dt { color: var(--apagado); }
-.projeto__texto dd { text-transform: none; letter-spacing: .01em; line-height: 1.5; }   /* "Neste exemplo" é frase: em caixa alta cansava */
-.link-seta { justify-self: start; margin-top: .3rem; font: 600 .9rem var(--sem); letter-spacing: .03em; text-transform: uppercase; }
+.link-seta { justify-self: start; margin-top: .5rem; font: 600 .9rem var(--sem); letter-spacing: .03em; text-transform: uppercase; }
 .link-seta--apagado { color: var(--apagado); border-bottom: 1px dashed var(--apagado); font: 500 .75rem var(--mono); }
+
+/* ---------- a virada: fim do capítulo 01, começo do 02 ---------- */
+.virada { display: grid; gap: clamp(4rem, 12vw, 9rem); padding: clamp(6rem, 18vw, 15rem) var(--lado); }
+.virada__a, .virada__b { font: 800 clamp(1.9rem, 6.4vw, 5.6rem)/.92 var(--titulo);   /* no celular as linhas longas quebram sozinhas: letra maior vale mais que caber numa linha */ letter-spacing: -.04em; text-transform: uppercase; }
+.virada__b { justify-self: end; text-align: right; }
+.virada__b .linha > span { text-align: right; }
+/* no celular estreito a linha quebra: equilibra as partes pra não sobrar "SITE." sozinho */
+.virada .linha > span { text-wrap: balance; }
+
+/* ---------- capítulo 02 · sistemas: cor invertida e composição técnica (tela + ficha) ---------- */
+.capitulo-sistemas {
+  --fundo: #f3efe6; --fundo-2: #e6e2d9; --texto: #0e0e0e; --apagado: #69655d; --linha: #d6d2c8; --destaque: #3f5c00;
+  position: relative;
+  padding: 0 var(--lado) clamp(4rem, 10vw, 8rem);
+  background: var(--fundo);
+  color: var(--texto);
+}
+[data-tema="claro"] .capitulo-sistemas {
+  --fundo: #121212; --fundo-2: #1c1c1c; --texto: #f3efe6; --apagado: #a39f96; --linha: #2c2c2c; --destaque: var(--limao);
+}
+.sistema { display: grid; gap: 2rem; padding: 2.5rem 0 4.5rem; }
+.sistema__visual { position: relative; display: block; text-decoration: none; }
+/* recorte da interface (4:3 do print 16:10): parece detalhe de tela, não vitrine */
+.sistema__tela {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--fundo-2);
+  box-shadow: 0 1px 0 var(--linha), 0 30px 60px -30px rgb(0 0 0 / .45);
+}
+.sistema__tela img { width: 100%; height: 100%; object-fit: cover; object-position: left top; transition: scale 1s var(--curva); }
+.sistema__visual:hover .sistema__tela img { scale: 1.03; }
+.fone.sistema__fone { position: absolute; right: 6%; bottom: -8%; width: 30%; transition: translate .7s var(--curva); }
+.sistema__visual:hover .fone.sistema__fone { translate: 0 -10px; }
+.sistema__tela--vazia { display: grid; place-content: center; justify-items: center; gap: .6rem; box-shadow: inset 0 0 0 1px var(--linha); }
+.sistema__tela--vazia .mono { color: var(--apagado); }
+.sistema__embreve { font: 800 clamp(2rem, 7vw, 4.5rem)/.9 var(--titulo); letter-spacing: -.04em; text-transform: uppercase; color: transparent; -webkit-text-stroke: 1px var(--texto); }
+
+.sistema__ficha { display: grid; gap: 1rem; align-content: start; }
+.sistema__num { color: var(--apagado); }
+.sistema__nome { font-size: clamp(1.9rem, 5vw, 3.4rem); letter-spacing: -.035em; }
+.sistema__desc { font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.45; max-width: 32ch; }
+/* ficha técnica: linhas finas, rótulo à esquerda, valor à direita */
+.sistema__dados { border-top: 1px solid var(--linha); }
+.sistema__dados div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--linha); }
+.sistema__dados dt { color: var(--apagado); }
+.sistema__dados dd { text-transform: none; letter-spacing: .01em; }
 
 /* ---------- 4 · como funciona: índice editorial, não fileira de cards ---------- */
 .passos__titulo { font-size: clamp(2rem, 5.6vw, 4.6rem); }
@@ -509,8 +550,8 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 
 /* ---------- tablet e computador ---------- */
 @media (min-width: 760px) {
-  .categoria__cabeca { grid-template-columns: 1fr 1fr; align-items: end; }
-  .categoria__cabeca > p { justify-self: end; }   /* só o texto de apoio: sem o ">", o rótulo "Sites" ia pro meio */
+  .capitulo { grid-template-columns: auto 1fr; column-gap: 2rem; align-items: end; }
+  .capitulo__texto { grid-column: 2; }
   .passo { grid-template-columns: 7rem 1fr 1fr; align-items: baseline; }
   .passo__n { grid-row: auto; }
   .contato__rodape { grid-template-columns: repeat(5, auto); justify-content: space-between; }
@@ -519,18 +560,23 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 @media (min-width: 1000px) {
   .topo__centro { gap: 3rem; }
   .topo__assinatura { margin-right: 6%; }
-  /* projeto: imagem em 9 colunas, texto nas 3 ao lado; os pares espelham */
-  .projeto { grid-template-columns: repeat(12, 1fr); column-gap: 2rem; row-gap: 0; padding: 2rem 0 9rem; }
-  .projeto__indice { grid-column: 1 / -1; }
-  .projeto__midia { grid-column: 1 / span 9; grid-row: 2; margin-top: 2.2rem; }
-  .projeto__legenda { grid-column: 1 / span 9; grid-row: 3; }
-  .projeto__texto { grid-column: 10 / -1; grid-row: 2 / span 2; align-self: end; margin: 0; padding-bottom: 2.6rem; }
-  .projeto:nth-of-type(even) .projeto__midia,
-  .projeto:nth-of-type(even) .projeto__legenda { grid-column: 4 / -1; }
-  .projeto:nth-of-type(even) .projeto__texto { grid-column: 1 / span 3; }
-  .projeto:nth-of-type(even) .fone.projeto__fone { right: auto; left: 5%; rotate: -4deg; }
+  /* estilo: título em cima (número + nome à esquerda, frase à direita), imagem em 9 colunas,
+     exemplo nas 3 ao lado; o do meio espelha */
+  .estilo { grid-template-columns: repeat(12, 1fr); column-gap: 2rem; row-gap: 3rem; }
+  .estilo__cabeca { grid-column: 1 / -1; grid-template-columns: auto auto 1fr; }
+  .estilo__frase { grid-column: 3; justify-self: end; margin: 0; }
+  .projeto__midia { grid-column: 1 / span 9; }
+  .estilo__exemplo { grid-column: 10 / -1; align-self: end; margin: 0; padding-bottom: 1rem; }
+  .estilo:nth-of-type(even) .projeto__midia { grid-column: 4 / -1; grid-row: 2; }
+  .estilo:nth-of-type(even) .estilo__exemplo { grid-column: 1 / span 3; grid-row: 2; }
+  .estilo:nth-of-type(even) .fone.projeto__fone { right: auto; left: 5%; rotate: -4deg; }
   .fone.projeto__fone { width: 19%; }
-  .projeto__nome { font-size: clamp(1.8rem, 2.5vw, 2.7rem); }  /* coluna de 3/12: "ODONTOLOGIA" invadia a imagem */
+  .capitulo__nota { margin-left: auto; }
+  /* sistema: tela à esquerda (7 colunas), ficha à direita; todos iguais, sem alternar */
+  .sistema { grid-template-columns: repeat(12, 1fr); column-gap: 2rem; padding: 4rem 0 7rem; }
+  .sistema__visual { grid-column: 1 / span 7; }
+  .sistema__ficha { grid-column: 9 / -1; padding-top: .5rem; }
+  .fone.sistema__fone { width: 26%; }
   /* o número ocupa a largura toda; embaixo, a legenda à esquerda e os textos à direita */
   .dado__grade { grid-template-columns: 7fr 4fr; column-gap: 4rem; row-gap: 0; }
   .dado__destaque { display: contents; }
@@ -539,7 +585,6 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   .dado__textos { grid-column: 2; grid-row: 2 / span 2; align-self: start; margin-top: 1.2rem; }
   .comparar__grade { grid-template-columns: 4fr 7fr; column-gap: 4rem; align-items: start; }
   .trabalhos__apoio { margin-left: 8vw; }
-  .categoria__nota { margin-left: auto; }
   .linha--recuo { padding-left: 8vw; }
   /* como funciona: cabeça à esquerda, índice à direita */
   .passos { display: grid; grid-template-columns: 5fr 7fr; column-gap: 4rem; align-items: start; }
@@ -554,5 +599,5 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   .topo__titulo .linha > span, .topo__meta, .topo__pergunta, .topo__assinatura, .topo__baixo, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }
   .topo__assinatura::before { animation: none; transform: none; }
   [data-tema="claro"] .topo__titulo .marca { animation: none; background-size: 100% 34%; }
-  .barra, .menu, .menu__lista a, .zap-fixo, .projeto__tela img, .projeto__fone, .seta, body { transition: none; }
+  .barra, .menu, .menu__lista a, .zap-fixo, .projeto__tela img, .projeto__fone, .sistema__tela img, .sistema__fone, .seta, body { transition: none; }
 }

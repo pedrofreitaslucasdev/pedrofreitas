@@ -263,11 +263,25 @@ function animaRolagem() {
     });
   });
 
-  // SITES -> SISTEMAS: o bloco invertido abre por cima, das bordas pra tela toda
-  gsap.fromTo(".categoria--sistemas",
+  // a virada: a primeira frase apaga enquanto a segunda chega (fim de um capítulo, começo do outro)
+  gsap.to(".virada__a", { opacity: 0.22, ease: "none",
+    scrollTrigger: { trigger: ".virada__b", start: "top 85%", end: "top 45%", scrub: true } });
+
+  // CAPÍTULO 02: o bloco invertido abre por cima, das bordas pra tela toda
+  gsap.fromTo(".capitulo-sistemas",
     { clipPath: "inset(0% 3% 0% 3% round 16px)" },
     { clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "none",
-      scrollTrigger: { trigger: ".categoria--sistemas", start: "top bottom", end: "top 30%", scrub: true } });
+      scrollTrigger: { trigger: ".capitulo-sistemas", start: "top bottom", end: "top 30%", scrub: true } });
+
+  // sistemas: a tela abre da esquerda pra direita (os sites abrem de baixo pra cima: outro capítulo)
+  document.querySelectorAll(".sistema__visual").forEach((visual) => {
+    if (visual.getBoundingClientRect().top < innerHeight) return;
+    const tela = visual.querySelector(".sistema__tela");
+    const fone = visual.querySelector(".sistema__fone");
+    const tl = gsap.timeline({ scrollTrigger: { trigger: visual, start: "top 85%", once: true } });
+    tl.fromTo(tela, { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.2, ease: "power4.inOut" });
+    if (fone) tl.from(fone, { yPercent: 14, autoAlpha: 0, duration: 0.9, ease: "power3.out" }, "-=0.4");
+  });
 
   // números do "como funciona" entram um pouco depois do texto
   gsap.utils.toArray(".passo__n").forEach((n) => {
