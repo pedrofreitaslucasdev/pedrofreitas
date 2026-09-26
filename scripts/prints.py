@@ -16,7 +16,7 @@ SITES = {
     "fontes-odontologia": ("https://fontes-odontologia.vercel.app", 4000),
     "casa-forte": ("https://deposito-casa-forte.vercel.app", 4700),
     "demo-salao": ("https://demo-salao.vercel.app", 4700),
-    "bolos": ("https://bolos-prototipo.vercel.app", 4700),
+    "bolos": ("https://demo-bolos.vercel.app", 4700),
 }
 
 LARGURA = 390          # celular comum, em pixel de CSS

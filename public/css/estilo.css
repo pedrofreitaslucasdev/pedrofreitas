@@ -14,7 +14,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background: var(--fundo); }
 body {
   margin: 0;
   background: var(--fundo);
@@ -113,6 +113,9 @@ a { color: inherit; }
 
 /* ---------- 2 · modelos: cartas empilhando ---------- */
 .pilha { padding: 0 var(--lado) 3rem; }
+/* A carta que gruda NÃO tem cor de fundo, de propósito: o Safari do iOS 26 pinta as
+   barras de cima e de baixo com a cor do elemento grudado, e o celular ficava laranja.
+   A cor mora no .carta__corpo. Mesma regra no .zap-fixo. */
 .carta {
   --encolhe: 0;
   position: sticky;
@@ -120,6 +123,13 @@ a { color: inherit; }
   height: calc(100svh - 1.5rem - var(--n) * 14px);
   max-height: 58rem;
   margin-bottom: 1.5rem;
+  transform-origin: 50% 0;
+  transform: scale(calc(1 - var(--encolhe) * .07));
+  filter: brightness(calc(1 - var(--encolhe) * .5));
+}
+.carta:last-child { margin-bottom: 0; }
+.carta__corpo {
+  height: 100%;
   padding: 1.5rem;
   border-radius: 1.5rem;
   background: var(--cor);
@@ -127,12 +137,8 @@ a { color: inherit; }
   flex-direction: column;
   gap: 1.2rem;
   overflow: hidden;
-  transform-origin: 50% 0;
-  transform: scale(calc(1 - var(--encolhe) * .07));
-  filter: brightness(calc(1 - var(--encolhe) * .5));
   box-shadow: 0 -10px 40px rgb(0 0 0 / .35);
 }
-.carta:last-child { margin-bottom: 0; }
 .carta__num { font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; opacity: .75; }
 .carta h3 { margin-top: .4rem; font-size: clamp(2rem, 9vw, 3.6rem); letter-spacing: -.02em; }
 .carta__frase { margin-top: .6rem; font-size: 1.05rem; line-height: 1.4; max-width: 30ch; }
@@ -141,8 +147,6 @@ a { color: inherit; }
 
 /* ---------- celular com o print rolando ---------- */
 .fone {
-  --desloc: 0px;
-  --dur: 14s;
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
@@ -155,17 +159,9 @@ a { color: inherit; }
   overflow: hidden;
   box-shadow: 0 20px 50px rgb(0 0 0 / .45), inset 0 0 0 1px #333;
 }
-.fone img {
-  width: 100%;
-  height: auto;
-  animation: rolar var(--dur) ease-in-out infinite alternate;
-  animation-play-state: paused;
-}
-.fone.rodando img { animation-play-state: running; }
-@keyframes rolar {
-  0%, 8% { transform: translateY(0); }
-  92%, 100% { transform: translateY(var(--desloc)); }
-}
+/* a descida do print é feita no app.js (Web Animations): o Safari não relê
+   var() dentro de @keyframes depois que a animação começa, e o print ficava parado */
+.fone img { width: 100%; height: auto; }
 .fone--vazio { display: grid; place-items: center; background: var(--fundo-2); border-style: solid; }
 .fone--vazio span { font-family: var(--serifa); font-size: 1.2rem; color: var(--apagado); }
 
@@ -221,33 +217,35 @@ a { color: inherit; }
   left: 50%;
   bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 10;
+  color: var(--fundo);
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transform: translate(-50%, 180%);
+  transition: transform .45s cubic-bezier(.2, .8, .2, 1);
+}
+.zap-fixo.aparece { transform: translate(-50%, 0); }
+.zap-fixo__pilula {
   display: flex;
   align-items: center;
   gap: .55rem;
   padding: .85rem 1.4rem;
   border-radius: 999px;
   background: var(--limao);
-  color: var(--fundo);
-  font-weight: 800;
-  text-decoration: none;
-  white-space: nowrap;
   box-shadow: 0 10px 30px rgb(0 0 0 / .5);
-  transform: translate(-50%, 180%);
-  transition: transform .45s cubic-bezier(.2, .8, .2, 1);
 }
-.zap-fixo.aparece { transform: translate(-50%, 0); }
 
 /* ---------- computador ---------- */
 @media (min-width: 900px) {
   .topo { padding-bottom: 3.5rem; }
   .pilha, .grade, .cabeca, .passos, .fecho { max-width: 76rem; margin-inline: auto; }
   .cabeca { padding-top: 7rem; }
-  .carta {
+  .carta { max-height: 44rem; }
+  .carta__corpo {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     padding: 3rem 4rem;
-    max-height: 44rem;
   }
   .carta .fone { flex: none; height: 100%; max-height: 36rem; }
   .carta__frase { font-size: 1.35rem; }
@@ -263,9 +261,9 @@ a { color: inherit; }
   html { scroll-behavior: auto; }
   .linha > span, .topo__frase, .topo__rolar, .topo__rolar span { animation: none; transform: none; opacity: 1; }
   .topo__nome { transform: none; opacity: 1; }
-  .carta { position: relative; top: auto; height: auto; min-height: 36rem; transform: none; filter: none; }
+  .carta { position: relative; top: auto; height: auto; transform: none; filter: none; }
+  .carta__corpo { min-height: 36rem; }
   .carta .fone { flex: none; height: 26rem; }
-  .fone img { animation: none; }
   .surgir { opacity: 1; transform: none; transition: none; }
   .zap-fixo { transition: none; }
 }
