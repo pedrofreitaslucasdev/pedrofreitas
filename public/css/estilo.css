@@ -176,7 +176,7 @@ a { color: inherit; }
 .topo__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1rem; color: var(--apagado); }
 .topo__palco { position: relative; align-self: end; margin-top: 3rem; }
 .topo__nome { font-size: min(20.5vw, 19rem); line-height: .8; letter-spacing: -.05em; margin-left: -.03em; }
-.topo__nome .linha { position: relative; }
+.topo__nome .linha { position: relative; white-space: nowrap; }  /* sem isso, com a fonte reserva (mais larga) o FREITAS quebrava e o topo pulava: CLS 0,086 */
 .topo__nome .linha--1 { z-index: 1; }
 .topo__nome .linha--2 { z-index: 3; }
 .topo__nome .linha > span {
