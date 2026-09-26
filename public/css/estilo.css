@@ -280,7 +280,7 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 .dado__numero { font-size: clamp(3.2rem, 15vw, 11rem); letter-spacing: -.05em; line-height: .86; }
 .dado__numero .linha { white-space: nowrap; }   /* "8 em cada 10" nunca quebra: é uma coisa só */
 .dado__legenda { margin-top: 1.2rem; font-size: clamp(1.1rem, 2vw, 1.5rem); line-height: 1.35; max-width: 28ch; }
-.dado__fonte { margin-top: 1rem; color: var(--apagado); }
+.dado__fonte { margin-top: 1rem; color: var(--apagado); text-transform: none; letter-spacing: .02em; }   /* citação exatamente como a fonte escreve: "BrightLocal" */
 .dado__textos { display: grid; gap: 1.4rem; max-width: 30rem; }
 .dado__textos p { font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.5; color: var(--apagado); }
 .dado__textos strong { color: var(--texto); font-weight: 600; }
