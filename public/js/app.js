@@ -135,8 +135,10 @@ function mede(fone) {
   if (sobra <= 0 || animacoes.get(fone)?.sobra === sobra) return;
 
   animacoes.get(fone)?.anim.cancel();
-  // ~70px de tela por segundo (o Pedro pediu mais devagar em 26/09)
-  const duracao = Math.max(5000, (sobra / 70) * 1000);
+  // Velocidade relativa ao TAMANHO da moldura, não em px fixos: com 70px/s, no celular (moldura de
+  // 73px) o site inteiro passava em 5 segundos. Agora o print anda 1/5 da largura da moldura por
+  // segundo: um site comprido leva ~22s pra descer, em qualquer tela. Mínimo 8s, máximo 40s.
+  const duracao = Math.min(40000, Math.max(8000, (sobra / (fone.clientWidth * 0.2)) * 1000));
   // pausa curta e FIXA nas pontas: pausa longa faz a pessoa achar que o print travou
   const pausa = 600 / duracao;
   const anim = img.animate([
