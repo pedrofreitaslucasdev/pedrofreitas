@@ -61,7 +61,7 @@ senha.
 | Sistema | Endereço | Situação |
 |---|---|---|
 | Salão: atendimentos e fiado | demo-salao.vercel.app | no ar, botão **testar →** |
-| Vendas da live: pedidos da loja | demo-vendas.vercel.app | no ar, botão **testar →** |
+| Encomendas de bolo (tia Josemara) | bolos-prototipo.vercel.app | no ar, botão **testar →**. Trocou o vendas da live em 25/09 |
 | Gráfica: quadro de pedidos | demo-grafica.vercel.app | **em breve**, sem link, até a demo existir |
 
 Cada sistema tem a mesma prévia de celular rolando. Os cartões sobem de baixo, um por vez,
