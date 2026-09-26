@@ -313,8 +313,20 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 .categoria { position: relative; padding: 3rem var(--lado) 2rem; background: var(--fundo); color: var(--texto); }
 .categoria__cabeca { display: grid; gap: 1rem; padding-top: 1.1rem; margin-bottom: 3rem; border-top: 1px solid var(--texto); }
 .categoria__nome { font-size: clamp(2rem, 5vw, 4.2rem); letter-spacing: -.03em; }
-.categoria__cabeca p { max-width: 38ch; color: var(--apagado); }
+.categoria__cabeca > p { max-width: 38ch; color: var(--apagado); }
 .categoria__cabeca strong { color: var(--texto); font-weight: 600; }
+.categoria__rotulo { margin-bottom: .9rem; color: var(--apagado); }
+/* depois dos três estilos: o recado de que não é template, discreto, sem caixa */
+.categoria__nota {
+  max-width: 36rem;
+  margin: 0 0 4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--linha);
+  font-size: clamp(1.02rem, 1.4vw, 1.18rem);
+  line-height: 1.5;
+  color: var(--apagado);
+}
+.categoria__nota strong { display: block; margin-bottom: .3rem; color: var(--texto); font-weight: 600; }
 
 /* sistemas: cores invertidas em relação ao tema */
 .categoria--sistemas {
@@ -373,8 +385,10 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 .projeto__texto { display: grid; gap: 1rem; margin-top: .4rem; }
 .projeto__nome { font-size: clamp(1.9rem, 5.4vw, 3.4rem); letter-spacing: -.035em; line-height: .9; }
 .projeto__desc { font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.45; max-width: 32ch; }
+.projeto__desc strong { display: block; color: var(--texto); font-weight: 600; }
 .projeto__texto dl { display: grid; gap: .3rem; }
 .projeto__texto dt { color: var(--apagado); }
+.projeto__texto dd { text-transform: none; letter-spacing: .01em; line-height: 1.5; }   /* "Neste exemplo" é frase: em caixa alta cansava */
 .link-seta { justify-self: start; margin-top: .3rem; font: 600 .9rem var(--sem); letter-spacing: .03em; text-transform: uppercase; }
 .link-seta--apagado { color: var(--apagado); border-bottom: 1px dashed var(--apagado); font: 500 .75rem var(--mono); }
 
@@ -496,7 +510,7 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 /* ---------- tablet e computador ---------- */
 @media (min-width: 760px) {
   .categoria__cabeca { grid-template-columns: 1fr 1fr; align-items: end; }
-  .categoria__cabeca p { justify-self: end; }
+  .categoria__cabeca > p { justify-self: end; }   /* só o texto de apoio: sem o ">", o rótulo "Sites" ia pro meio */
   .passo { grid-template-columns: 7rem 1fr 1fr; align-items: baseline; }
   .passo__n { grid-row: auto; }
   .contato__rodape { grid-template-columns: repeat(5, auto); justify-content: space-between; }
@@ -525,6 +539,7 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   .dado__textos { grid-column: 2; grid-row: 2 / span 2; align-self: start; margin-top: 1.2rem; }
   .comparar__grade { grid-template-columns: 4fr 7fr; column-gap: 4rem; align-items: start; }
   .trabalhos__apoio { margin-left: 8vw; }
+  .categoria__nota { margin-left: auto; }
   .linha--recuo { padding-left: 8vw; }
   /* como funciona: cabeça à esquerda, índice à direita */
   .passos { display: grid; grid-template-columns: 5fr 7fr; column-gap: 4rem; align-items: start; }

@@ -204,3 +204,15 @@ Lapidação de 26/09/2026 (só texto): o dado virou "consumidores pesquisam neg�
 (Fonte: BrightLocal, 2026); "Se sua empresa não tem um site, outra pode ter." virou "Enquanto seu / cliente
 pesquisa, / ele também / compara." (4 linhas: em 3, "ENQUANTO SEU CLIENTE" vazava no celular); textos em volta
 encurtados pra não repetir "comparar". "Seu site precisa fazer esse trabalho por você." ficou intacta.
+
+## Estilos de experiência, não modelos (26/09/2026, só texto)
+
+Pedido do Pedro: deixar claro que o cliente escolhe o ESTILO DA EXPERIÊNCIA, não um template.
+- Categoria Sites: rótulo "Sites" + título "Escolha a / experiência / do seu site" + "Cada empresa pede um tipo
+  de presença diferente. Os exemplos abaixo usam empresas fictícias." (a segunda frase mantém o site honesto).
+- Projetos 01–03: índice "Estilo animado / estático / interativo" (o Forno, que era "vídeo", é o animado);
+  texto principal = descrição do estilo; "Pra quem" virou "Neste exemplo" com a frase do projeto.
+- Depois dos três: "Você não escolhe um template. Você escolhe o estilo da experiência — e o site é criado em
+  cima da identidade e das necessidades da sua empresa." (discreto, linha fina em cima).
+- Como funciona, passo 02: "Definimos o estilo / Juntos, escolhemos o nível de movimento e interação que mais
+  combina com sua empresa."
