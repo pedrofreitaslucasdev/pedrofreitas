@@ -80,6 +80,12 @@ def main():
             destino = SAIDA / f"{nome}.webp"
             img.save(destino, "WEBP", quality=62, method=6)
             print(f"{nome}: {img.width}x{img.height} -> {destino.stat().st_size // 1024} KB")
+            # versão pequena pros celulares: lá a moldura tem ~100px, e decodificar 540x3600
+            # travava o processador (~0,9s no celular simulado do Lighthouse)
+            menor = img.resize((300, round(img.height * 300 / img.width)), Image.LANCZOS)
+            destino = SAIDA / f"{nome}-p.webp"
+            menor.save(destino, "WEBP", quality=62, method=6)
+            print(f"{nome}-p: {menor.width}x{menor.height} -> {destino.stat().st_size // 1024} KB")
             pg.close()
 
             # print de computador: a primeira tela do site, pra imagem grande dos trabalhos

@@ -1,8 +1,8 @@
 // Pedro Freitas · portfólio
 // Sem JavaScript a página continua inteira e os links funcionam: tudo aqui é por cima.
 // As animações de rolagem usam GSAP + ScrollTrigger (em /vendor, sem CDN), buscados só
-// DEPOIS que a página carregou: no celular eles ocupavam ~1,6s de processador bem na hora
-// da primeira pintura. O topo não depende deles (a entrada é em CSS). Se não carregarem,
+// no primeiro sinal de uso (ou 3,5s depois de carregar): no celular eles ocupavam ~1,6s de
+// processador bem na hora da primeira pintura. O topo não depende deles (a entrada é em CSS). Se não carregarem,
 // nada fica escondido: os estados iniciais só são aplicados pelo próprio GSAP.
 
 const CONFIG = {
@@ -268,11 +268,21 @@ function carrega(src) {
   });
 }
 
+// Começa na primeira rolagem, toque ou tecla, ou depois de 3,5s parado. Quem ainda está
+// olhando o topo não precisa das animações lá de baixo, e o processador fica livre.
 if (!semMovimento) {
-  const depois = () => (window.requestIdleCallback ? requestIdleCallback(comeca, { timeout: 1500 }) : setTimeout(comeca, 200));
-  const comeca = () => carrega("vendor/gsap.min.js")
-    .then(() => carrega("vendor/ScrollTrigger.min.js"))
-    .then(animaRolagem)
-    .catch(() => { /* sem GSAP a página só fica sem as animações de rolagem */ });
-  document.readyState === "complete" ? depois() : addEventListener("load", depois, { once: true });
+  let comecou = false;
+  const sinais = ["scroll", "wheel", "touchstart", "pointerdown", "keydown"];
+  const comeca = () => {
+    if (comecou) return;
+    comecou = true;
+    sinais.forEach((s) => removeEventListener(s, comeca));
+    carrega("vendor/gsap.min.js")
+      .then(() => carrega("vendor/ScrollTrigger.min.js"))
+      .then(animaRolagem)
+      .catch(() => { /* sem GSAP a página só fica sem as animações de rolagem */ });
+  };
+  sinais.forEach((s) => addEventListener(s, comeca, { passive: true, once: true }));
+  const espera = () => setTimeout(comeca, 3500);
+  document.readyState === "complete" ? espera() : addEventListener("load", espera, { once: true });
 }
