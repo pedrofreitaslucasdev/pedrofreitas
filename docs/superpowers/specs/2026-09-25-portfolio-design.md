@@ -177,3 +177,14 @@ Pedido do Pedro: "menos olha quem eu sou, mais olha o tipo de trabalho que eu fa
 - Computador: a composição inclina poucos graus com o mouse e as janelas se separam em camadas.
 - Rolagem: o título sobe e apaga um pouco, a composição cresce 8% e se aproxima. Sem pinning.
 - Movimento do topo é JS próprio (variáveis --p, --mx, --my), não depende do GSAP.
+
+## Topo refeito de novo em 26/09/2026 (só o topo): simples
+
+As três janelas flutuando ficaram carregadas e com cara de agência genérica. Agora:
+- Título "SITES QUE NÃO / PASSAM / DESPERCEBIDOS." em escada (a do meio recuada), ~120px no
+  computador, 35–41px no celular; "despercebidos." com o destaque verde (marca-texto no claro).
+- Assinatura pequena: "Desenvolvedor criativo · Lorena — SP" em cima; "Pedro Freitas / Web ·
+  Sistemas · 2026" à direita, com um traço fino que se desenha em cima.
+- Nenhuma imagem. Único detalhe: "Recente — Forno de Pedra ↓" levando pros trabalhos.
+- Movimento: linhas surgem da máscara; rolagem sobe o título e os textos pequenos em
+  velocidades diferentes; mouse move as linhas poucos pixels (a do meio um pouco mais).

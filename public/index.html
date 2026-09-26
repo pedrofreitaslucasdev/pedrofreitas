@@ -69,50 +69,28 @@
 
   <main>
 
-    <!-- 1 · TOPO: o trabalho é o protagonista; o nome é só a assinatura -->
+    <!-- 1 · TOPO: o assunto é o trabalho; o nome é só a assinatura. Sem imagem, de propósito. -->
     <section class="topo" id="topo" aria-label="Apresentação">
-      <p class="topo__assinatura mono">
-        <span>Pedro Freitas — Desenvolvedor</span>
-        <span>Lorena, SP</span>
+      <p class="topo__meta mono">
+        <span>Desenvolvedor criativo</span>
+        <span>Lorena — SP</span>
       </p>
 
-      <h1 class="topo__titulo">
-        <span class="linha"><span>Sites e sistemas</span></span>
-        <span class="linha"><span>pra negócio</span></span>
-        <span class="linha"><span class="marca">de verdade.</span></span>
-      </h1>
-
-      <!-- três janelas com prints reais dos projetos: a da frente flutua sobre as outras duas.
-           O app.js troca os projetos de lugar devagar e inclina a composição com o mouse. -->
-      <div class="mostra" aria-label="Projetos em destaque">
-        <div class="mostra__palco">
-          <div class="janela janela--esq" aria-hidden="true">
-            <span class="janela__barra mono"><span class="janela__url">fontes-odontologia.vercel.app</span></span>
-            <span class="janela__tela"><img src="prints/fontes-odontologia-pc.webp" alt="" width="1280" height="800" decoding="async"></span>
-          </div>
-          <div class="janela janela--dir" aria-hidden="true">
-            <span class="janela__barra mono"><span class="janela__url">deposito-casa-forte.vercel.app</span></span>
-            <span class="janela__tela"><img src="prints/casa-forte-pc.webp" alt="" width="1280" height="800" decoding="async"></span>
-          </div>
-          <a class="janela janela--frente" href="https://forno-de-pedra.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="forno-de-pedra.vercel.app: ver o site Forno de Pedra (abre em nova aba)">
-            <span class="janela__barra mono"><span class="janela__url">forno-de-pedra.vercel.app</span></span>
-            <span class="janela__tela"><img src="prints/forno-de-pedra-pc.webp" alt="" width="1280" height="800" decoding="async" fetchpriority="high"></span>
-          </a>
-        </div>
+      <div class="topo__centro">
+        <h1 class="topo__titulo">
+          <span class="linha linha--a"><span>Sites que não</span></span>
+          <span class="linha linha--b"><span>passam</span></span>
+          <span class="linha linha--c"><span class="marca">despercebidos.</span></span>
+        </h1>
+        <p class="topo__assinatura">
+          <span class="topo__nome">Pedro Freitas</span>
+          <span class="mono">Web · Sistemas · 2026</span>
+        </p>
       </div>
 
-      <div class="topo__baixo">
-        <div class="destaque mono">
-          <span class="destaque__num">01 / 03</span>
-          <span class="destaque__rotulo">Projeto em destaque</span>
-          <span class="destaque__nome">Forno de Pedra</span>
-          <span class="destaque__trocar" role="group" aria-label="Escolher o projeto em destaque">
-            <button type="button" aria-pressed="true" aria-label="01, Forno de Pedra">01</button>
-            <button type="button" aria-pressed="false" aria-label="02, Fontes Odontologia">02</button>
-            <button type="button" aria-pressed="false" aria-label="03, Casa Forte">03</button>
-          </span>
-        </div>
-        <a class="topo__rolar mono" href="#sobre">Role para explorar <span aria-hidden="true">↓</span></a>
+      <div class="topo__baixo mono">
+        <a class="topo__rolar" href="#sobre"><span aria-hidden="true">↓</span> Explorar</a>
+        <a class="topo__recente sublinha" href="#trabalhos">Recente — Forno de Pedra <span aria-hidden="true">↓</span></a>
       </div>
     </section>
 
