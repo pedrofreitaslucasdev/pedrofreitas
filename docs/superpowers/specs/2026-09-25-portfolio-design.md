@@ -249,3 +249,20 @@ A transição pros sistemas é a virada que já existia. Sistemas: sem mudança.
   `scripts/video_forno.py` grava o site rolando de 0 a 1380px (Playwright) e gera forno-pc.mp4 / forno-cel.mp4
   (H.264, ida e volta = loop sem emenda). O endereço fica em data-src e só é posto quando a seção aparece
   (o WebKit baixava mesmo com preload="none"). Sem JS ou com "reduzir movimento": fica o poster (o print).
+
+## Revisão do Astra para celular (26/09/2026)
+
+Duas rodadas do Astra (Codex, só leitura), cada achado conferido antes de corrigir:
+- menu com o celular deitado rola (antes o "01 Trabalhos" ficava fora da tela);
+- links do WhatsApp têm href real no HTML (sem JS, o botão principal abria o próprio portfólio);
+- conteúdo que ainda não "subiu" usa opacity, não autoAlpha (visibility:hidden sumia com texto e links do leitor
+  de tela); foco revela o bloco;
+- menu aberto: fundo inert + body.travado (position fixed, sem cor) pra travar a rolagem também antes do iOS 26.4,
+  voltando ao mesmo scrollY; o botão fixo fica inert fora da tela e com o menu aberto;
+- texto ampliado: títulos com nowrap (topo e "8 em cada 10") só em vw, sem mínimo em rem — não cortam, mas não
+  crescem (trade-off consciente: crescer exigiria quebrar a linha e voltaria o pulo do topo); outras linhas quebram
+  palavra longa em vez de cortar; botão fixo limitado à tela;
+- virada apaga até 0.6 (0.22 dava contraste 1,6:1); áreas de toque de 44px por ::after invisível;
+  "reduzir movimento" ligado com a página aberta recarrega (com addListener pro iOS antigo); contador "06 projetos" saiu.
+Não feito: botão "pausar movimentos" (decisão do Pedro) e polyfill de inert pro Safari < 15.5.
+Achado falso do Astra: acentos cortados pela máscara (conferido em print ampliado: estão inteiros).

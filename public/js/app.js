@@ -12,6 +12,10 @@ const CONFIG = {
 
 const raiz = document.documentElement;
 const semMovimento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+// se a pessoa ligar ou desligar "reduzir movimento" com a página aberta, recarrega pra valer em tudo
+const preferenciaMovimento = matchMedia("(prefers-reduced-motion: reduce)");
+if (preferenciaMovimento.addEventListener) preferenciaMovimento.addEventListener("change", () => location.reload());
+else if (preferenciaMovimento.addListener) preferenciaMovimento.addListener(() => location.reload());   // iOS antigo
 const temMouse = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
 // ---------- WhatsApp ----------
@@ -86,21 +90,32 @@ const menu = document.getElementById("menu");
 const botaoMenu = document.querySelector(".barra__menu");
 const textoMenu = botaoMenu.querySelector(".barra__menu-texto");
 
+// com o menu aberto, o que está atrás fica inerte (Tab e leitor de tela não escapam pra lá)
+const fundoDoMenu = () => document.querySelectorAll("main, .pular, .barra__marca, .tema, .zap-fixo");
+let yMenu = 0;
 function abreMenu() {
   barra.classList.remove("barra--escondida");
+  fundoDoMenu().forEach((el) => { el.inert = true; });
+  yMenu = scrollY;
+  document.body.style.top = `-${yMenu}px`;
+  document.body.classList.add("travado");
   menu.hidden = false;
   menu.getBoundingClientRect();            // força o navegador a desenhar antes da transição
   menu.classList.add("aberto");
   botaoMenu.setAttribute("aria-expanded", "true");
   textoMenu.textContent = "Fechar";
-  document.body.style.overflow = "hidden";
   menu.querySelector("a").focus({ preventScroll: true });
 }
 function fechaMenu(devolverFoco = true) {
   menu.classList.remove("aberto");
   botaoMenu.setAttribute("aria-expanded", "false");
   textoMenu.textContent = "Menu";
-  document.body.style.overflow = "";
+  fundoDoMenu().forEach((el) => { el.inert = false; });
+  // o botão fixo volta a obedecer à regra dele (inerte enquanto está fora da tela)
+  zapFixo.inert = !zapFixo.classList.contains("aparece");
+  document.body.classList.remove("travado");
+  document.body.style.top = "";
+  scrollTo(0, yMenu);                    // antes da âncora: o link do menu navega depois disso
   // some de vez depois da cortina subir: menu escondido com cor não pode ficar na tela (Safari)
   const esconde = () => { if (!menu.classList.contains("aberto")) menu.hidden = true; };
   semMovimento ? esconde() : setTimeout(esconde, 750);
@@ -115,7 +130,10 @@ const zapFixo = document.querySelector(".zap-fixo");
 const vistos = { topo: true, contato: false };
 const olhoZap = new IntersectionObserver((entradas) => {
   entradas.forEach((e) => { vistos[e.target.id] = e.isIntersecting; });
-  zapFixo.classList.toggle("aparece", !vistos.topo && !vistos.contato);
+  const mostra = !vistos.topo && !vistos.contato;
+  zapFixo.classList.toggle("aparece", mostra);
+  // escondido embaixo da tela, ou com o menu aberto por cima: fora do Tab e do leitor de tela
+  zapFixo.inert = !mostra || menu.classList.contains("aberto");
 }, { threshold: 0.1 });
 olhoZap.observe(document.getElementById("topo"));
 olhoZap.observe(document.getElementById("contato"));
@@ -257,11 +275,17 @@ function animaRolagem() {
 
   // textos pequenos, legendas e passos: sobem juntos, em lotes
   const abaixo = gsap.utils.toArray(".sobe").filter((el) => el.getBoundingClientRect().top > innerHeight);
-  gsap.set(abaixo, { y: 22, autoAlpha: 0 });
+  // opacity e não autoAlpha: visibility:hidden tirava o texto e os links do leitor de tela
+  gsap.set(abaixo, { y: 22, opacity: 0 });
   ScrollTrigger.batch(abaixo, {
     start: "top 92%",
     once: true,
-    onEnter: (lote) => gsap.to(lote, { y: 0, autoAlpha: 1, duration: 1, ease: "power3.out", stagger: 0.06, overwrite: true }),
+    onEnter: (lote) => gsap.to(lote, { y: 0, opacity: 1, duration: 1, ease: "power3.out", stagger: 0.06, overwrite: true }),
+  });
+  // quem chega pelo teclado ou leitor de tela antes da animação vê o bloco na hora
+  document.addEventListener("focusin", ({ target }) => {
+    const bloco = target.closest && target.closest(".sobe");
+    if (bloco) gsap.set(bloco, { y: 0, opacity: 1 });
   });
 
   // projetos: a imagem entra como uma cortina subindo, e o celular chega logo depois
@@ -289,7 +313,7 @@ function animaRolagem() {
   });
 
   // a virada: a primeira frase apaga enquanto a segunda chega (fim de um capítulo, começo do outro)
-  gsap.to(".virada__a", { opacity: 0.22, ease: "none",
+  gsap.to(".virada__a", { opacity: 0.6, ease: "none",   // 0.22 derrubava o contraste pra 1,6:1
     scrollTrigger: { trigger: ".virada__b", start: "top 85%", end: "top 45%", scrub: true } });
 
   // CAPÍTULO 02: o bloco invertido abre por cima, das bordas pra tela toda
