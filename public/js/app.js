@@ -61,7 +61,8 @@ function mostraProjeto(i) {
       janela.querySelector(".janela__url").textContent = proj.url.replace("https://", "");
       if (janela.tagName === "A") {
         janela.href = proj.url;
-        janela.setAttribute("aria-label", "Ver o site " + proj.nome + " (abre em nova aba)");
+        // o nome anunciado começa pelo que está escrito na janela (o endereço), pro comando de voz achar
+        janela.setAttribute("aria-label", proj.url.replace("https://", "") + ": ver o site " + proj.nome + " (abre em nova aba)");
       }
       janela.classList.remove("trocando");
     };
