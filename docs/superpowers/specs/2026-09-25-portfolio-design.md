@@ -1,7 +1,8 @@
 # Portfólio do Pedro Freitas: desenho
 
 Data: 25/09/2026
-Endereço: `pedrofreitas.vercel.app`
+Endereço: `pedrofreitasdev.vercel.app`
+n(O `pedrofreitas.vercel.app` já era de outra conta da Vercel; ficou `pedrofreitasdev`, igual ao usuário do GitHub. Plano futuro: domínio próprio `pedrofreitas.com.br`.)
 
 ## Para que serve
 
@@ -110,7 +111,7 @@ Um botão de WhatsApp preso embaixo da tela, que aparece depois que a pessoa sai
 ## Fora deste trabalho (vem depois, cada um separado)
 
 1. **Trocar o link da assinatura** nos modelos e sites de clientes: de WhatsApp direto para
-   `pedrofreitas.vercel.app`. Isso só depois que o portfólio estiver no ar.
+   `pedrofreitasdev.vercel.app`. Isso só depois que o portfólio estiver no ar.
 2. **Criar a demo da gráfica** (`demo-grafica`), no padrão das outras demos. Quando ela
    existir, o cartão da gráfica muda de "em breve" para "testar →".
 
