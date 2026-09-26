@@ -61,7 +61,7 @@ p, dl, dd, ol { margin: 0; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--destaque); outline-offset: 4px; }
 
-.mono { font-family: var(--mono); font-size: .72rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+.mono { font-family: var(--mono); font-size: .75rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
 .rotulo { color: var(--apagado); margin-bottom: 1.6rem; }
 .secao { padding: clamp(5rem, 13vw, 11rem) var(--lado); }
 
@@ -116,7 +116,7 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   border-radius: 4px;
   background: none;
   color: inherit;
-  font: 500 .72rem var(--mono);
+  font: 500 .75rem var(--mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   cursor: pointer;
@@ -299,7 +299,7 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 .projeto__texto dl { display: grid; gap: .3rem; }
 .projeto__texto dt { color: var(--apagado); }
 .link-seta { justify-self: start; margin-top: .3rem; font: 600 .9rem var(--sem); letter-spacing: .03em; text-transform: uppercase; }
-.link-seta--apagado { color: var(--apagado); border-bottom: 1px dashed var(--apagado); font: 500 .72rem var(--mono); }
+.link-seta--apagado { color: var(--apagado); border-bottom: 1px dashed var(--apagado); font: 500 .75rem var(--mono); }
 
 /* ---------- 4 · como funciona: índice editorial, não fileira de cards ---------- */
 .passos__titulo { font-size: clamp(2rem, 5.6vw, 4.6rem); }
