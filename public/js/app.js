@@ -39,7 +39,7 @@ const fones = [...document.querySelectorAll(".fone")].filter((f) => f.querySelec
 // A animação é criada aqui, com a distância já medida em pixels.
 // A altura do print sai da PROPORÇÃO do arquivo, não do getBoundingClientRect: no Safari a
 // imagem mede 0 de altura logo que a página abre, a conta dava negativa e o print da pizza
-// nunca descia. (O rect também viria encolhido pela escala da carta de trás.)
+// nunca descia.
 const animacoes = new Map();
 const naTela = new Set();
 
@@ -87,28 +87,15 @@ if (!semMovimento) {
   fones.forEach((f) => olhoFone.observe(f));
 }
 
-// ---------- scroll: nome do topo saindo e cartas encolhendo atrás da próxima ----------
+// ---------- scroll: o nome do topo sobe e apaga enquanto a pessoa desce ----------
 if (!semMovimento) {
   const topo = document.getElementById("topo");
-  const cartas = [...document.querySelectorAll(".carta")];
   let pedido = false;
 
   function quadro() {
     pedido = false;
-    const alturaTela = innerHeight;
-
-    const sai = Math.min(1, Math.max(0, scrollY / alturaTela));
+    const sai = Math.min(1, Math.max(0, scrollY / innerHeight));
     topo.style.setProperty("--sai", sai.toFixed(3));
-
-    cartas.forEach((carta, i) => {
-      const proxima = cartas[i + 1];
-      if (!proxima) return;
-      // quanto a próxima carta já subiu por cima desta (0 = longe, 1 = cobriu)
-      const topoFixo = parseFloat(getComputedStyle(carta).top);
-      const falta = proxima.getBoundingClientRect().top - topoFixo;
-      const p = Math.min(1, Math.max(0, 1 - falta / carta.offsetHeight));
-      carta.style.setProperty("--encolhe", p.toFixed(3));
-    });
   }
 
   const pede = () => { if (!pedido) { pedido = true; requestAnimationFrame(quadro); } };

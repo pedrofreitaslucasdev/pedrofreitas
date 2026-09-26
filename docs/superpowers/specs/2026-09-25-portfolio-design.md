@@ -27,7 +27,7 @@ para levar a pessoa até esse botão.
 | Foto / "sobre mim" | Não entram agora. Ele pode mudar depois, então o layout não deve impedir |
 | Formato | Página única, com efeitos no scroll |
 | Clima visual | Escuro e marcante: fundo quase preto, nome gigante, destaque verde-limão |
-| Modelos no scroll | Cartas empilhando |
+| Modelos no scroll | ~~Cartas empilhando~~ → três blocos abertos, sem grudar (26/09: o Pedro não gostou das cartas; opção recomendada pelo Astra) |
 | Prévia dos sites | Print do site inteiro dentro de um celular, rolando sozinho |
 
 ## A página, de cima para baixo
