@@ -219,7 +219,6 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 .faixa { border-block: 1px solid var(--linha); overflow: clip; padding: 1rem 0; }
 .faixa__trilho { display: flex; width: max-content; animation: faixa 70s linear infinite; }
 .faixa__trilho span { padding-right: .5em; font: 800 clamp(1.1rem, 2.8vw, 2rem)/1 var(--titulo); letter-spacing: -.03em; text-transform: uppercase; white-space: nowrap; }
-.faixa__trilho span:nth-child(even) { color: transparent; -webkit-text-stroke: 1.2px var(--texto); }
 @keyframes faixa { to { transform: translateX(-50%); } }
 
 /* ---------- 2 · sobre ---------- */
