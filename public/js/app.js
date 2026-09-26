@@ -12,6 +12,22 @@ const semMovimento = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const linkZap = "https://wa.me/" + CONFIG.numero + "?text=" + encodeURIComponent(CONFIG.mensagem);
 document.querySelectorAll("[data-zap]").forEach((a) => { a.href = linkZap; });
 
+// ---------- claro / escuro: a escolha fica guardada só no navegador da pessoa ----------
+const botaoTema = document.querySelector(".tema");
+function mostraTema() {
+  const claro = document.documentElement.dataset.tema !== "escuro";
+  botaoTema.querySelector(".tema__texto").textContent = claro ? "Escuro" : "Claro";
+  botaoTema.setAttribute("aria-pressed", String(!claro));
+  document.querySelector('meta[name="theme-color"]').content = claro ? "#fbfaf6" : "#0e0e0e";
+}
+botaoTema.addEventListener("click", () => {
+  const novo = document.documentElement.dataset.tema === "escuro" ? "claro" : "escuro";
+  document.documentElement.dataset.tema = novo;
+  try { localStorage.setItem("tema", novo); } catch (e) { /* aba anônima: só não lembra */ }
+  mostraTema();
+});
+mostraTema();
+
 // ---------- botão fixo: aparece depois do topo, some no fechamento ----------
 const zapFixo = document.querySelector(".zap-fixo");
 const vistos = { topo: true, fecho: false };

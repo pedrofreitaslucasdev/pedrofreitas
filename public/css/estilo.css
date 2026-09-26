@@ -69,6 +69,29 @@ a { color: inherit; }
   position: relative;
 }
 .topo__lugar { position: absolute; top: 1.5rem; left: var(--lado); font-size: .75rem; letter-spacing: .18em; text-transform: uppercase; color: var(--apagado); }
+/* botão de trocar o fundo: rola junto com a página, de propósito. Se ficasse
+   position: fixed com cor, o Safari do iOS 26 pintaria as barras com ela. */
+.tema {
+  position: absolute;
+  top: 1.05rem;
+  right: var(--lado);
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  min-height: 40px;
+  padding: .4rem .9rem;
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  background: none;
+  color: var(--texto);
+  font: 600 .8rem var(--sem);
+  cursor: pointer;
+}
+.tema:hover { border-color: var(--texto); }
+.tema__icone { width: .9rem; height: .9rem; border-radius: 50%; background: var(--texto); }
+/* no escuro mostra um sol (vai pro claro); no claro, uma lua (vai pro escuro) */
+[data-tema="claro"] .tema__icone { box-shadow: inset -.3rem -.1rem 0 0 var(--fundo); }
+body { transition: background-color .35s, color .35s; }
 .topo__nome {
   font-size: clamp(4.2rem, 21vw, 15rem);
   letter-spacing: -.035em;

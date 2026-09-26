@@ -26,7 +26,7 @@ para levar a pessoa até esse botão.
 | Preço | Não aparece. Tudo termina no WhatsApp |
 | Foto / "sobre mim" | Não entram agora. Ele pode mudar depois, então o layout não deve impedir |
 | Formato | Página única, com efeitos no scroll |
-| Clima visual | Escuro e marcante: fundo quase preto, nome gigante, destaque verde-limão. Fonte dos títulos: Bricolage Grotesque (26/09; a Fraunces com serifa "parecia biografia") |
+| Clima visual | Claro por padrão, com botão pra pessoa trocar pro escuro (26/09; a escolha fica no navegador dela). Escuro e marcante: fundo quase preto, nome gigante, destaque verde-limão. Fonte dos títulos: Bricolage Grotesque (26/09; a Fraunces com serifa "parecia biografia") |
 | Modelos no scroll | ~~Cartas empilhando~~ → três blocos abertos, sem grudar (26/09: o Pedro não gostou das cartas; opção recomendada pelo Astra) |
 | Prévia dos sites | Print do site inteiro dentro de um celular, rolando sozinho |
 

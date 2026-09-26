@@ -7,11 +7,17 @@
   <meta name="description" content="Sites que fazem o cliente chamar no WhatsApp. Veja os modelos e os sistemas que eu já entreguei.">
   <meta name="theme-color" content="#0e0e0e">
   <script>
-    // tema claro pra comparar: /?tema=claro. Roda antes do CSS pra não piscar escuro.
-    if (new URLSearchParams(location.search).get("tema") === "claro") {
-      document.documentElement.dataset.tema = "claro";
-      document.querySelector('meta[name="theme-color"]').content = "#fbfaf6";
-    }
+    // Tema: claro por padrão; a pessoa troca no botão do topo e o navegador dela lembra.
+    // /?tema=escuro ou /?tema=claro força um dos dois (bom pra mandar link).
+    // Roda antes do CSS pra não piscar o tema errado.
+    (function () {
+      var pedido = new URLSearchParams(location.search).get("tema");
+      var salvo = null;
+      try { salvo = localStorage.getItem("tema"); } catch (e) {}
+      var tema = pedido === "escuro" || pedido === "claro" ? pedido : salvo === "escuro" ? "escuro" : "claro";
+      document.documentElement.dataset.tema = tema;
+      document.querySelector('meta[name="theme-color"]').content = tema === "claro" ? "#fbfaf6" : "#0e0e0e";
+    })();
   </script>
 
   <meta property="og:type" content="website">
@@ -35,6 +41,9 @@
   <!-- 1 · TOPO -->
   <header class="topo" id="topo">
     <p class="topo__lugar">Lorena · SP</p>
+    <button class="tema" type="button" aria-label="Trocar fundo claro ou escuro">
+      <span class="tema__icone" aria-hidden="true"></span><span class="tema__texto"></span>
+    </button>
     <h1 class="topo__nome" aria-label="Pedro Freitas">
       <span class="linha" aria-hidden="true"><span style="--i:0">P</span><span style="--i:1">e</span><span style="--i:2">d</span><span style="--i:3">r</span><span style="--i:4">o</span></span>
       <span class="linha linha--limao" aria-hidden="true"><span style="--i:5">F</span><span style="--i:6">r</span><span style="--i:7">e</span><span style="--i:8">i</span><span style="--i:9">t</span><span style="--i:10">a</span><span style="--i:11">s</span></span>
