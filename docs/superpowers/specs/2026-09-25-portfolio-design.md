@@ -2,7 +2,8 @@
 
 Data: 25/09/2026
 Endereço: `pedrofreitasdev.vercel.app`
-n(O `pedrofreitas.vercel.app` já era de outra conta da Vercel; ficou `pedrofreitasdev`, igual ao usuário do GitHub. Plano futuro: domínio próprio `pedrofreitas.com.br`.)
+
+(O `pedrofreitas.vercel.app` já era de outra conta da Vercel; ficou `pedrofreitasdev`, igual ao usuário do GitHub. Plano futuro: domínio próprio `pedrofreitas.com.br`.)
 
 ## Para que serve
 
