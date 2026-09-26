@@ -143,3 +143,11 @@ português**, **GitHub no contato** (sem Instagram, que não existe).
 - Computador: cursor próprio ("Ver ↗" em cima de projeto), ímã nos botões, imagem que
   inclina com o mouse. Nada disso no celular.
 - Prints de computador (`<nome>-pc.webp`, 1280×800) saem do mesmo `scripts/prints.py`.
+
+### Performance (medida no ar, Lighthouse celular, 26/09)
+
+Começou em 79 e terminou em 90–98 (três rodadas), CLS 0, página de 644KB pra 388KB. O que fez diferença:
+fontes servidas do próprio site com preload (o CSS do Google travava 0,85s); GSAP só na primeira
+rolagem/toque ou 3,5s depois; print de 300px pros celulares via srcset (decodificar 540×3600 travava);
+e dois "pulos" do topo quando a fonte chegava (FREITAS quebrando linha; "Role para explorar" mudando
+de lugar). Computador: 100.
