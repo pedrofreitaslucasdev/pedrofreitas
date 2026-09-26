@@ -2,7 +2,7 @@
 // Sem JavaScript a página continua inteira e os links funcionam: tudo aqui é por cima.
 // As animações de rolagem usam GSAP + ScrollTrigger (em /vendor, sem CDN), buscados só
 // no primeiro sinal de uso (ou 3,5s depois de carregar): no celular eles ocupavam ~1,6s de
-// processador bem na hora da primeira pintura. O topo não depende deles (a entrada é em CSS). Se não carregarem,
+// processador bem na hora da primeira pintura. O topo não depende deles (entrada em CSS, resto aqui). Se não carregarem,
 // nada fica escondido: os estados iniciais só são aplicados pelo próprio GSAP.
 
 const CONFIG = {
@@ -33,6 +33,89 @@ botaoTema.addEventListener("click", () => {
   mostraTema();
 });
 mostraTema();
+
+// ---------- topo: os projetos se revezam, inclinam com o mouse e se aproximam na rolagem ----------
+// Tudo por variável de CSS (--p, --mx, --my) no .topo: o CSS decide o quanto cada peça mexe.
+const topo = document.getElementById("topo");
+const PROJETOS = [
+  { nome: "Forno de Pedra", url: "https://forno-de-pedra.vercel.app", img: "prints/forno-de-pedra-pc.webp" },
+  { nome: "Fontes Odontologia", url: "https://fontes-odontologia.vercel.app", img: "prints/fontes-odontologia-pc.webp" },
+  { nome: "Casa Forte", url: "https://deposito-casa-forte.vercel.app", img: "prints/casa-forte-pc.webp" },
+];
+// ordem das janelas: a da frente mostra o projeto atual; as de trás, os outros dois
+const janelas = ["frente", "esq", "dir"].map((n) => document.querySelector(".janela--" + n));
+const destaqueNum = document.querySelector(".destaque__num");
+const destaqueNome = document.querySelector(".destaque__nome");
+const botoesDestaque = [...document.querySelectorAll(".destaque__trocar button")];
+let atual = 0;
+
+function mostraProjeto(i) {
+  atual = (i + PROJETOS.length) % PROJETOS.length;
+  destaqueNum.textContent = String(atual + 1).padStart(2, "0") + " / " + String(PROJETOS.length).padStart(2, "0");
+  destaqueNome.textContent = PROJETOS[atual].nome;
+  botoesDestaque.forEach((b, k) => b.setAttribute("aria-pressed", String(k === atual)));
+  janelas.forEach((janela, posicao) => {
+    const proj = PROJETOS[(atual + posicao) % PROJETOS.length];
+    const aplica = () => {
+      janela.querySelector("img").src = proj.img;
+      janela.querySelector(".janela__url").textContent = proj.url.replace("https://", "");
+      if (janela.tagName === "A") {
+        janela.href = proj.url;
+        janela.setAttribute("aria-label", "Ver o site " + proj.nome + " (abre em nova aba)");
+      }
+      janela.classList.remove("trocando");
+    };
+    if (semMovimento) { aplica(); return; }
+    // as de trás trocam um pouco depois da da frente: parece uma troca, não um piscar
+    setTimeout(() => { janela.classList.add("trocando"); setTimeout(aplica, 450); }, posicao * 90);
+  });
+}
+
+// troca lenta e automática, só enquanto o topo está na tela, a aba visível e ninguém mexendo nele
+let topoNaTela = true, mexendo = false, relogio = null;
+const agenda = () => {
+  clearInterval(relogio);
+  if (semMovimento) return;
+  relogio = setInterval(() => {
+    if (topoNaTela && !mexendo && !document.hidden) mostraProjeto(atual + 1);
+  }, 6500);
+};
+botoesDestaque.forEach((b, k) => b.addEventListener("click", () => { mostraProjeto(k); agenda(); }));
+new IntersectionObserver(([e]) => { topoNaTela = e.isIntersecting; }, { threshold: 0.3 }).observe(topo);
+agenda();
+
+if (!semMovimento) {
+  // rolagem: de 0 a 1 enquanto o topo sai da tela. Sem prender a pessoa: nada de pinning.
+  let pedidoTopo = false;
+  const rola = () => {
+    pedidoTopo = false;
+    const p = Math.min(1, Math.max(0, scrollY / topo.offsetHeight));
+    topo.style.setProperty("--p", p.toFixed(3));
+  };
+  addEventListener("scroll", () => { if (!pedidoTopo) { pedidoTopo = true; requestAnimationFrame(rola); } }, { passive: true });
+  rola();
+
+  // mouse (só computador): a composição inclina poucos graus e as janelas se separam em camadas
+  if (temMouse) {
+    let alvoX = 0, alvoY = 0, x = 0, y = 0, rodando = false;
+    const anda = () => {
+      x += (alvoX - x) * 0.08; y += (alvoY - y) * 0.08;
+      topo.style.setProperty("--mx", x.toFixed(4));
+      topo.style.setProperty("--my", y.toFixed(4));
+      rodando = Math.abs(alvoX - x) > 0.001 || Math.abs(alvoY - y) > 0.001;
+      if (rodando) requestAnimationFrame(anda);
+    };
+    const mira = (nx, ny) => { alvoX = nx; alvoY = ny; if (!rodando) { rodando = true; requestAnimationFrame(anda); } };
+    topo.addEventListener("pointermove", (e) => {
+      const r = topo.getBoundingClientRect();
+      mira((e.clientX - r.left) / r.width - 0.5, (e.clientY - r.top) / r.height - 0.5);
+    });
+    topo.addEventListener("pointerleave", () => mira(0, 0));
+    const mostra = document.querySelector(".mostra");
+    mostra.addEventListener("pointerenter", () => { mexendo = true; });
+    mostra.addEventListener("pointerleave", () => { mexendo = false; });
+  }
+}
 
 // ---------- barra: some quando a pessoa desce, volta quando sobe ----------
 const barra = document.querySelector(".barra");
@@ -221,10 +304,6 @@ function animaRolagem() {
   const mm = gsap.matchMedia();
   mm.add({ grande: "(min-width: 760px)", pequeno: "(max-width: 759px)" }, (ctx) => {
     const forca = ctx.conditions.grande ? 1 : 0.5;
-
-    // topo: quase nada. O nome só sobe um pouco mais devagar que a página
-    const topo = { trigger: ".topo", start: "top top", end: "bottom top", scrub: true };
-    gsap.to(".topo__palco", { y: -36 * forca, ease: "none", scrollTrigger: topo });
 
     // projetos: dentro da moldura a imagem desliza devagar; o celular vai um pouco mais rápido
     document.querySelectorAll(".projeto__midia").forEach((midia) => {

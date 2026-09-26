@@ -69,27 +69,49 @@
 
   <main>
 
-    <!-- 1 · TOPO -->
+    <!-- 1 · TOPO: o trabalho é o protagonista; o nome é só a assinatura -->
     <section class="topo" id="topo" aria-label="Apresentação">
-      <div class="topo__meta mono">
-        <span>Desenvolvedor criativo</span>
-        <span>Lorena — SP</span>
-        <span>2026</span>
-      </div>
+      <p class="topo__assinatura mono">
+        <span>Pedro Freitas — Desenvolvedor</span>
+        <span>Lorena, SP</span>
+      </p>
 
-      <div class="topo__palco">
-        <h1 class="topo__nome" aria-label="Pedro Freitas">
-          <span class="linha linha--1" aria-hidden="true"><span style="--i:0">P</span><span style="--i:1">E</span><span style="--i:2">D</span><span style="--i:3">R</span><span style="--i:4">O</span></span>
-          <span class="linha linha--2 marca-nome" aria-hidden="true"><span style="--i:5">F</span><span style="--i:6">R</span><span style="--i:7">E</span><span style="--i:8">I</span><span style="--i:9">T</span><span style="--i:10">A</span><span style="--i:11">S</span></span>
-        </h1>
-        <!-- o celular fica NA FRENTE do "PEDRO" e ATRÁS do "FREITAS" -->
-        <div class="topo__fone fone" aria-hidden="true">
-          <img src="prints/forno-de-pedra.webp" srcset="prints/forno-de-pedra-p.webp 300w, prints/forno-de-pedra.webp 540w" sizes="(min-width: 1534px) 230px, (min-width: 760px) 15vw, 100px" alt="" width="540" height="3600" decoding="async" fetchpriority="low">
+      <h1 class="topo__titulo">
+        <span class="linha"><span>Sites e sistemas</span></span>
+        <span class="linha"><span>pra negócio</span></span>
+        <span class="linha"><span class="marca">de verdade.</span></span>
+      </h1>
+
+      <!-- três janelas com prints reais dos projetos: a da frente flutua sobre as outras duas.
+           O app.js troca os projetos de lugar devagar e inclina a composição com o mouse. -->
+      <div class="mostra" aria-label="Projetos em destaque">
+        <div class="mostra__palco">
+          <div class="janela janela--esq" aria-hidden="true">
+            <span class="janela__barra mono"><span class="janela__url">fontes-odontologia.vercel.app</span></span>
+            <span class="janela__tela"><img src="prints/fontes-odontologia-pc.webp" alt="" width="1280" height="800" decoding="async"></span>
+          </div>
+          <div class="janela janela--dir" aria-hidden="true">
+            <span class="janela__barra mono"><span class="janela__url">deposito-casa-forte.vercel.app</span></span>
+            <span class="janela__tela"><img src="prints/casa-forte-pc.webp" alt="" width="1280" height="800" decoding="async"></span>
+          </div>
+          <a class="janela janela--frente" href="https://forno-de-pedra.vercel.app" target="_blank" rel="noopener" data-cursor aria-label="Ver o site Forno de Pedra (abre em nova aba)">
+            <span class="janela__barra mono"><span class="janela__url">forno-de-pedra.vercel.app</span></span>
+            <span class="janela__tela"><img src="prints/forno-de-pedra-pc.webp" alt="" width="1280" height="800" decoding="async" fetchpriority="high"></span>
+          </a>
         </div>
       </div>
 
       <div class="topo__baixo">
-        <p class="topo__frase">Sites, experiências digitais<br>e sistemas para negócios.</p>
+        <div class="destaque mono">
+          <span class="destaque__num">01 / 03</span>
+          <span class="destaque__rotulo">Projeto em destaque</span>
+          <span class="destaque__nome">Forno de Pedra</span>
+          <span class="destaque__trocar" role="group" aria-label="Escolher o projeto em destaque">
+            <button type="button" aria-pressed="true" aria-label="Forno de Pedra">01</button>
+            <button type="button" aria-pressed="false" aria-label="Fontes Odontologia">02</button>
+            <button type="button" aria-pressed="false" aria-label="Casa Forte">03</button>
+          </span>
+        </div>
         <a class="topo__rolar mono" href="#sobre">Role para explorar <span aria-hidden="true">↓</span></a>
       </div>
     </section>

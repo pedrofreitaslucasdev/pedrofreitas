@@ -164,3 +164,16 @@ Pedido do Pedro: menos espetáculo no nome, mais qualidade na apresentação dos
 - Títulos de seção ~40% menores; faixa menor e mais lenta; botões com canto de 4px.
 - Como funciona: título curto + índice numerado. Contato: título moderado, texto curto,
   WhatsApp como botão principal, "Voltar ao topo" no rodapé.
+
+## Topo novo de 26/09/2026 (só o topo)
+
+Pedido do Pedro: "menos olha quem eu sou, mais olha o tipo de trabalho que eu faço".
+- Nome pequeno como assinatura: "Pedro Freitas — Desenvolvedor · Lorena, SP".
+- Título: "Sites e sistemas pra negócio de verdade." (versão em português do "for real businesses").
+- Elemento central: três janelas com prints reais (Forno de Pedra na frente, Fontes e Casa Forte
+  atrás), composição assimétrica com profundidade. A cada 6,5s os projetos trocam de lugar
+  (só com o topo na tela, a aba visível e o mouse fora); indicador "01 / 03 · Projeto em
+  destaque" com 01/02/03 clicáveis. Não é carrossel: nada de setas nem arrastar.
+- Computador: a composição inclina poucos graus com o mouse e as janelas se separam em camadas.
+- Rolagem: o título sobe e apaga um pouco, a composição cresce 8% e se aproxima. Sem pinning.
+- Movimento do topo é JS próprio (variáveis --p, --mx, --my), não depende do GSAP.
