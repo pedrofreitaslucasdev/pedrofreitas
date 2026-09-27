@@ -148,12 +148,12 @@ void main() {
   }
 
   const temaDe = () => document.documentElement.dataset.tema === "escuro" ? "escuro" : "claro";
-  const oposto = () => "escuro";   // Sistemas é escuro nos dois temas desde o vidro (27/09)
   function comeca() {
     const topo = document.getElementById("topo");
     const sistemas = document.getElementById("sistemas");
     // o topo agora recebe o fio de luz do luz.js (o site inteiro); aqui fica só o capítulo Sistemas
-    if (sistemas) cria(sistemas, { fundo: oposto, forca: celular ? 0.5 : 0.95, q: 0.7, incl: -0.14, alto: 0.62 });
+    if (sistemas) cria(sistemas, { fundo: temaDe,   // Sistemas acompanha o tema (27/09)
+      forca: celular ? 0.5 : 0.72, q: 0.7, incl: -0.14, alto: 0.62 });
   }
   // depois da primeira pintura: o efeito chega com um fade e não atrasa o título
   const depois = window.requestIdleCallback || ((f) => setTimeout(f, 200));
