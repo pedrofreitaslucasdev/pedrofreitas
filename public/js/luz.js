@@ -5,7 +5,9 @@
 // flutua em volta. O brilho difuso (bloom) sai de desenhar a mesma cena em resolução baixa e
 // esticar por cima (o filtro linear borra de graça), em duas escalas.
 //
-// O caminho do tubo é preso à PÁGINA (p = telas desde o topo): rolar é andar por ele.
+// SINCRONIA (27/09, pedido do Pedro + receita do Astra): o feixe fica preso à TELA e o desenho dele
+// desce por um fluxo único = descida lenta no tempo + rolagem x K. Parado desce devagar; rolando pra
+// baixo desce junto; rolando pra cima volta. p = y_tela - fluxo (coordenada ao longo do caminho).
 // Canvas fixo e transparente atrás do conteúdo, SEM cor de fundo (regra 1 do Safari do iOS 26).
 // Sem WebGL: nada acontece. "Reduzir movimento": quadro parado, redesenhado só na rolagem.
 
@@ -24,14 +26,15 @@
   // cx: centro, em fração da largura. raio: em alturas de tela; pulsa pra formar nós e leques.
   // gira: torção ao longo do caminho + tempo (é isso que faz os fios se cruzarem e "fluírem").
   const CAMINHO = `
-uniform float t; uniform float rola; uniform float asp; uniform vec4 mola; uniform float agito;
+uniform float t; uniform float fluxo; uniform float asp; uniform vec4 mola; uniform float agito;
 // curva em S que varre a tela: entra no alto à direita, desce cruzando pro meio e volta
 // tela estreita (celular): o caminho corre mais pra direita e curva menos, pra não passar atrás do texto
 float estreito() { return 1.0 - min(1.0, asp * 1.25); }
 float cx(float p) {
   float pc = 0.64 + 0.26 * sin(p * 1.8 + 2.0);
   // celular: à direita enquanto o título está na tela (p 0 a 0,8) e dobra pro meio logo abaixo dele
-  float cel = 0.6 + 0.32 * sin(p * 2.0 + 0.9);
+  // celular: com o desenho descendo, a dobra passaria por cima do texto; fica na metade direita
+  float cel = 0.76 + 0.18 * sin(p * 2.0 + 0.9);
   return mix(pc, cel, smoothstep(0.0, 0.2, estreito())) + 0.03 * sin(p * 3.1 + 1.3 + t * 0.06);
 }
 float raio(float p) {
@@ -41,14 +44,14 @@ float raio(float p) {
   float c = fract(p * 0.45 + mix(0.23, 0.005, estreito())) - 0.5;
   float aperto = exp(-c * c * 90.0);
   float largo = 0.75 + 0.25 * sin(p * 2.3 + t * 0.07);
-  return (0.03 + 0.15 * largo * (1.0 - aperto)) * min(1.0, asp * 1.25);
+  return (0.03 + 0.15 * largo * (1.0 - aperto)) * mix(1.0, 0.8, estreito());   // celular: quase a mesma abertura do PC
 }
 float gira(float p) { return p * 2.4 + t * 0.045; }
 // mouse/dedo = MOLA (27/09; a lente dobrava os fios de um jeito duro): o movimento dá um empurrão
 // no feixe perto do ponto (mola.x, em fração da largura) e abre o leque (mola.y); o app solta a
 // mola e o feixe ondula, passa do ponto e volta. mola.z = trecho do caminho que recebe o empurrão.
 float perto(float p) { return exp(-pow((p - mola.z) * 2.2, 2.0)); }
-vec2 naTela(float x, float p) { return vec2(x * 2.0 - 1.0, 1.0 - 2.0 * (p - rola)); }
+vec2 naTela(float x, float y) { return vec2(x * 2.0 - 1.0, 1.0 - 2.0 * y); }
 `;
 
   const VERT_FIO = `
@@ -57,31 +60,27 @@ attribute float s; attribute vec4 f;   // s: 0-1 ao longo; f: ângulo, raio rela
 ${CAMINHO}
 varying float v_luz; varying float v_azul;
 void main() {
-  float p = rola - 0.3 + s * ${JANELA.toFixed(2)};
+  float y = -0.3 + s * ${JANELA.toFixed(2)};   // posição na tela (0 = topo, 1 = base)
+  float p = y - fluxo;                           // posição ao longo do caminho
   float ang = f.x + gira(p);
   float ondula = 1.0 + 0.18 * sin(p * 6.0 + f.z * 6.28 + t * 0.4);
   float w = perto(p);
   float r = raio(p) * f.y * ondula * (1.0 + mola.y * w);
   float x = cx(p) + r * cos(ang) / asp + mola.x * w;
   float z = sin(ang);                               // -1 fundo, 1 frente
-  gl_Position = vec4(naTela(x, p), 0.0, 1.0);
-  // a luz corre pra baixo por dentro do filamento
-  // corrente: "glóbulos" de luz descendo por dentro de cada fio, a 0,35-0,8 tela por segundo,
-  // cada fio no seu ritmo e com a sua fase; um segundo trem mais lento e espaçado por baixo
-  float ritmo = 0.35 + 0.45 * fract(f.z * 7.31);
-  // espaçados (~1,6 tela entre um e outro no mesmo fio) e curtos: poucos acesos por vez, bem visíveis
-  float pulso = pow(0.5 + 0.5 * sin((p - t * ritmo) * 4.0 + f.z * 40.0), 70.0);
+  gl_Position = vec4(naTela(x, y), 0.0, 1.0);
+  // realce suave preso ao desenho (anda com o fluxo, não por conta própria): no máximo +12%.
+  // A "corrente" de antes chegava a 27x e brigava com a rolagem.
+  float pulso = pow(0.5 + 0.5 * sin(p * 4.0 + f.z * 40.0), 4.0);
   float frente = mix(0.25, 1.0, z * 0.5 + 0.5);
   // some nas bordas de cima e de baixo da janela de geometria
-  float y = p - rola;
   float borda = smoothstep(-0.3, -0.05, y) * (1.0 - smoothstep(1.05, 1.3, y));
   // no nó os fios se somam sozinhos; cada um brilha um pouco menos pra soma não estourar
   float densidade = mix(0.6, 1.0, smoothstep(0.03, 0.09, raio(p) / max(min(1.0, asp * 1.25), 0.01)));
   // a maioria dos filamentos é fraca e poucos brilham forte (é o que dá a textura de fibra)
   // ~75% quase apagados, ~20% médios, ~5% destaques (como no Relay)
   float forte = 0.04 + 0.96 * pow(fract(f.z * 13.73), 6.0);
-  // o glóbulo acende até os fios apagados: é ele que mostra o fluxo
-  v_luz = frente * (forte * 0.85 + (0.3 + forte) * 2.6 * pulso) * borda * densidade;
+  v_luz = frente * forte * 0.85 * (1.0 + 0.12 * pulso) * borda * densidade;
   v_azul = f.w;
 }`;
   const FRAG_FIO = `
@@ -104,18 +103,17 @@ ${CAMINHO}
 uniform float dpr;
 varying float v_luz; varying float v_mole;
 void main() {
-  float vel = (0.18 + 0.32 * fract(q.x * 7.13)) / ${JANELA.toFixed(2)};   // 0,18-0,5 tela/s
   float J = ${JANELA.toFixed(2)};
-  float p = rola - 0.3 + mod(q.x * J + t * vel * J - rola, J);
+  float y = -0.3 + mod(q.x * J + fluxo + 0.015 * sin(t * 0.5 + q.x * 30.0), J);
+  float p = y - fluxo;
   float ang = q.y + gira(p) * 0.6;
   float w = perto(p);
   float r = (raio(p) * (0.4 + 1.6 * q.z) + 0.02 * q.z) * (1.0 + mola.y * w);
   float x = cx(p) + r * cos(ang) / asp + mola.x * w;
-  gl_Position = vec4(naTela(x, p), 0.0, 1.0);
+  gl_Position = vec4(naTela(x, y), 0.0, 1.0);
   float bokeh = step(0.86, q.w);
   // celular: bokeh menor (as bolas grandes pareciam falsas na tela pequena)
   gl_PointSize = mix(1.6, 2.6, q.w) * dpr + bokeh * (6.0 + 14.0 * q.w) * mix(1.0, 0.45, estreito()) * dpr;
-  float y = p - rola;
   float borda = smoothstep(-0.3, -0.05, y) * (1.0 - smoothstep(1.05, 1.3, y));
   float pisca = 0.55 + 0.45 * sin(t * (1.0 + 3.0 * q.w) + q.x * 50.0);
   v_luz = borda * pisca * mix(0.9, mix(0.16, 0.08, estreito()), bokeh);
@@ -170,7 +168,7 @@ void main() {
   const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
   // escuro: luz somada (aditiva) com bloom; claro: tinta verde-oliva por cima do papel, sem bloom
   const PALETA = {
-    escuro: { fio: hex("#c9f23c"), azul: hex("#58b4ff"), ganhoFio: celular ? 0.45 : 0.32, ganhoPo: 0.35, bloom: celular ? [2.8, 3.2] : [2.4, 2.8], k: 2.0, aditivo: true },
+    escuro: { fio: hex("#c9f23c"), azul: hex("#58b4ff"), ganhoFio: celular ? 0.62 : 0.34, ganhoPo: 0.45, bloom: celular ? [3.2, 3.6] : [2.4, 2.8], k: 2.0, aditivo: true },
     // claro: fios em tinta oliva; aura, partículas e bokeh em lima (é o que dá vida no papel)
     claro: { fio: hex("#4a6b00"), azul: hex("#2f6fa8"), aura: hex("#a8d61c"), po: hex("#7fae00"), ganhoFio: celular ? 0.42 : 0.34, ganhoPo: 1.15, bloom: [1.1, 0], aditivo: false },
   };
@@ -276,9 +274,10 @@ void main() {
 
     const msaa = gl2 ? { rb: gl.createRenderbuffer(), fb: gl.createFramebuffer() } : null;
     const dpr = Math.min(devicePixelRatio || 1, 2);
+    const alturaTela = () => canvas.clientHeight || innerHeight;   // 100lvh no CSS: estável
     function tamanho() {
       const w = Math.max(1, Math.round(innerWidth * dpr));
-      const h = Math.max(1, Math.round(innerHeight * dpr));
+      const h = Math.max(1, Math.round(alturaTela() * dpr));
       if (canvas.width === w && canvas.height === h) return;
       canvas.width = w; canvas.height = h;
       dimensiona(meio, Math.max(1, Math.round(w / 2)), Math.max(1, Math.round(h / 2)));
@@ -297,7 +296,8 @@ void main() {
 
     let pal = PALETA.escuro;
     const cores = () => { pal = PALETA[document.documentElement.dataset.tema === "claro" ? "claro" : "escuro"]; };
-    addEventListener("resize", () => { tamanho(); desenha(); }, { passive: true });
+    // 1) primeiro reajusta a altura de referência (sem salto de fase), depois o canvas, depois desenha
+    addEventListener("resize", () => { if (typeof reAltura === "function") reAltura(); tamanho(); desenha(); }, { passive: true });
     new MutationObserver(() => { cores(); desenha(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-tema"] });
     tamanho(); cores();
 
@@ -306,14 +306,14 @@ void main() {
     // volta com amortecimento, então o feixe balança uma ou duas vezes e assenta, como fio de verdade.
     const mola = { x: 0, vx: 0, abre: 0, va: 0, foco: 0.5 };
     const centroJs = (p) => {
-      const e = 1 - Math.min(1, innerWidth / innerHeight * 1.25);
+      const e = 1 - Math.min(1, innerWidth / H * 1.25);
       return 0.64 + 0.2 * e + 0.26 * (1 - 0.1 * e) * Math.sin(p * 1.8 + 2.0);
     };
     let ultX = null, ultY = null;
     function empurra(cx_, cy_) {
       if (ultX !== null) {
-        const dx = (cx_ - ultX) / innerWidth, dy = (cy_ - ultY) / innerHeight;
-        const p = (scrollY + cy_) / innerHeight, x = cx_ / innerWidth;
+        const dx = (cx_ - ultX) / innerWidth, dy = (cy_ - ultY) / H;
+        const p = cy_ / H - fluxo, x = cx_ / innerWidth;
         const proximo = Math.exp(-Math.pow((x - centroJs(p)) / 0.22, 2));
         mola.foco += (p - mola.foco) * 0.35;
         mola.vx += dx * 0.12 * proximo;
@@ -336,13 +336,37 @@ void main() {
       }
     }
     let antes = performance.now();
-    let agito = 0, yAntes = scrollY, rola = scrollY / innerHeight;
+    let agito = 0, yAntes = scrollY;
+    // ---------- o fluxo (receita do Astra, 27/09) ----------
+    // H fica estável enquanto a barra do Safari aparece/some (senão o desenho dava tranco); só muda
+    // quando a largura muda (girar o celular).
+    let H = alturaTela(), larguraH = innerWidth;
+    // girou o celular: nova altura, mas o desenho continua exatamente onde estava (rebase da fase)
+    var reAltura = () => {
+      if (innerWidth === larguraH && Math.abs(alturaTela() - H) < 2) return;
+      larguraH = innerWidth; H = alturaTela();
+      const guardado = fluxo;
+      rolaSuave = alvoRola();
+      deriva = guardado - K * rolaSuave;
+      if (semMovimento) fluxo = guardado;
+    };
+    const K = celular ? 0.2 : 0.3;                 // telas de desenho por tela rolada
+    const DERIVA = celular ? 0.025 : 0.03;         // telas por segundo, parado
+    const alvoRola = () => Math.max(0, Math.min(scrollY, document.documentElement.scrollHeight - innerHeight)) / H;
+    let rolaSuave = alvoRola(), deriva = 0, fluxo = K * rolaSuave;
+    function passoFluxo(dt) {
+      const alvo = alvoRola();
+      if (semMovimento) { fluxo = deriva + K * alvo; return; }
+      rolaSuave += (alvo - rolaSuave) * (1 - Math.exp(-dt / 0.05));   // filtro curto: sem "perseguir" a página
+      deriva += dt * DERIVA;
+      fluxo = deriva + K * (0.75 * alvo + 0.25 * rolaSuave);
+    }
 
     function comuns(prog, t) {
       const u = prog.u;
       if (u.t) gl.uniform1f(u.t, t);
-      if (u.rola) gl.uniform1f(u.rola, rola);
-      if (u.asp) gl.uniform1f(u.asp, innerWidth / innerHeight);
+      if (u.fluxo) gl.uniform1f(u.fluxo, fluxo);
+      if (u.asp) gl.uniform1f(u.asp, innerWidth / H);
       if (u.mola) gl.uniform4f(u.mola, mola.x, mola.abre, mola.foco, 0);
       if (u.agito) gl.uniform1f(u.agito, semMovimento ? 0 : agito);
       if (u.corFio) gl.uniform3fv(u.corFio, pal.fio);
@@ -376,12 +400,14 @@ void main() {
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
 
-    const inicio = performance.now();
+    let tAtivo = 0;
     function desenha(agora = performance.now()) {
-      const t = semMovimento ? 30 : 30 + (agora - inicio) / 1000;
+      const dt = Math.min(0.1, Math.max(0, (agora - antes) / 1000));   // voltou da aba: sem salto
+      if (!semMovimento) tAtivo += dt;
+      const t = 30 + tAtivo;
       if (!semMovimento) passoMola(agora - antes);
       antes = agora;
-      rola += (scrollY / innerHeight - rola) * (semMovimento || !temMouse ? 1 : 0.16);
+      passoFluxo(dt);
       const vel = Math.min(1, Math.abs(scrollY - yAntes) / innerHeight * 12);
       yAntes = scrollY;
       agito += (vel - agito) * (vel > agito ? 0.25 : 0.04);
@@ -453,7 +479,7 @@ void main() {
       if (deve && !rodando) { rodando = true; requestAnimationFrame(quadro); }
       if (!deve) rodando = false;
     }
-    document.addEventListener("visibilitychange", ligaLaco);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) antes = performance.now(); ligaLaco(); });
     if (semMovimento) addEventListener("scroll", () => requestAnimationFrame(() => desenha()), { passive: true });
     canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); rodando = false; canvas.remove(); });
 
