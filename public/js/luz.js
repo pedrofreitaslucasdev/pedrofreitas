@@ -159,14 +159,19 @@ void main() {
   // escuro: luz somada (aditiva) com bloom; claro: tinta verde-oliva por cima do papel, sem bloom
   const PALETA = {
     escuro: { fio: hex("#c9f23c"), azul: hex("#58b4ff"), ganhoFio: celular ? 0.22 : 0.16, ganhoPo: 0.8, bloom: celular ? [1.4, 1.1] : [1.7, 1.4], aditivo: true },
-    claro: { fio: hex("#4a6b00"), azul: hex("#2f6fa8"), ganhoFio: celular ? 0.42 : 0.34, ganhoPo: 0.4, bloom: [0.55, 0.45], aditivo: false },
+    // claro: fios em tinta oliva; aura, partículas e bokeh em lima (é o que dá vida no papel)
+    claro: { fio: hex("#4a6b00"), azul: hex("#2f6fa8"), aura: hex("#a8d61c"), po: hex("#7fae00"), ganhoFio: celular ? 0.42 : 0.34, ganhoPo: 1.15, bloom: [1.1, 0], aditivo: false },
   };
 
   function comeca() {
     const canvas = document.createElement("canvas");
     canvas.className = "luz";
     canvas.setAttribute("aria-hidden", "true");
-    const gl = canvas.getContext("webgl", { alpha: true, antialias: true, premultipliedAlpha: true, powerPreference: "high-performance" });
+    // WebGL2 quando existir (iPhone tem): só ele suaviza as bordas (MSAA) numa imagem intermediária.
+    // Sem isso os fios de 1px saíam serrilhados, com cara de 720p (27/09).
+    const opcoes = { alpha: true, antialias: true, premultipliedAlpha: true, powerPreference: "high-performance" };
+    const gl = canvas.getContext("webgl2", opcoes) || canvas.getContext("webgl", opcoes);
+    const gl2 = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext;
     if (!gl) return;
 
     function programa(v, f) {
@@ -257,6 +262,7 @@ void main() {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+    const msaa = gl2 ? { rb: gl.createRenderbuffer(), fb: gl.createFramebuffer() } : null;
     const dpr = Math.min(devicePixelRatio || 1, 2);
     function tamanho() {
       const w = Math.max(1, Math.round(innerWidth * dpr));
@@ -266,6 +272,14 @@ void main() {
       dimensiona(brilho1, Math.max(1, Math.round(w / 4)), Math.max(1, Math.round(h / 4)));
       dimensiona(brilho2, Math.max(1, Math.round(w / 10)), Math.max(1, Math.round(h / 10)));
       dimensiona(nitido, w, h);
+      if (gl2) {
+        // fios nítidos são desenhados aqui, com 4 amostras por pixel, e copiados pro "nitido"
+        gl.bindRenderbuffer(gl.RENDERBUFFER, msaa.rb);
+        gl.renderbufferStorageMultisample(gl.RENDERBUFFER, Math.min(4, gl.getParameter(gl.MAX_SAMPLES)), gl.RGBA8, w, h);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, msaa.fb);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, msaa.rb);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      }
     }
 
     let pal = PALETA.escuro;
@@ -321,15 +335,18 @@ void main() {
       if (u.corAzul) gl.uniform3fv(u.corAzul, pal.azul);
       if (u.dpr) gl.uniform1f(u.dpr, dpr);
     }
+    let emAura = false;   // claro: a passada do brilho pinta em lima em vez de oliva
     function cena(t, fatorPonto) {
       const canal = pal.aditivo ? 1 : 0;
       liga(fio, bufFio, [["s", 1], ["f", 4]]);
       comuns(fio, t);
+      if (emAura) gl.uniform3fv(fio.u.corFio, pal.aura);
       gl.uniform1f(fio.u.canal, canal);
       gl.uniform1f(fio.u.ganho, pal.ganhoFio);
       gl.drawArrays(gl.LINES, 0, nFio);
       liga(po, bufPo, [["q", 4]]);
       comuns(po, t);
+      if (pal.po) gl.uniform3fv(po.u.corFio, emAura ? pal.aura : pal.po);
       gl.uniform1f(po.u.canal, canal);
       gl.uniform1f(po.u.ganho, pal.ganhoPo);
       gl.uniform1f(po.u.dpr, dpr * fatorPonto);
@@ -366,10 +383,17 @@ void main() {
         gl.viewport(0, 0, brilho2.w, brilho2.h);
         gl.clear(gl.COLOR_BUFFER_BIT);
         estica(brilho1, 1.0);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, nitido.fb);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, gl2 ? msaa.fb : nitido.fb);
         gl.viewport(0, 0, nitido.w, nitido.h);
         gl.clear(gl.COLOR_BUFFER_BIT);
         cena(t, 1);
+        if (gl2) {
+          gl.bindFramebuffer(gl.READ_FRAMEBUFFER, msaa.fb);
+          gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, nitido.fb);
+          gl.blitFramebuffer(0, 0, nitido.w, nitido.h, 0, 0, nitido.w, nitido.h, gl.COLOR_BUFFER_BIT, gl.NEAREST);
+          gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
+          gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+        }
         // composição: sem mistura, a tela recebe o resultado pronto
         gl.disable(gl.BLEND);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -394,7 +418,7 @@ void main() {
         gl.bindFramebuffer(gl.FRAMEBUFFER, brilho1.fb);
         gl.viewport(0, 0, brilho1.w, brilho1.h);
         gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
-        cena(t, 0.25);
+        emAura = true; cena(t, 0.25); emAura = false;
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, canvas.width, canvas.height);
