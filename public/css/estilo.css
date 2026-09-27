@@ -1016,6 +1016,92 @@ html .capitulo-sistemas {
   .passos__lista { grid-template-columns: 1fr; }
 }
 
+/* ================= LIQUID GLASS (27/09, pedido do Pedro: "igual o iPhone") =================
+   Por cima do vidro: fundo bem transparente com desfoque forte e cor saturada; borda de LUZ
+   (gradiente que brilha num canto e some no meio, feita com máscara); brilho interno em cima;
+   e um ponto de luz que segue o mouse/dedo (--lx/--ly, postos pelo app.js).
+   Tokens por tema: o escuro brilha em branco, o claro é vidro leitoso com sombra suave. */
+:root {
+  --lq-fundo: rgb(255 255 255 / .045);
+  --lq-brilho: rgb(255 255 255 / .12);
+  --lq-aro-forte: rgb(255 255 255 / .55);
+  --lq-aro-fraco: rgb(255 255 255 / .1);
+  --lq-dentro: inset 0 1px 1px rgb(255 255 255 / .28), inset 0 -1px 1px rgb(255 255 255 / .05), inset 0 0 24px rgb(255 255 255 / .035);
+  --lq-sombra: 0 24px 60px -30px rgb(0 0 0 / .85);
+  --lq-desfoque: blur(24px) saturate(185%) brightness(1.06);
+}
+:root[data-tema="claro"] {
+  --lq-fundo: rgb(255 255 255 / .38);
+  --lq-brilho: rgb(255 255 255 / .75);
+  --lq-aro-forte: rgb(255 255 255 / 1);
+  --lq-aro-fraco: rgb(255 255 255 / .35);
+  --lq-dentro: inset 0 1px 1px rgb(255 255 255 / .95), inset 0 -1px 1px rgb(0 0 0 / .04), inset 0 0 22px rgb(255 255 255 / .5);
+  --lq-sombra: 0 1px 2px rgb(40 36 26 / .06), 0 24px 50px -28px rgb(40 36 26 / .35);
+  --lq-desfoque: blur(22px) saturate(170%);
+}
+html .capitulo-sistemas {
+  --lq-fundo: rgb(255 255 255 / .045); --lq-brilho: rgb(255 255 255 / .12);
+  --lq-aro-forte: rgb(255 255 255 / .55); --lq-aro-fraco: rgb(255 255 255 / .1);
+  --lq-dentro: inset 0 1px 1px rgb(255 255 255 / .28), inset 0 -1px 1px rgb(255 255 255 / .05), inset 0 0 24px rgb(255 255 255 / .035);
+  --lq-sombra: 0 24px 60px -30px rgb(0 0 0 / .85);
+  --lq-desfoque: blur(24px) saturate(185%) brightness(1.06);
+}
+
+.estilo__exemplo, .real__rodape, .capitulo__nota, .sistema__ficha, .passo, .contato__grade,
+.dado__textos, .pontos, .faixa, .etiquetas li, .rotulo, .barra__menu, .tema, .dado__destaque {
+  --lx: 20%; --ly: 0%;
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(120% 90% at var(--lx) var(--ly), var(--lq-brilho), transparent 55%),
+    var(--lq-fundo);
+  border-color: transparent;
+  -webkit-backdrop-filter: var(--lq-desfoque);
+          backdrop-filter: var(--lq-desfoque);
+  box-shadow: var(--lq-dentro), var(--lq-sombra);
+}
+/* o aro de luz: 1px de gradiente recortado por máscara (só a borda aparece) */
+.estilo__exemplo::after, .real__rodape::after, .capitulo__nota::after, .sistema__ficha::after, .passo::after,
+.contato__grade::after, .dado__textos::after, .pontos::after, .faixa::after, .etiquetas li::after, .rotulo::after,
+.barra__menu::after, .tema::after, .dado__destaque::after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, var(--lq-aro-forte), var(--lq-aro-fraco) 28%, transparent 50%, var(--lq-aro-fraco) 72%, var(--lq-aro-forte));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 1;
+  transform: none;
+  width: auto; height: auto;
+}
+/* a faixa é uma tira: aro só em cima e embaixo */
+.faixa { border-radius: 0; }
+/* os botões e pílulas da barra ganham o mesmo vidro, com um "aperto" ao clicar */
+.barra__menu:active, .tema:active, .rotulo:active { scale: .97; }
+.barra__menu:hover, .tema:hover { background: radial-gradient(120% 90% at var(--lx) var(--ly), var(--lq-brilho), transparent 60%), var(--lq-fundo); }
+.passo { background-image: radial-gradient(120% 90% at var(--lx) var(--ly), var(--lq-brilho), transparent 55%); }
+/* o menu em tela cheia também vira vidro (em vez da cortina sólida) */
+.menu {
+  background: rgb(5 6 5 / .93);   /* fosco: com .55 o texto de trás misturava com o do menu */
+  color: var(--texto);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+          backdrop-filter: blur(40px) saturate(180%);
+}
+[data-tema="claro"] .menu { background: rgb(251 250 246 / .93); }
+.menu__lista li { border-top-color: color-mix(in srgb, var(--texto) 14%, transparent); }
+
+/* celular: o iPhone aguenta desfoque; um pouco menos forte pra não pesar com o fio animando */
+@media (max-width: 759px) {
+  :root, html .capitulo-sistemas { --lq-desfoque: blur(16px) saturate(180%); --lq-fundo: rgb(255 255 255 / .06); }
+  :root[data-tema="claro"] { --lq-desfoque: blur(16px) saturate(170%); --lq-fundo: rgb(255 255 255 / .5); }
+}
+
 /* ---------- quem pediu menos movimento ---------- */
 @media (prefers-reduced-motion: reduce) {
   .topo__titulo .linha > span, .topo__meta, .topo__pergunta, .topo__assinatura, .topo__baixo, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }

@@ -292,6 +292,16 @@ if (temMouse) {
       el.addEventListener("pointerleave", () => { el.style.transform = ""; });
     });
 
+    // liquid glass: o brilho de dentro do vidro segue o mouse (como a luz no vidro do iPhone)
+    document.querySelectorAll(".estilo__exemplo, .real__rodape, .capitulo__nota, .sistema__ficha, .passo, .contato__grade, .dado__textos, .pontos, .dado__destaque, .barra__menu, .tema, .rotulo").forEach((el) => {
+      el.addEventListener("pointermove", (e) => {
+        const r = el.getBoundingClientRect();
+        el.style.setProperty("--lx", ((e.clientX - r.left) / r.width * 100).toFixed(1) + "%");
+        el.style.setProperty("--ly", ((e.clientY - r.top) / r.height * 100).toFixed(1) + "%");
+      });
+      el.addEventListener("pointerleave", () => { el.style.removeProperty("--lx"); el.style.removeProperty("--ly"); });
+    });
+
     // janelas de vidro inclinam de leve na direção do mouse (a "janela que inclina" do Relay)
     document.querySelectorAll(".projeto__midia, .sistema__visual").forEach((el) => {
       el.addEventListener("pointermove", (e) => {
