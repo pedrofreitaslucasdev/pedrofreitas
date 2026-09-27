@@ -15,9 +15,9 @@
   const temMouse = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   // quantidade: o celular recebe menos filamentos, mas os mesmos 60 quadros
-  const FILAMENTOS = celular ? 150 : 260;
-  const SEGMENTOS = celular ? 120 : 180;
-  const POEIRA = celular ? 90 : 320;
+  const FILAMENTOS = celular ? 90 : 260;
+  const SEGMENTOS = celular ? 96 : 180;
+  const POEIRA = celular ? 70 : 320;
   const JANELA = 1.6;   // quantas telas de caminho a geometria cobre (a partir de 0,3 tela acima)
 
   // ---------- caminho do tubo (o mesmo nos dois shaders) ----------
@@ -66,7 +66,11 @@ void main() {
   float z = sin(ang);                               // -1 fundo, 1 frente
   gl_Position = vec4(naTela(x, p), 0.0, 1.0);
   // a luz corre pra baixo por dentro do filamento
-  float pulso = pow(0.5 + 0.5 * sin(p * 7.0 - t * 1.7 + f.z * 40.0), 12.0);
+  // corrente: "glóbulos" de luz descendo por dentro de cada fio, a 0,35-0,8 tela por segundo,
+  // cada fio no seu ritmo e com a sua fase; um segundo trem mais lento e espaçado por baixo
+  float ritmo = 0.35 + 0.45 * fract(f.z * 7.31);
+  // espaçados (~1,6 tela entre um e outro no mesmo fio) e curtos: poucos acesos por vez, bem visíveis
+  float pulso = pow(0.5 + 0.5 * sin((p - t * ritmo) * 4.0 + f.z * 40.0), 70.0);
   float frente = mix(0.25, 1.0, z * 0.5 + 0.5);
   // some nas bordas de cima e de baixo da janela de geometria
   float y = p - rola;
@@ -76,7 +80,8 @@ void main() {
   // a maioria dos filamentos é fraca e poucos brilham forte (é o que dá a textura de fibra)
   // ~75% quase apagados, ~20% médios, ~5% destaques (como no Relay)
   float forte = 0.04 + 0.96 * pow(fract(f.z * 13.73), 6.0);
-  v_luz = frente * forte * (0.6 + 1.6 * pulso) * borda * densidade;
+  // o glóbulo acende até os fios apagados: é ele que mostra o fluxo
+  v_luz = frente * (forte * 0.85 + (0.3 + forte) * 2.6 * pulso) * borda * densidade;
   v_azul = f.w;
 }`;
   const FRAG_FIO = `
@@ -99,7 +104,7 @@ ${CAMINHO}
 uniform float dpr;
 varying float v_luz; varying float v_mole;
 void main() {
-  float vel = 0.02 + 0.03 * fract(q.x * 7.13);
+  float vel = (0.18 + 0.32 * fract(q.x * 7.13)) / ${JANELA.toFixed(2)};   // 0,18-0,5 tela/s
   float J = ${JANELA.toFixed(2)};
   float p = rola - 0.3 + mod(q.x * J + t * vel * J - rola, J);
   float ang = q.y + gira(p) * 0.6;
@@ -376,7 +381,7 @@ void main() {
       const t = semMovimento ? 30 : 30 + (agora - inicio) / 1000;
       if (!semMovimento) passoMola(agora - antes);
       antes = agora;
-      rola += (scrollY / innerHeight - rola) * (semMovimento ? 1 : 0.16);
+      rola += (scrollY / innerHeight - rola) * (semMovimento || !temMouse ? 1 : 0.16);
       const vel = Math.min(1, Math.abs(scrollY - yAntes) / innerHeight * 12);
       yAntes = scrollY;
       agito += (vel - agito) * (vel > agito ? 0.25 : 0.04);
