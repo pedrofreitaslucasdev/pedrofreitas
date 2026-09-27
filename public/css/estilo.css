@@ -53,10 +53,10 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { background: var(--fundo); }
+/* o grão mora no html: o body fica transparente pro fio de luz (luz.js, fixo, z -1) passar por baixo do conteúdo */
+html { background: var(--grao), var(--fundo); transition: background-color .35s; }
 body {
   margin: 0;
-  background: var(--grao), var(--fundo);
   color: var(--texto);
   font: 400 1rem/1.55 var(--sem);
   -webkit-font-smoothing: antialiased;
@@ -233,6 +233,40 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgb(0 0 0 / .5));
 }
+/* fio de luz do site inteiro (luz.js): fixo, transparente, atrás de tudo. SEM cor de fundo (regra 1). */
+.luz { position: fixed; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 2s ease; }
+.luz--pronta { opacity: 1; }
+
+/* ---------- abertura (primeira visita): quadrado lima com o PF, conta até 100 e recolhe pra barra ---------- */
+.abertura { display: none; }
+.abrindo .abertura {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1.4rem;
+  background: var(--fundo);
+  animation: abertura-some .01s linear 4s forwards;   /* rede de segurança se o JS não rodar */
+}
+.abertura__bloco {
+  display: grid;
+  place-items: center;
+  width: clamp(7rem, 22vmin, 11rem);
+  aspect-ratio: 1;
+  border-radius: 28%;
+  background: var(--limao);
+  box-shadow: 0 0 80px -10px color-mix(in srgb, var(--limao) 60%, transparent);
+  animation: abertura-pulsa 1.2s var(--curva) both;
+}
+.abertura__marca { font: 800 clamp(2rem, 6vmin, 3rem)/1 var(--titulo); letter-spacing: -.05em; color: var(--sobre-limao); }
+.abertura__conta { color: var(--apagado); letter-spacing: .2em; }
+@keyframes abertura-pulsa { from { scale: .6; opacity: 0; } }
+@keyframes abertura-some { to { opacity: 0; visibility: hidden; } }
+/* enquanto a abertura está na tela, a entrada do topo espera */
+.abrindo .topo *, .abrindo .topo { animation-play-state: paused; }
+
 /* ondas de luz (ondas.js): canvas transparente atrás do conteúdo; entra com fade quando fica pronto */
 .ondas { position: absolute; left: 0; top: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.8s ease; }
 .ondas--pronta { opacity: 1; }

@@ -18,6 +18,43 @@ if (preferenciaMovimento.addEventListener) preferenciaMovimento.addEventListener
 else if (preferenciaMovimento.addListener) preferenciaMovimento.addListener(() => location.reload());   // iOS antigo
 const temMouse = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
+// ---------- abertura: o quadrado lima conta até 100 e recolhe até o "PF" da barra ----------
+// Só existe com html.abrindo (primeira visita da sessão, posto pelo script do <head>).
+if (raiz.classList.contains("abrindo")) {
+  const abertura = document.querySelector(".abertura");
+  const bloco = abertura.querySelector(".abertura__bloco");
+  const conta = abertura.querySelector(".abertura__conta");
+  const inicio = performance.now();
+  const DURA = 1100;
+  const fontes = document.fonts ? document.fonts.ready : Promise.resolve();
+  let fontesProntas = false;
+  fontes.then(() => { fontesProntas = true; });
+  (function conta100(agora) {
+    const k = Math.min(1, (agora - inicio) / DURA);
+    const v = Math.round(100 * (1 - Math.pow(1 - k, 3)));
+    conta.textContent = String(v).padStart(3, "0");
+    // não passa de 99 enquanto as fontes não chegaram (no máximo 2,5s)
+    if (k < 1 || (!fontesProntas && agora - inicio < 2500)) { if (k >= 1) conta.textContent = "099"; requestAnimationFrame(conta100); return; }
+    conta.textContent = "100";
+    recolhe();
+  })(inicio);
+
+  function recolhe() {
+    const alvo = document.querySelector(".barra__marca").getBoundingClientRect();
+    const de = bloco.getBoundingClientRect();
+    const dx = alvo.left + alvo.width / 2 - (de.left + de.width / 2);
+    const dy = alvo.top + alvo.height / 2 - (de.top + de.height / 2);
+    const escala = Math.max(alvo.height, 28) / de.height;
+    conta.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: "forwards" });
+    bloco.animate([{ transform: "none" }, { transform: `translate(${dx}px, ${dy}px) scale(${escala})`, opacity: 0.0 }],
+      { duration: 850, easing: "cubic-bezier(.7, 0, .2, 1)", fill: "forwards" });
+    const fundo = abertura.animate([{ backgroundColor: getComputedStyle(abertura).backgroundColor }, { backgroundColor: "transparent" }],
+      { duration: 700, delay: 350, easing: "ease", fill: "forwards" });
+    setTimeout(() => raiz.classList.remove("abrindo"), 450);   // o título começa a subir enquanto o bloco voa
+    fundo.finished.then(() => abertura.remove());
+  }
+}
+
 // ---------- WhatsApp ----------
 const linkZap = "https://wa.me/" + CONFIG.numero + "?text=" + encodeURIComponent(CONFIG.mensagem);
 document.querySelectorAll("[data-zap]").forEach((a) => { a.href = linkZap; });
@@ -25,13 +62,13 @@ document.querySelectorAll("[data-zap]").forEach((a) => { a.href = linkZap; });
 // ---------- claro / escuro: a escolha fica guardada só no navegador da pessoa ----------
 const botaoTema = document.querySelector(".tema");
 function mostraTema() {
-  const claro = raiz.dataset.tema !== "escuro";
+  const claro = raiz.dataset.tema === "claro";
   botaoTema.querySelector(".tema__texto").textContent = claro ? "Escuro" : "Claro";
   botaoTema.setAttribute("aria-pressed", String(!claro));
   document.querySelector('meta[name="theme-color"]').content = claro ? "#fbfaf6" : "#0e0e0e";
 }
 botaoTema.addEventListener("click", () => {
-  const novo = raiz.dataset.tema === "escuro" ? "claro" : "escuro";
+  const novo = raiz.dataset.tema === "claro" ? "escuro" : "claro";
   raiz.dataset.tema = novo;
   try { localStorage.setItem("tema", novo); } catch (e) { /* aba anônima: só não lembra */ }
   mostraTema();
@@ -268,6 +305,7 @@ function animaRolagem() {
     if (bloco.getBoundingClientRect().top < innerHeight) return;   // já está na tela
     gsap.from(bloco.querySelectorAll(".linha > span"), {
       yPercent: 105,
+      ...(innerWidth >= 760 ? { filter: "blur(10px)", clearProps: "filter" } : {}),
       duration: 1.1,
       ease: "power4.out",
       stagger: 0.07,
@@ -278,16 +316,17 @@ function animaRolagem() {
   // textos pequenos, legendas e passos: sobem juntos, em lotes
   const abaixo = gsap.utils.toArray(".sobe").filter((el) => el.getBoundingClientRect().top > innerHeight);
   // opacity e não autoAlpha: visibility:hidden tirava o texto e os links do leitor de tela
-  gsap.set(abaixo, { y: 22, opacity: 0 });
+  const foco = innerWidth >= 760;
+  gsap.set(abaixo, foco ? { y: 22, opacity: 0, filter: "blur(8px)" } : { y: 22, opacity: 0 });
   ScrollTrigger.batch(abaixo, {
     start: "top 92%",
     once: true,
-    onEnter: (lote) => gsap.to(lote, { y: 0, opacity: 1, duration: 1, ease: "power3.out", stagger: 0.06, overwrite: "auto" }),
+    onEnter: (lote) => gsap.to(lote, { y: 0, opacity: 1, ...(foco ? { filter: "blur(0px)" } : {}), duration: 1.1, ease: "power3.out", stagger: 0.07, overwrite: "auto", clearProps: foco ? "filter" : "" }),
   });
   // quem chega pelo teclado ou leitor de tela antes da animação vê o bloco na hora
   document.addEventListener("focusin", ({ target }) => {
     const bloco = target.closest && target.closest(".sobe");
-    if (bloco) gsap.set(bloco, { y: 0, opacity: 1 });
+    if (bloco) gsap.set(bloco, { y: 0, opacity: 1, filter: "none" });
   });
 
   // linhas finas (rótulos, legendas, listas) se desenham da esquerda pra direita ao entrar

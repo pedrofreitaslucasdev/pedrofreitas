@@ -152,7 +152,7 @@ void main() {
   function comeca() {
     const topo = document.getElementById("topo");
     const sistemas = document.getElementById("sistemas");
-    if (topo) cria(topo, { fundo: temaDe, forca: celular ? 1.35 : 1, q: 1, incl: 0.28, alto: 0.30 });
+    // o topo agora recebe o fio de luz do luz.js (o site inteiro); aqui fica só o capítulo Sistemas
     if (sistemas) cria(sistemas, { fundo: oposto, forca: celular ? 0.5 : 0.95, q: 0.7, incl: -0.14, alto: 0.62 });
   }
   // depois da primeira pintura: o efeito chega com um fade e não atrasa o título
