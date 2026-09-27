@@ -28,6 +28,13 @@
   --mono: "JetBrains Mono", ui-monospace, monospace;
   --lado: clamp(1rem, 4.5vw, 3.5rem);
   --curva: cubic-bezier(.2, .8, .2, 1);
+  --curva-longa: cubic-bezier(.16, 1, .3, 1);
+  /* profundidade (26→27/09): grão, brilho e linhas técnicas. Tudo pintado em fundo que ROLA,
+     nunca em camada fixa (regra 1), e sem filter: blur (pesa no celular). */
+  --grao: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .22 0 0 0 -.06'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --guia: rgb(255 255 255 / .045);
+  --brilho: color-mix(in srgb, var(--limao) 9%, transparent);
+  --sombra-peca: 0 60px 120px -50px rgb(0 0 0 / .7), 0 24px 48px -28px rgb(0 0 0 / .6);
 }
 
 /* tema claro (padrão). Verde-limão em cima de branco não se lê: aqui ele deixa de ser
@@ -39,13 +46,17 @@
   --apagado: #69655d;
   --linha: #dcd8ce;
   --destaque: #3f5c00;
+  --grao: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .16 0 0 0 -.04'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --guia: rgb(18 18 18 / .05);
+  --brilho: color-mix(in srgb, var(--limao) 12%, transparent);
+  --sombra-peca: 0 50px 100px -50px rgb(40 36 26 / .35), 0 18px 36px -24px rgb(40 36 26 / .3);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { background: var(--fundo); }
 body {
   margin: 0;
-  background: var(--fundo);
+  background: var(--grao), var(--fundo);
   color: var(--texto);
   font: 400 1rem/1.55 var(--sem);
   -webkit-font-smoothing: antialiased;
@@ -62,7 +73,11 @@ a { color: inherit; }
 :focus-visible { outline: 2px solid var(--destaque); outline-offset: 4px; }
 
 .mono { font-family: var(--mono); font-size: .75rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
-.rotulo { color: var(--apagado); margin-bottom: 1.6rem; }
+.rotulo { --risca: 1; display: flex; align-items: center; gap: .9rem; color: var(--apagado); margin-bottom: 1.6rem; }
+.rotulo::after { content: ""; width: clamp(2.5rem, 8vw, 6rem); height: 1px; background: currentColor; opacity: .5; transform-origin: left; transform: scaleX(var(--risca)); }
+/* linha fina que se desenha da esquerda pra direita: fica no fundo do próprio elemento,
+   sem pseudo-elemento, e o app.js só mexe em --risca */
+.risca { --risca: 1; background: linear-gradient(var(--linha), var(--linha)) no-repeat 0 0 / calc(var(--risca) * 100%) 1px; }
 .secao { padding: clamp(5rem, 13vw, 11rem) var(--lado); }
 
 .pular { position: absolute; left: var(--lado); top: -4rem; z-index: 60; padding: .6rem 1rem; background: var(--texto); color: var(--fundo); }
@@ -87,6 +102,9 @@ a { color: inherit; }
   padding-bottom: 2px;
 }
 .sublinha:hover, .sublinha:focus-visible { background-size: 100% 1px; }
+a.link-seta.sublinha { background-size: 100% 1px; background-position: 100% 100%; }
+a.link-seta.sublinha:hover, a.link-seta.sublinha:focus-visible { animation: sublinha-volta .7s var(--curva); }
+@keyframes sublinha-volta { 0% { background-size: 100% 1px; background-position: 100% 100%; } 45% { background-size: 0 1px; background-position: 100% 100%; } 46% { background-position: 0 100%; } 100% { background-size: 100% 1px; background-position: 0 100%; } }
 .seta { display: inline-block; transition: transform .4s var(--curva); }
 a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
 
@@ -129,6 +147,8 @@ a:hover .seta, a:focus-visible .seta { transform: translate(3px, -3px); }
   text-transform: uppercase;
   cursor: pointer;
 }
+.barra__menu:hover, .tema:hover { background: rgb(255 255 255 / .14); }
+.barra__menu, .tema { transition: background-color .3s, transform .4s var(--curva); }
 .barra__menu-sinal { display: inline-block; font-size: 1rem; line-height: 1; transition: transform .45s var(--curva); }
 .barra__menu[aria-expanded="true"] .barra__menu-sinal { transform: rotate(45deg); }
 .tema__icone {
@@ -193,8 +213,29 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   grid-template-rows: auto 1fr auto;
   overflow: clip;
 }
+/* fundo do topo: 12 colunas finíssimas (grade de diagramação à mostra) e um brilho difuso
+   atrás do título. Em ::before, absoluto: rola junto com a página. */
+.topo { isolation: isolate; }
+.topo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 45% at 78% 30%, var(--brilho), transparent 70%),
+    repeating-linear-gradient(90deg, var(--guia) 0 1px, transparent 1px calc((100vw - 2 * var(--lado)) / 12)) var(--lado) 0 / calc(100% - 2 * var(--lado)) 100% no-repeat;
+  -webkit-mask-image: linear-gradient(#000 55%, transparent);
+          mask-image: linear-gradient(#000 55%, transparent);
+  translate: 0 calc(var(--p) * 60px);
+}
+[data-tema="escuro"] .topo::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgb(0 0 0 / .5));
+}
 .topo__meta {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 1rem;
   color: var(--apagado);
@@ -251,6 +292,7 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   animation: risca .9s var(--curva) 1s forwards;
 }
 @keyframes risca { to { transform: scaleX(1); } }
+.topo__coord { display: none; }
 .topo__nome { font: 600 1rem/1.2 var(--sem); letter-spacing: -.01em; }
 /* a pergunta que o dono da empresa tem que se fazer: logo abaixo do título, antes da assinatura */
 .topo__pergunta {
@@ -308,7 +350,6 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   align-items: baseline;
   gap: 1.2rem;
   padding: 1rem 0;
-  border-top: 1px solid var(--linha);
   font: 800 clamp(1.35rem, 3.4vw, 2.4rem)/1.05 var(--titulo);
   letter-spacing: -.025em;
 }
@@ -350,7 +391,7 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
 .estilo__nome { font-size: clamp(2.4rem, 11vw, 7rem); letter-spacing: -.045em; }
 .estilo__frase { grid-column: 1 / -1; margin-top: 1.2rem; max-width: 34ch; font-size: clamp(1.02rem, 1.4vw, 1.2rem); line-height: 1.45; color: var(--apagado); }
 .estilo__frase strong { display: block; color: var(--texto); font-weight: 600; }
-.estilo__exemplo { display: grid; gap: .45rem; margin-top: 1.4rem; }
+.estilo__exemplo { display: grid; gap: .55rem; margin-top: 1.4rem; padding-top: 1.1rem; }
 .estilo__exemplo .mono { color: var(--apagado); }
 .estilo__projeto { font: 800 clamp(1.3rem, 2.2vw, 1.8rem)/1 var(--titulo); letter-spacing: -.025em; text-transform: uppercase; }
 .estilo__desc { max-width: 32ch; color: var(--apagado); }
@@ -380,45 +421,125 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   -webkit-text-stroke: 1.2px var(--texto);
 }
 .real__nome { min-width: 0; font-size: clamp(1.9rem, 7vw, 5.2rem); letter-spacing: -.04em; }
-.real__tag { flex-basis: 100%; color: var(--apagado); }
+.real__tag { flex-basis: 100%; margin: 0; }
 .real .projeto__tela { aspect-ratio: 16 / 9; }
-.real__rodape { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-top: 1.4rem; }
+.real__rodape { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-top: 1.4rem; padding-top: 1.2rem; }
 .real__desc { max-width: 46ch; font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.45; }
 .real__status { color: var(--apagado); border-bottom: 1px dashed var(--apagado); }
 
-/* imagem do site com o celular por cima (usada pelos estilos e pelos sites reais) */
-.projeto__midia { position: relative; display: block; text-decoration: none; }
+/* imagem do site com o celular por cima (usada pelos estilos e pelos sites reais).
+   A tela é uma JANELA: barra fina com o endereço de verdade em cima, o site embaixo. */
+.projeto__midia { position: relative; display: block; text-decoration: none; isolation: isolate; }
+/* brilho difuso atrás da peça (gradiente, não blur); quase some no claro */
+.projeto__midia::before {
+  content: "";
+  position: absolute;
+  inset: 6% -3% -8%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(50% 50% at 50% 55%, var(--brilho), transparent 70%);
+  opacity: .9;
+  transition: opacity .8s var(--curva);
+}
+[data-tema="claro"] .projeto__midia::before { opacity: .45; }
+.projeto__midia:hover::before { opacity: 1; }
 .projeto__tela {
-  display: block;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: 6px;
   background: var(--fundo-2);
-  box-shadow: 0 1px 0 var(--linha), 0 30px 60px -30px rgb(0 0 0 / .35);
+  box-shadow: 0 0 0 1px var(--linha), var(--sombra-peca);
+  transition: box-shadow .6s var(--curva);
 }
+.projeto__midia:hover .projeto__tela { box-shadow: 0 0 0 1px color-mix(in srgb, var(--texto) 30%, transparent), var(--sombra-peca); }
+/* reflexo que atravessa a tela no hover, uma vez */
+.projeto__tela::after, .sistema__tela::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgb(255 255 255 / .16) 50%, transparent 62%);
+  transform: translateX(-100%);
+}
+.projeto__midia:hover .projeto__tela::after, .sistema__visual:hover .sistema__tela::after { transform: translateX(100%); transition: transform 1.2s var(--curva-longa); }
+.projeto__vista, .sistema__vista { position: relative; display: block; overflow: hidden; min-height: 0; }
+
+/* barra da janela: pontinhos neutros, endereço em mono, status opcional à direita */
+.janela__barra {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  height: clamp(20px, 2.4vw, 30px);
+  padding: 0 .75rem;
+  background: var(--fundo-2);
+  border-bottom: 1px solid var(--linha);
+  font: 500 clamp(.55rem, .9vw, .68rem)/1 var(--mono);
+  letter-spacing: .04em;
+  color: var(--apagado);
+}
+.janela__pontos {
+  flex: none;
+  width: 34px;
+  height: 8px;
+  background: radial-gradient(circle, currentColor 3px, transparent 3.5px) 0 50% / 12px 8px repeat-x;
+  opacity: .45;
+}
+.janela__url { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.janela__status { margin-left: auto; display: inline-flex; align-items: center; gap: .45rem; white-space: nowrap; text-transform: uppercase; color: var(--texto); }
+.janela__status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--limao); box-shadow: 0 0 0 0 color-mix(in srgb, var(--limao) 60%, transparent); animation: pulsa 2.4s ease-out infinite; }
+.janela__status--espera { color: var(--apagado); }
+.janela__status--espera::before { background: var(--apagado); animation: none; }
+@keyframes pulsa { 70%, 100% { box-shadow: 0 0 0 6px transparent; } }
+
 /* a imagem é mais alta que a moldura: o app.js desliza ela devagar na rolagem (parallax) */
 .projeto__tela img {
   width: 100%;
   height: 114%;
   object-fit: cover;
   object-position: top;
-  transition: scale 1s var(--curva);
+  transition: scale 1.2s var(--curva-longa);
 }
-.projeto__midia:hover .projeto__tela img { scale: 1.035; }
+.projeto__midia:hover .projeto__tela img { scale: 1.03; }
 /* estilo Animado: vídeo no lugar do print (sem parallax: o próprio vídeo já rola) */
 .projeto__tela video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; transition: scale 1s var(--curva); }
-.projeto__midia:hover .projeto__tela video { scale: 1.035; }
+.projeto__midia:hover .projeto__tela video { scale: 1.03; }
 .fone--video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
 .fone.projeto__fone {
   position: absolute;
   right: 5%;
   bottom: -9%;
   width: 30%;   /* no celular: maior pra dar pra ver o site dentro; no computador volta pra 19% */
+  z-index: 3;
   rotate: 4deg;
-  transition: translate .7s var(--curva);
+  transition: translate .9s var(--curva-longa);
 }
-.projeto__midia:hover .fone.projeto__fone { translate: 0 -10px; }
+.projeto__midia:hover .fone.projeto__fone { translate: 0 -14px; }
 
+/* etiquetas: pílulas finas; acendem quando a pessoa passa o mouse na imagem da peça */
+.etiquetas { display: flex; flex-wrap: wrap; gap: .4rem; list-style: none; padding: 0; margin: .3rem 0 0; }
+.etiquetas li {
+  padding: .38rem .6rem .34rem;
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  font: 500 .66rem/1 var(--mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--apagado);
+  transition: border-color .4s, color .4s;
+}
+.estilo:has(.projeto__midia:hover) .etiquetas li, .real:has(.projeto__midia:hover) .etiquetas li,
+.sistema:has(.sistema__visual:hover) .etiquetas li { border-color: color-mix(in srgb, var(--texto) 40%, transparent); color: var(--texto); }
+.etiquetas li:nth-child(2) { transition-delay: .04s; }
+.etiquetas li:nth-child(3) { transition-delay: .08s; }
+/* passar o mouse na imagem também "aponta" pro link da peça */
+.estilo:has(.projeto__midia:hover) .link-seta .seta, .real:has(.projeto__midia:hover) .link-seta .seta,
+.sistema:has(.sistema__visual:hover) .link-seta .seta { transform: translate(3px, -3px); }
 .link-seta { justify-self: start; margin-top: .5rem; font: 600 .9rem var(--sem); letter-spacing: .03em; text-transform: uppercase; }
 .link-seta--apagado { color: var(--apagado); border-bottom: 1px dashed var(--apagado); font: 500 .75rem var(--mono); }
 
@@ -433,32 +554,97 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
 /* ---------- capítulo 02 · sistemas: cor invertida e composição técnica (tela + ficha) ---------- */
 .capitulo-sistemas {
   --fundo: #f3efe6; --fundo-2: #e6e2d9; --texto: #0e0e0e; --apagado: #69655d; --linha: #d6d2c8; --destaque: #3f5c00;
+  --grao: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .16 0 0 0 -.04'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --guia: rgb(18 18 18 / .06); --brilho: color-mix(in srgb, var(--limao) 22%, transparent);
+  --sombra-peca: 0 50px 100px -50px rgb(40 36 26 / .4), 0 18px 36px -24px rgb(40 36 26 / .3);
   position: relative;
   padding: 0 var(--lado) clamp(4rem, 10vw, 8rem);
   background: var(--fundo);
   color: var(--texto);
 }
 [data-tema="claro"] .capitulo-sistemas {
-  --fundo: #121212; --fundo-2: #1c1c1c; --texto: #f3efe6; --apagado: #a39f96; --linha: #2c2c2c; --destaque: var(--limao);
+  --fundo: #0f0f0f; --fundo-2: #181818; --texto: #f3efe6; --apagado: #a39f96; --linha: #2c2c2c; --destaque: var(--limao);
+  --grao: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .22 0 0 0 -.06'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --guia: rgb(255 255 255 / .05); --brilho: color-mix(in srgb, var(--limao) 10%, transparent);
+  --sombra-peca: 0 60px 120px -50px rgb(0 0 0 / .8), 0 24px 48px -28px rgb(0 0 0 / .7);
+}
+/* capítulo 02 tem cara de produto digital: grão, grade técnica que some nas bordas e um brilho
+   verde vindo de cima. Tudo em camadas absolutas que rolam junto (regra 1), sem blur. */
+.capitulo-sistemas { background: var(--grao), var(--fundo); isolation: isolate; }
+.capitulo-sistemas::before, .capitulo-sistemas::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.capitulo-sistemas::before {
+  background:
+    linear-gradient(var(--guia) 1px, transparent 1px) 0 0 / 64px 64px,
+    linear-gradient(90deg, var(--guia) 1px, transparent 1px) 0 0 / 64px 64px;
+  -webkit-mask-image: radial-gradient(90% 60% at 50% 30%, #000 30%, transparent 85%);
+          mask-image: radial-gradient(90% 60% at 50% 30%, #000 30%, transparent 85%);
+}
+.capitulo-sistemas::after {
+  background:
+    radial-gradient(60% 30% at 20% 0%, var(--brilho), transparent 70%),
+    radial-gradient(50% 25% at 90% 45%, var(--brilho), transparent 70%);
 }
 .sistema { display: grid; gap: 2rem; padding: 2.5rem 0 4.5rem; }
-.sistema__visual { position: relative; display: block; text-decoration: none; }
-/* recorte da interface (4:3 do print 16:10): parece detalhe de tela, não vitrine */
+/* marcas de corte nos 4 cantos: a peça parece montada numa prancheta */
+.sistema__visual { --corte: color-mix(in srgb, var(--texto) 40%, transparent); position: relative; display: block; text-decoration: none; isolation: isolate; }
+.sistema__visual::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--corte), var(--corte)) 0 0 / 14px 1px, linear-gradient(var(--corte), var(--corte)) 0 0 / 1px 14px,
+    linear-gradient(var(--corte), var(--corte)) 100% 0 / 14px 1px, linear-gradient(var(--corte), var(--corte)) 100% 0 / 1px 14px,
+    linear-gradient(var(--corte), var(--corte)) 0 100% / 14px 1px, linear-gradient(var(--corte), var(--corte)) 0 100% / 1px 14px,
+    linear-gradient(var(--corte), var(--corte)) 100% 100% / 14px 1px, linear-gradient(var(--corte), var(--corte)) 100% 100% / 1px 14px;
+  background-repeat: no-repeat;
+  transition: inset .6s var(--curva-longa);
+}
+.sistema__visual:hover::before { inset: -16px; }
+/* brilho verde embaixo da janela, como luz de tela */
+.sistema__visual::after {
+  content: "";
+  position: absolute;
+  inset: 20% 5% -12%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(50% 50% at 50% 60%, color-mix(in srgb, var(--limao) 14%, transparent), transparent 70%);
+}
+/* janela de aplicativo: recorte 4:3 da interface, barra com status "ao vivo" */
 .sistema__tela {
-  display: block;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: 10px;
   background: var(--fundo-2);
-  box-shadow: 0 1px 0 var(--linha), 0 30px 60px -30px rgb(0 0 0 / .45);
+  box-shadow: 0 0 0 1px var(--linha), inset 0 1px 0 rgb(255 255 255 / .06), var(--sombra-peca);
+  transition: box-shadow .6s var(--curva);
 }
-.sistema__tela img { width: 100%; height: 100%; object-fit: cover; object-position: left top; transition: scale 1s var(--curva); }
+.sistema__visual:hover .sistema__tela { box-shadow: 0 0 0 1px color-mix(in srgb, var(--limao) 45%, transparent), var(--sombra-peca); }
+.sistema__tela img { width: 100%; height: 100%; object-fit: cover; object-position: left top; transition: scale 1.2s var(--curva-longa); }
 .sistema__visual:hover .sistema__tela img { scale: 1.03; }
-.fone.sistema__fone { position: absolute; right: 6%; bottom: -8%; width: 34%; transition: translate .7s var(--curva); }
-.sistema__visual:hover .fone.sistema__fone { translate: 0 -10px; }
-.sistema__tela--vazia { display: grid; place-content: center; justify-items: center; gap: .6rem; box-shadow: inset 0 0 0 1px var(--linha); }
-.sistema__tela--vazia .mono { color: var(--apagado); }
-.sistema__embreve { font: 800 clamp(2rem, 7vw, 4.5rem)/.9 var(--titulo); letter-spacing: -.04em; text-transform: uppercase; color: transparent; -webkit-text-stroke: 1px var(--texto); }
+/* linha de leitura: acompanha a cortina da tela quando ela abre (app.js); sem JS, não aparece */
+.sistema__scan {
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  z-index: 3;
+  width: 1px;
+  background: var(--limao);
+  box-shadow: 0 0 12px 2px color-mix(in srgb, var(--limao) 60%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+.fone.sistema__fone { position: absolute; right: 6%; bottom: -8%; z-index: 3; width: 34%; transition: translate .9s var(--curva-longa); }
+.sistema__visual:hover .fone.sistema__fone { translate: 0 -14px; }
+
+/* gráfica ainda sem demonstração: o quadro de pedidos (Entrou / Fazendo / Pronto) em esqueleto */
+.quadro { display: grid; grid-template-columns: repeat(3, 1fr); align-items: start; gap: clamp(.5rem, 1.4vw, 1rem); padding: clamp(.7rem, 2vw, 1.4rem); }
+.quadro__col { display: flex; flex-direction: column; gap: clamp(.35rem, 1vw, .6rem); padding: clamp(.4rem, 1vw, .7rem); border-radius: 6px; background: color-mix(in srgb, var(--texto) 3%, transparent); box-shadow: inset 0 0 0 1px var(--linha); }
+.quadro__titulo { font: 500 clamp(.5rem, .9vw, .66rem)/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--apagado); padding-bottom: .3rem; }
+.quadro__cartao { height: clamp(1.6rem, 4.4vw, 3.2rem); border-radius: 4px; background: color-mix(in srgb, var(--texto) 6%, transparent); box-shadow: inset 0 0 0 1px var(--linha); }
+.quadro__col:last-child .quadro__cartao { background: color-mix(in srgb, var(--limao) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--limao) 35%, transparent); }
 
 .sistema__ficha { display: grid; gap: 1rem; align-content: start; }
 .sistema__num { color: var(--apagado); }
@@ -469,6 +655,10 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
 .sistema__dados div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--linha); }
 .sistema__dados dt { color: var(--apagado); }
 .sistema__dados dd { text-transform: none; letter-spacing: .01em; }
+.sistema__dados .etiquetas { margin: 0; }
+.sistema__dados .etiquetas li { font-size: .62rem; }
+.sistema__num { display: flex; align-items: center; gap: .8rem; }
+.sistema__num::after { content: ""; flex: 1; max-width: 5rem; height: 1px; background: currentColor; opacity: .5; }
 
 /* ---------- 4 · como funciona: índice editorial, não fileira de cards ---------- */
 .passos__titulo { font-size: clamp(2rem, 5.6vw, 4.6rem); }
@@ -479,7 +669,6 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   column-gap: 1rem;
   row-gap: .35rem;
   padding: 1.6rem 0 1.8rem;
-  border-top: 1px solid var(--linha);
 }
 .passo:last-child { border-bottom: 1px solid var(--linha); }
 .passo__n {
@@ -510,9 +699,23 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   font: 700 1.05rem/1 var(--sem);
   letter-spacing: .01em;
   text-decoration: none;
-  transition: transform .35s var(--curva), background-color .3s, color .3s;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--limao) 70%, transparent);
+  transition: transform .35s var(--curva), box-shadow .5s var(--curva), scale .2s;
 }
-.botao-zap:hover { background: var(--texto); color: var(--fundo); }
+.botao-zap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / .6) 50%, transparent 65%);
+  transform: translateX(-110%);
+}
+.botao-zap:hover::before { transform: translateX(110%); transition: transform .9s var(--curva-longa); }
+.botao-zap:hover { box-shadow: 0 26px 50px -16px color-mix(in srgb, var(--limao) 95%, transparent); }
+.botao-zap:active { scale: .98; }
 .contato__rodape {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -534,6 +737,7 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
+  width: max-content;   /* com left: 50%, sem isto ele só podia usar metade da tela e quebrava em 2 linhas */
   max-width: calc(100% - 2rem);
   transform: translate(-50%, 180%);
   transition: transform .45s var(--curva);
@@ -601,6 +805,7 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
 @media (min-width: 1000px) {
   .topo__centro { gap: 3rem; }
   .topo__assinatura { margin-right: 6%; }
+  .topo__coord { display: inline; }
   /* estilo: título em cima (número + nome à esquerda, frase à direita), imagem em 9 colunas,
      exemplo nas 3 ao lado; o do meio espelha */
   .estilo { grid-template-columns: repeat(12, 1fr); column-gap: 2rem; row-gap: 3rem; }
@@ -648,4 +853,8 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   .topo__assinatura::before { animation: none; transform: none; }
   [data-tema="claro"] .topo__titulo .marca { animation: none; background-size: 100% 34%; }
   .barra, .menu, .menu__lista a, .zap-fixo, .projeto__tela img, .projeto__tela video, .projeto__fone, .sistema__tela img, .sistema__fone, .seta, body { transition: none; }
+  .projeto__tela::after, .sistema__tela::after, .botao-zap::before { display: none; }
+  .janela__status::before, a.link-seta.sublinha:hover, a.link-seta.sublinha:focus-visible { animation: none; }
+  .sistema__visual::before { transition: none; }
+  .topo::before { translate: none; }
 }

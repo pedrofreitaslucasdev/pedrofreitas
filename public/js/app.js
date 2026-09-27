@@ -230,8 +230,10 @@ if (temMouse) {
     requestAnimationFrame(segue);
   })();
 
+  const textoCursor = cursor.querySelector("span");
   document.querySelectorAll("[data-cursor]").forEach((el) => {
-    el.addEventListener("pointerenter", () => cursor.classList.add("ver"));
+    // data-cursor="Testar ↗" nos sistemas; sem valor, "Ver ↗"
+    el.addEventListener("pointerenter", () => { textoCursor.textContent = el.dataset.cursor || "Ver ↗"; cursor.classList.add("ver"); });
     el.addEventListener("pointerleave", () => cursor.classList.remove("ver"));
   });
   document.querySelectorAll("a:not([data-cursor]), button").forEach((el) => {
@@ -280,7 +282,7 @@ function animaRolagem() {
   ScrollTrigger.batch(abaixo, {
     start: "top 92%",
     once: true,
-    onEnter: (lote) => gsap.to(lote, { y: 0, opacity: 1, duration: 1, ease: "power3.out", stagger: 0.06, overwrite: true }),
+    onEnter: (lote) => gsap.to(lote, { y: 0, opacity: 1, duration: 1, ease: "power3.out", stagger: 0.06, overwrite: "auto" }),
   });
   // quem chega pelo teclado ou leitor de tela antes da animação vê o bloco na hora
   document.addEventListener("focusin", ({ target }) => {
@@ -288,14 +290,24 @@ function animaRolagem() {
     if (bloco) gsap.set(bloco, { y: 0, opacity: 1 });
   });
 
-  // projetos: a imagem entra como uma cortina subindo, e o celular chega logo depois
+  // linhas finas (rótulos, legendas, listas) se desenham da esquerda pra direita ao entrar
+  gsap.utils.toArray(".rotulo, .risca").forEach((el) => {
+    if (el.getBoundingClientRect().top < innerHeight) return;
+    gsap.fromTo(el, { "--risca": 0 }, { "--risca": 1, duration: 1.4, ease: "power3.inOut",
+      scrollTrigger: { trigger: el, start: "top 92%", once: true } });
+  });
+
+  // projetos: a janela abre como uma cortina subindo, o site dentro assenta de um zoom leve,
+  // e o celular chega por último. Três tempos, sempre na mesma ordem.
   document.querySelectorAll(".projeto__midia").forEach((midia) => {
     if (midia.getBoundingClientRect().top < innerHeight) return;
     const tela = midia.querySelector(".projeto__tela");
+    const dentro = tela.querySelector(".projeto__vista > *");
     const fone = midia.querySelector(".projeto__fone");
     const tl = gsap.timeline({ scrollTrigger: { trigger: midia, start: "top 85%", once: true } });
-    tl.fromTo(tela, { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.3, ease: "power4.inOut" });
-    if (fone) tl.from(fone, { yPercent: 18, autoAlpha: 0, duration: 1, ease: "power3.out" }, "-=0.45");
+    tl.fromTo(tela, { clipPath: "inset(100% 0% 0% 0% round 6px)" }, { clipPath: "inset(0% 0% 0% 0% round 6px)", duration: 1.4, ease: "power4.inOut" });
+    if (dentro) tl.fromTo(dentro, { scale: 1.16 }, { scale: 1, duration: 1.8, ease: "power3.out" }, 0.15);
+    if (fone) tl.from(fone, { yPercent: 18, autoAlpha: 0, duration: 1.1, ease: "power3.out" }, "-=1.1");
   });
 
   const mm = gsap.matchMedia();
@@ -322,14 +334,23 @@ function animaRolagem() {
     { clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "none",
       scrollTrigger: { trigger: ".capitulo-sistemas", start: "top bottom", end: "top 30%", scrub: true } });
 
-  // sistemas: a tela abre da esquerda pra direita (os sites abrem de baixo pra cima: outro capítulo)
-  document.querySelectorAll(".sistema__visual").forEach((visual) => {
+  // sistemas: a tela abre da esquerda pra direita (os sites abrem de baixo pra cima: outro capítulo),
+  // com uma linha verde de leitura na borda da cortina; depois os módulos acendem um a um
+  document.querySelectorAll(".sistema").forEach((sistema) => {
+    const visual = sistema.querySelector(".sistema__visual");
     if (visual.getBoundingClientRect().top < innerHeight) return;
     const tela = visual.querySelector(".sistema__tela");
+    const scan = visual.querySelector(".sistema__scan");
     const fone = visual.querySelector(".sistema__fone");
+    const modulos = sistema.querySelectorAll(".sistema__dados .etiquetas li");
     const tl = gsap.timeline({ scrollTrigger: { trigger: visual, start: "top 85%", once: true } });
-    tl.fromTo(tela, { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.2, ease: "power4.inOut" });
-    if (fone) tl.from(fone, { yPercent: 14, autoAlpha: 0, duration: 0.9, ease: "power3.out" }, "-=0.4");
+    tl.fromTo(tela, { clipPath: "inset(0% 100% 0% 0% round 10px)" }, { clipPath: "inset(0% 0% 0% 0% round 10px)", duration: 1.3, ease: "power4.inOut" });
+    if (scan) {
+      tl.fromTo(scan, { x: 0, opacity: 1 }, { x: () => tela.offsetWidth, duration: 1.3, ease: "power4.inOut" }, 0)
+        .to(scan, { opacity: 0, duration: 0.3 }, ">-0.1");
+    }
+    if (fone) tl.from(fone, { yPercent: 14, autoAlpha: 0, duration: 1, ease: "power3.out" }, "-=0.5");
+    if (modulos.length) tl.from(modulos, { opacity: 0, y: 8, duration: 0.6, ease: "power2.out", stagger: 0.08 }, "-=0.8");
   });
 
   // números do "como funciona" entram um pouco depois do texto
