@@ -314,6 +314,48 @@ if (temMouse) {
   }
 }
 
+// ---------- celular: interação pelo dedo e pela rolagem (no computador isso é o mouse) ----------
+// O reflexo do vidro desliza conforme o cartão atravessa a tela (como inclinar o iPhone), as
+// janelas inclinam em 3D com a rolagem, e um toque leva a luz até o dedo.
+if (!temMouse && !semMovimento) {
+  const vidros = [...document.querySelectorAll(".estilo__exemplo, .real__rodape, .capitulo__nota, .sistema__ficha, .passo, .contato__grade, .dado__textos, .pontos, .dado__destaque, .rotulo")];
+  const janelas = [...document.querySelectorAll(".projeto__midia, .sistema__visual")];
+  const visiveis = new Set();
+  const olho = new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? visiveis.add(e.target) : visiveis.delete(e.target))), { rootMargin: "10% 0px" });
+  [...vidros, ...janelas].forEach((el) => olho.observe(el));
+  const tocados = new WeakMap();
+
+  let pedido = false;
+  function atualiza() {
+    pedido = false;
+    const h = innerHeight;
+    visiveis.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      const k = Math.min(1, Math.max(0, (h - r.top) / (h + r.height)));   // 0 entrando embaixo, 1 saindo em cima
+      if (janelas.includes(el)) {
+        el.style.transform = `perspective(1200px) rotateX(${((0.5 - k) * 10).toFixed(2)}deg) rotateY(${((k - 0.5) * -4).toFixed(2)}deg)`;
+      } else if (!tocados.get(el)) {
+        el.style.setProperty("--lx", (15 + k * 70).toFixed(1) + "%");
+        el.style.setProperty("--ly", (k * 100).toFixed(1) + "%");
+      }
+    });
+  }
+  addEventListener("scroll", () => { if (!pedido) { pedido = true; requestAnimationFrame(atualiza); } }, { passive: true });
+  addEventListener("resize", atualiza, { passive: true });
+  atualiza();
+
+  // toque: a luz vai até o dedo e fica lá um instante
+  vidros.forEach((el) => {
+    el.addEventListener("touchstart", (e) => {
+      const r = el.getBoundingClientRect(), t = e.touches[0];
+      el.style.setProperty("--lx", ((t.clientX - r.left) / r.width * 100).toFixed(1) + "%");
+      el.style.setProperty("--ly", ((t.clientY - r.top) / r.height * 100).toFixed(1) + "%");
+      clearTimeout(tocados.get(el));
+      tocados.set(el, setTimeout(() => { tocados.delete(el); atualiza(); }, 1200));
+    }, { passive: true });
+  });
+}
+
 // ---------- rolagem: GSAP + ScrollTrigger ----------
 // Regra do refino (26/09): o impacto fica nos projetos. O topo quase não se mexe, e nada
 // anda de lado só pra mostrar que anda.

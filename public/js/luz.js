@@ -14,12 +14,13 @@
   // p = posição na página em "telas" (0 = topo do site). X em unidades de altura da tela.
   const FRAG = `
 precision highp float;
-uniform vec2 r; uniform float t; uniform float rola; uniform vec2 m; uniform float n;
+uniform vec2 r; uniform float t; uniform float rola; uniform vec2 m; uniform float n; uniform float agito;
 uniform vec3 corFio; uniform vec3 corAzul; uniform float forca; uniform float brilho;
 
 float centro(float p) { return 0.72 + 0.20 * sin(p * 1.05 + 0.35) + 0.06 * sin(p * 2.6 + 1.3); }
 float fio(float p, float fi, float k) {
-  float largura = 0.025 + 0.045 * (0.5 + 0.5 * sin(p * 1.6 + t * 0.18));
+  // agito (0-1) = velocidade da rolagem: rolar rápido abre e acende a fita
+  float largura = (0.025 + 0.045 * (0.5 + 0.5 * sin(p * 1.6 + t * 0.18))) * (1.0 + agito * 0.9);
   return centro(p) + largura * sin(p * 2.8 + fi * 0.42 + t * 0.33) * (0.35 + 0.65 * k);
 }
 float hash(vec2 c) { return fract(sin(dot(c, vec2(127.1, 311.7))) * 43758.5453); }
@@ -44,7 +45,7 @@ void main() {
     float incl = (x2 - x) / 0.01 * asp;
     float d = abs(X - x * asp) / sqrt(1.0 + incl * incl);
     float nucleo = smoothstep(0.0022, 0.0, d) * 0.75;
-    float halo = exp(-d * 90.0) * 0.07 * brilho;
+    float halo = exp(-d * 90.0) * 0.07 * brilho * (1.0 + agito * 1.5);
     vec3 c = (i == 3 || i == 11) ? corAzul : corFio;
     float peso = 0.3 + 0.5 * k;
     cor += c * (nucleo + halo) * peso;
@@ -101,7 +102,7 @@ void main() {
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     const u = {};
-    ["r", "t", "rola", "m", "n", "corFio", "corAzul", "forca", "brilho"].forEach((k) => { u[k] = gl.getUniformLocation(prog, k); });
+    ["r", "t", "rola", "m", "n", "corFio", "corAzul", "forca", "brilho", "agito"].forEach((k) => { u[k] = gl.getUniformLocation(prog, k); });
     gl.uniform1f(u.n, celular ? 11 : 18);
 
     const escala = Math.min(devicePixelRatio || 1, 2) * (celular ? 0.45 : 0.55);
@@ -129,7 +130,15 @@ void main() {
       addEventListener("pointermove", (e) => { cy = e.clientY; alvoX = e.clientX / innerWidth; alvoY = (scrollY + cy) / innerHeight; }, { passive: true });
       addEventListener("scroll", () => { alvoY = (scrollY + cy) / innerHeight; }, { passive: true });
       document.addEventListener("pointerleave", () => { alvoX = 2; });
+    } else {
+      // celular: o dedo faz o papel do mouse; soltou, a fita volta sozinha
+      let solta = 0;
+      const toca = (e) => { clearTimeout(solta); alvoX = e.touches[0].clientX / innerWidth; alvoY = (scrollY + e.touches[0].clientY) / innerHeight; };
+      addEventListener("touchstart", toca, { passive: true });
+      addEventListener("touchmove", toca, { passive: true });
+      addEventListener("touchend", () => { solta = setTimeout(() => { alvoX = 2; }, 700); }, { passive: true });
     }
+    let agito = 0, yAntes = scrollY;
     let rola = scrollY / innerHeight;
 
     const inicio = performance.now();
@@ -139,6 +148,11 @@ void main() {
       // a fita acompanha a rolagem com um leve atraso: parece ter peso
       const alvoRola = scrollY / innerHeight;
       rola += (alvoRola - rola) * (semMovimento ? 1 : 0.18);
+      // velocidade da rolagem em telas por quadro, suavizada: sobe rápido, desce devagar
+      const vel = Math.min(1, Math.abs(scrollY - yAntes) / innerHeight * 12);
+      yAntes = scrollY;
+      agito += (vel - agito) * (vel > agito ? 0.3 : 0.05);
+      gl.uniform1f(u.agito, semMovimento ? 0 : agito);
       gl.uniform1f(u.t, t);
       gl.uniform1f(u.rola, rola);
       gl.uniform2f(u.m, mx, my);

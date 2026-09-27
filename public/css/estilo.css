@@ -1097,6 +1097,19 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   :root[data-tema="claro"] { --lq-desfoque: blur(16px) saturate(170%); --lq-fundo: rgb(255 255 255 / .5); }
 }
 
+/* celular: o vidro "afunda" um pouco ao toque, e o reflexo desliza suave com a rolagem */
+@media (hover: none) {
+  .estilo__exemplo, .real__rodape, .capitulo__nota, .sistema__ficha, .passo, .contato__grade, .dado__textos, .pontos,
+  .dado__destaque, .rotulo, .barra__menu, .tema, .botao-zap, .zap-fixo__pilula, .etiquetas li {
+    transition: scale .35s var(--curva), background-position .3s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .estilo__exemplo:active, .real__rodape:active, .capitulo__nota:active, .sistema__ficha:active, .passo:active,
+  .contato__grade:active, .dado__textos:active, .pontos:active, .dado__destaque:active { scale: .985; }
+  .rotulo:active, .barra__menu:active, .tema:active, .botao-zap:active, .zap-fixo:active .zap-fixo__pilula { scale: .95; }
+  .projeto__midia, .sistema__visual { transition: transform .25s linear; }
+}
+
 /* ---------- quem pediu menos movimento ---------- */
 @media (prefers-reduced-motion: reduce) {
   .topo__titulo .linha > span, .topo__meta, .topo__pergunta, .topo__assinatura, .topo__baixo, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }
