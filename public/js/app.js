@@ -65,7 +65,7 @@ function mostraTema() {
   const claro = raiz.dataset.tema === "claro";
   botaoTema.querySelector(".tema__texto").textContent = claro ? "Escuro" : "Claro";
   botaoTema.setAttribute("aria-pressed", String(!claro));
-  document.querySelector('meta[name="theme-color"]').content = claro ? "#fbfaf6" : "#0e0e0e";
+  document.querySelector('meta[name="theme-color"]').content = claro ? "#fbfaf6" : "#050605";
 }
 botaoTema.addEventListener("click", () => {
   const novo = raiz.dataset.tema === "claro" ? "escuro" : "claro";

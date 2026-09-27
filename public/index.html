@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Seu cliente já está procurando · Sites para empresas de Lorena e região · Pedro Freitas</title>
   <meta name="description" content="Quando alguém procura sua empresa na internet, o que encontra? Sites e sistemas para empresas de Lorena e região, com o seu WhatsApp.">
-  <meta name="theme-color" content="#0e0e0e">
+  <meta name="theme-color" content="#050605">
   <script>
     // Tema: ESCURO por padrão desde 27/09 (antes era claro); a pessoa troca no botão da barra e o navegador dela lembra.
     // /?tema=escuro ou /?tema=claro força um dos dois (bom pra mandar link).
@@ -22,7 +22,7 @@
       try { viu = sessionStorage.getItem("abriu"); sessionStorage.setItem("abriu", "1"); } catch (e) { viu = "1"; }
       if (!viu && !matchMedia("(prefers-reduced-motion: reduce)").matches) raiz.classList.add("abrindo");
       raiz.dataset.tema = tema;
-      document.querySelector('meta[name="theme-color"]').content = tema === "claro" ? "#fbfaf6" : "#0e0e0e";
+      document.querySelector('meta[name="theme-color"]').content = tema === "claro" ? "#fbfaf6" : "#050605";
     })();
   </script>
 
