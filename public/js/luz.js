@@ -24,7 +24,7 @@
   // cx: centro, em fração da largura. raio: em alturas de tela; pulsa pra formar nós e leques.
   // gira: torção ao longo do caminho + tempo (é isso que faz os fios se cruzarem e "fluírem").
   const CAMINHO = `
-uniform float t; uniform float rola; uniform float asp; uniform vec2 m; uniform float agito;
+uniform float t; uniform float rola; uniform float asp; uniform vec4 mola; uniform float agito;
 // curva em S que varre a tela: entra no alto à direita, desce cruzando pro meio e volta
 // tela estreita (celular): o caminho corre mais pra direita e curva menos, pra não passar atrás do texto
 float estreito() { return 1.0 - min(1.0, asp * 1.25); }
@@ -39,11 +39,10 @@ float raio(float p) {
   return (0.03 + 0.15 * largo * (1.0 - aperto)) * min(1.0, asp * 1.25) * (1.0 + agito * 0.6);
 }
 float gira(float p) { return p * 2.4 + t * 0.22; }
-// o mouse (ou o dedo) abre caminho: lente suave, em fração da largura
-float lente(float x, float p) {
-  float d = x - m.x;
-  return x + 1.0 * d * exp(-d * d * 55.0) * exp(-pow((p - m.y) * 3.0, 2.0));
-}
+// mouse/dedo = MOLA (27/09; a lente dobrava os fios de um jeito duro): o movimento dá um empurrão
+// no feixe perto do ponto (mola.x, em fração da largura) e abre o leque (mola.y); o app solta a
+// mola e o feixe ondula, passa do ponto e volta. mola.z = trecho do caminho que recebe o empurrão.
+float perto(float p) { return exp(-pow((p - mola.z) * 2.2, 2.0)); }
 vec2 naTela(float x, float p) { return vec2(x * 2.0 - 1.0, 1.0 - 2.0 * (p - rola)); }
 `;
 
@@ -51,15 +50,15 @@ vec2 naTela(float x, float p) { return vec2(x * 2.0 - 1.0, 1.0 - 2.0 * (p - rola
 precision highp float;
 attribute float s; attribute vec4 f;   // s: 0-1 ao longo; f: ângulo, raio relativo, fase, tipo (1 = azul)
 ${CAMINHO}
-varying float v_luz; varying float v_azul; varying float v_quente;
+varying float v_luz; varying float v_azul;
 void main() {
   float p = rola - 0.3 + s * ${JANELA.toFixed(2)};
   float ang = f.x + gira(p);
   float ondula = 1.0 + 0.18 * sin(p * 6.0 + f.z * 6.28 + t * 0.4);
-  float r = raio(p) * f.y * ondula;
-  float x = cx(p) + r * cos(ang) / asp;
+  float w = perto(p);
+  float r = raio(p) * f.y * ondula * (1.0 + mola.y * w);
+  float x = cx(p) + r * cos(ang) / asp + mola.x * w;
   float z = sin(ang);                               // -1 fundo, 1 frente
-  x = lente(x, p);
   gl_Position = vec4(naTela(x, p), 0.0, 1.0);
   // a luz corre pra baixo por dentro do filamento
   float pulso = pow(0.5 + 0.5 * sin(p * 7.0 - t * 1.7 + f.z * 40.0), 12.0);
@@ -67,25 +66,23 @@ void main() {
   // some nas bordas de cima e de baixo da janela de geometria
   float y = p - rola;
   float borda = smoothstep(-0.3, -0.05, y) * smoothstep(1.3, 1.05, y);
-  // onde o tubo aperta, cada fio brilha menos (a soma dos fios já acende o nó)
-  // o NÓ: onde o tubo aperta, os fios esquentam (brilham mais e puxam pro branco), como no Relay
-  float quente = 1.0 - smoothstep(0.035, 0.09, raio(p) / max(min(1.0, asp * 1.25), 0.01));
-  quente *= 1.0 - estreito();   // celular: o nó não vira branco (tampava a frase)
-  float densidade = 1.0 + 0.9 * quente;
+  // no nó os fios se somam sozinhos; cada um brilha um pouco menos pra soma não estourar
+  float densidade = mix(0.6, 1.0, smoothstep(0.03, 0.09, raio(p) / max(min(1.0, asp * 1.25), 0.01)));
   // a maioria dos filamentos é fraca e poucos brilham forte (é o que dá a textura de fibra)
   float forte = 0.18 + 0.82 * pow(fract(f.z * 13.73), 3.0);
   v_luz = frente * forte * (0.6 + 1.6 * pulso) * borda * densidade;
   v_azul = f.w;
-  v_quente = quente;
 }`;
   const FRAG_FIO = `
 precision mediump float;
-uniform vec3 corFio; uniform vec3 corAzul; uniform float ganho;
-varying float v_luz; varying float v_azul; varying float v_quente;
+uniform vec3 corFio; uniform vec3 corAzul; uniform float ganho; uniform float canal;
+varying float v_luz; varying float v_azul;
 void main() {
-  vec3 c = mix(mix(corFio, corAzul, v_azul), vec3(0.96, 1.0, 0.82), v_quente * 0.35);
   float a = v_luz * ganho;
-  gl_FragColor = vec4(c * a, a);
+  // canal = 1 (escuro): guarda só INTENSIDADE (vermelho = lima, verde = azul); a cor entra na
+  // composição final, que limita o brilho sem deixar virar branco
+  if (canal > 0.5) gl_FragColor = vec4(a * (1.0 - v_azul), a * v_azul, 0.0, a);
+  else gl_FragColor = vec4(mix(corFio, corAzul, v_azul) * a, a);
 }`;
 
   // poeira: pontos em volta do tubo, descendo com o fluxo; os grandes são bokeh (desfocados)
@@ -99,8 +96,9 @@ void main() {
   float vel = 0.02 + 0.03 * fract(q.x * 7.13);
   float p = rola - 0.3 + fract(q.x + t * vel) * ${JANELA.toFixed(2)};
   float ang = q.y + gira(p) * 0.6;
-  float r = raio(p) * (0.4 + 1.6 * q.z) + 0.02 * q.z;
-  float x = lente(cx(p) + r * cos(ang) / asp, p);
+  float w = perto(p);
+  float r = (raio(p) * (0.4 + 1.6 * q.z) + 0.02 * q.z) * (1.0 + mola.y * w);
+  float x = cx(p) + r * cos(ang) / asp + mola.x * w;
   gl_Position = vec4(naTela(x, p), 0.0, 1.0);
   float bokeh = step(0.86, q.w);
   // celular: bokeh menor (as bolas grandes pareciam falsas na tela pequena)
@@ -113,13 +111,14 @@ void main() {
 }`;
   const FRAG_PO = `
 precision mediump float;
-uniform vec3 corFio; uniform float ganho;
+uniform vec3 corFio; uniform float ganho; uniform float canal;
 varying float v_luz; varying float v_mole;
 void main() {
   float d = length(gl_PointCoord - 0.5) * 2.0;
   float forma = mix(smoothstep(1.0, 0.2, d), smoothstep(1.0, 0.75, d) * 0.8 + 0.2 * smoothstep(1.0, 0.0, d), v_mole);
   float a = forma * v_luz * ganho;
-  gl_FragColor = vec4(mix(corFio, vec3(1.0), 0.45 * (1.0 - v_mole)) * a, a);
+  if (canal > 0.5) gl_FragColor = vec4(a, 0.0, 0.0, a);
+  else gl_FragColor = vec4(corFio * a, a);
 }`;
 
   // tela cheia: estica a textura do brilho por cima (com um borrão de 5 amostras)
@@ -135,10 +134,31 @@ void main() {
   gl_FragColor = c * ganho;
 }`;
 
+  // escuro: soma fios nítidos + dois brilhos, pinta de lima/azul e limita o brilho PRESERVANDO a cor
+  // (1 - e^-x no canal mais forte): o encontro dos fios fica um lima intenso, nunca branco
+  const FRAG_FINAL = `
+precision mediump float;
+uniform sampler2D nit; uniform sampler2D b1; uniform sampler2D b2;
+uniform vec2 p1; uniform vec2 p2; uniform float g1; uniform float g2; uniform float k;
+uniform vec3 corFio; uniform vec3 corAzul;
+varying vec2 uv;
+vec2 borra(sampler2D tx, vec2 ps) {
+  return texture2D(tx, uv).rg * 0.4
+       + (texture2D(tx, uv + vec2(ps.x, 0.0)).rg + texture2D(tx, uv - vec2(ps.x, 0.0)).rg
+        + texture2D(tx, uv + vec2(0.0, ps.y)).rg + texture2D(tx, uv - vec2(0.0, ps.y)).rg) * 0.15;
+}
+void main() {
+  vec2 i = texture2D(nit, uv).rg + borra(b1, p1) * g1 + borra(b2, p2) * g2;
+  vec3 c = corFio * i.r + corAzul * i.g;
+  float m = max(max(c.r, c.g), c.b);
+  c *= (1.0 - exp(-m * k)) / max(m, 0.0001);
+  gl_FragColor = vec4(c, max(max(c.r, c.g), c.b));
+}`;
+
   const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
   // escuro: luz somada (aditiva) com bloom; claro: tinta verde-oliva por cima do papel, sem bloom
   const PALETA = {
-    escuro: { fio: hex("#c9f23c"), azul: hex("#58b4ff"), ganhoFio: celular ? 0.2 : 0.13, ganhoPo: 0.85, bloom: celular ? [1.0, 0.75] : [1.15, 0.9], aditivo: true },
+    escuro: { fio: hex("#c9f23c"), azul: hex("#58b4ff"), ganhoFio: celular ? 0.22 : 0.16, ganhoPo: 0.8, bloom: celular ? [1.4, 1.1] : [1.7, 1.4], aditivo: true },
     claro: { fio: hex("#4a6b00"), azul: hex("#2f6fa8"), ganhoFio: celular ? 0.42 : 0.34, ganhoPo: 0.4, bloom: [0.55, 0.45], aditivo: false },
   };
 
@@ -163,7 +183,8 @@ void main() {
     const fio = programa(VERT_FIO, FRAG_FIO);
     const po = programa(VERT_PO, FRAG_PO);
     const tela = programa(VERT_TELA, FRAG_TELA);
-    if (!fio || !po || !tela) return;
+    const final = programa(VERT_TELA, FRAG_FINAL);
+    if (!fio || !po || !tela || !final) return;
     document.body.prepend(canvas);
 
     // ---------- geometria (feita uma vez; quem mexe é o shader) ----------
@@ -226,7 +247,7 @@ void main() {
       const fb = gl.createFramebuffer();
       return { tex, fb, w: 0, h: 0 };
     }
-    const brilho1 = alvo(), brilho2 = alvo();
+    const brilho1 = alvo(), brilho2 = alvo(), nitido = alvo();
     function dimensiona(a, w, h) {
       a.w = w; a.h = h;
       gl.bindTexture(gl.TEXTURE_2D, a.tex);
@@ -244,6 +265,7 @@ void main() {
       canvas.width = w; canvas.height = h;
       dimensiona(brilho1, Math.max(1, Math.round(w / 4)), Math.max(1, Math.round(h / 4)));
       dimensiona(brilho2, Math.max(1, Math.round(w / 10)), Math.max(1, Math.round(h / 10)));
+      dimensiona(nitido, w, h);
     }
 
     let pal = PALETA.escuro;
@@ -252,19 +274,39 @@ void main() {
     new MutationObserver(() => { cores(); desenha(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-tema"] });
     tamanho(); cores();
 
-    // ---------- mouse / dedo, rolagem e agito ----------
-    let mx = 2, my = 0, alvoX = 2, alvoY = 0;
+    // ---------- mouse / dedo: mola ----------
+    // O movimento perto do feixe vira força: empurra (x) e abre o leque (abre). A mola puxa de
+    // volta com amortecimento, então o feixe balança uma ou duas vezes e assenta, como fio de verdade.
+    const mola = { x: 0, vx: 0, abre: 0, va: 0, foco: 0.5 };
+    const centroJs = (p) => {
+      const e = 1 - Math.min(1, innerWidth / innerHeight * 1.25);
+      return 0.64 + 0.2 * e + 0.26 * (1 - 0.1 * e) * Math.sin(p * 1.8 + 2.0);
+    };
+    let ultX = null, ultY = null;
+    function empurra(cx_, cy_) {
+      if (ultX !== null) {
+        const dx = (cx_ - ultX) / innerWidth, dy = (cy_ - ultY) / innerHeight;
+        const p = (scrollY + cy_) / innerHeight, x = cx_ / innerWidth;
+        const proximo = Math.exp(-Math.pow((x - centroJs(p)) / 0.22, 2));
+        mola.foco += (p - mola.foco) * 0.35;
+        mola.vx += dx * 0.55 * proximo;
+        mola.va += Math.min(0.08, Math.hypot(dx, dy) * 1.6) * proximo;
+      }
+      ultX = cx_; ultY = cy_;
+    }
     if (temMouse) {
-      let cy = innerHeight / 2;
-      addEventListener("pointermove", (e) => { cy = e.clientY; alvoX = e.clientX / innerWidth; alvoY = (scrollY + cy) / innerHeight; }, { passive: true });
-      addEventListener("scroll", () => { alvoY = (scrollY + cy) / innerHeight; }, { passive: true });
-      document.addEventListener("pointerleave", () => { alvoX = 2; });
+      addEventListener("pointermove", (e) => empurra(e.clientX, e.clientY), { passive: true });
+      document.addEventListener("pointerleave", () => { ultX = null; });
     } else {
-      let solta = 0;
-      const toca = (e) => { clearTimeout(solta); alvoX = e.touches[0].clientX / innerWidth; alvoY = (scrollY + e.touches[0].clientY) / innerHeight; };
-      addEventListener("touchstart", toca, { passive: true });
-      addEventListener("touchmove", toca, { passive: true });
-      addEventListener("touchend", () => { solta = setTimeout(() => { alvoX = 2; }, 700); }, { passive: true });
+      addEventListener("touchstart", (e) => { ultX = e.touches[0].clientX; ultY = e.touches[0].clientY; }, { passive: true });
+      addEventListener("touchmove", (e) => empurra(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+      addEventListener("touchend", () => { ultX = null; }, { passive: true });
+    }
+    function passoMola() {
+      mola.vx += -mola.x * 0.022 - mola.vx * 0.07;
+      mola.x = Math.max(-0.14, Math.min(0.14, mola.x + mola.vx));
+      mola.va += -mola.abre * 0.03 - mola.va * 0.09;
+      mola.abre = Math.max(-0.3, Math.min(1.4, mola.abre + mola.va));
     }
     let agito = 0, yAntes = scrollY, rola = scrollY / innerHeight;
 
@@ -273,19 +315,22 @@ void main() {
       if (u.t) gl.uniform1f(u.t, t);
       if (u.rola) gl.uniform1f(u.rola, rola);
       if (u.asp) gl.uniform1f(u.asp, innerWidth / innerHeight);
-      if (u.m) gl.uniform2f(u.m, mx, my);
+      if (u.mola) gl.uniform4f(u.mola, mola.x, mola.abre, mola.foco, 0);
       if (u.agito) gl.uniform1f(u.agito, semMovimento ? 0 : agito);
       if (u.corFio) gl.uniform3fv(u.corFio, pal.fio);
       if (u.corAzul) gl.uniform3fv(u.corAzul, pal.azul);
       if (u.dpr) gl.uniform1f(u.dpr, dpr);
     }
     function cena(t, fatorPonto) {
+      const canal = pal.aditivo ? 1 : 0;
       liga(fio, bufFio, [["s", 1], ["f", 4]]);
       comuns(fio, t);
+      gl.uniform1f(fio.u.canal, canal);
       gl.uniform1f(fio.u.ganho, pal.ganhoFio);
       gl.drawArrays(gl.LINES, 0, nFio);
       liga(po, bufPo, [["q", 4]]);
       comuns(po, t);
+      gl.uniform1f(po.u.canal, canal);
       gl.uniform1f(po.u.ganho, pal.ganhoPo);
       gl.uniform1f(po.u.dpr, dpr * fatorPonto);
       gl.drawArrays(gl.POINTS, 0, POEIRA);
@@ -303,7 +348,7 @@ void main() {
     const inicio = performance.now();
     function desenha(agora = performance.now()) {
       const t = semMovimento ? 30 : 30 + (agora - inicio) / 1000;
-      mx += (alvoX - mx) * 0.08; my += (alvoY - my) * 0.08;
+      if (!semMovimento) passoMola();
       rola += (scrollY / innerHeight - rola) * (semMovimento ? 1 : 0.16);
       const vel = Math.min(1, Math.abs(scrollY - yAntes) / innerHeight * 12);
       yAntes = scrollY;
@@ -321,12 +366,27 @@ void main() {
         gl.viewport(0, 0, brilho2.w, brilho2.h);
         gl.clear(gl.COLOR_BUFFER_BIT);
         estica(brilho1, 1.0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, nitido.fb);
+        gl.viewport(0, 0, nitido.w, nitido.h);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        cena(t, 1);
+        // composição: sem mistura, a tela recebe o resultado pronto
+        gl.disable(gl.BLEND);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, canvas.width, canvas.height);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        estica(brilho2, pal.bloom[1]);
-        estica(brilho1, pal.bloom[0]);
-        cena(t, 1);
+        liga(final, bufTela, [["a", 2]]);
+        [[nitido, "nit"], [brilho1, "b1"], [brilho2, "b2"]].forEach(([a, nome], i) => {
+          gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, a.tex); gl.uniform1i(final.u[nome], i);
+        });
+        gl.uniform2f(final.u.p1, 1.5 / brilho1.w, 1.5 / brilho1.h);
+        gl.uniform2f(final.u.p2, 1.5 / brilho2.w, 1.5 / brilho2.h);
+        gl.uniform1f(final.u.g1, pal.bloom[0]);
+        gl.uniform1f(final.u.g2, pal.bloom[1]);
+        gl.uniform1f(final.u.k, 2.8);
+        gl.uniform3fv(final.u.corFio, pal.fio);
+        gl.uniform3fv(final.u.corAzul, pal.azul);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        gl.activeTexture(gl.TEXTURE0);
       } else {
         // claro: tinta por cima do papel (somar luz some no branco). O brilho borrado vira uma
         // aura verde suave em volta do feixe, e as fibras nítidas vão por cima.
