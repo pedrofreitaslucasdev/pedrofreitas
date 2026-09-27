@@ -38,11 +38,11 @@ void main() {
     y += 1.2 * dy * exp(-dy * dy * 40.0) * perto;
     float d = abs(uv.y - y);
     float peso = 0.35 + 0.65 * sin(k * 3.14159);
-    corpo += smoothstep(0.0022, 0.0, d) * peso;
+    corpo += (1.0 - smoothstep(0.0, 0.0022, d)) * peso;
     luz += exp(-d * 55.0) * 0.10 * peso;
   }
   // some nas bordas de cima e de baixo e fica mais fraco à esquerda, onde mora o título
-  float borda = smoothstep(0.0, 0.25, uv.y) * smoothstep(1.0, 0.7, uv.y);
+  float borda = smoothstep(0.0, 0.25, uv.y) * (1.0 - smoothstep(0.7, 1.0, uv.y));
   float lado = mix(0.45, 1.0, smoothstep(0.0, 0.75, uv.x));
   float a1 = clamp(corpo, 0.0, 1.0) * borda * lado * forca;
   float a2 = clamp(luz, 0.0, 1.0) * borda * lado * forca;
