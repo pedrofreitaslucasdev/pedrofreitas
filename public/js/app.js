@@ -291,6 +291,16 @@ if (temMouse) {
       });
       el.addEventListener("pointerleave", () => { el.style.transform = ""; });
     });
+
+    // janelas de vidro inclinam de leve na direção do mouse (a "janela que inclina" do Relay)
+    document.querySelectorAll(".projeto__midia, .sistema__visual").forEach((el) => {
+      el.addEventListener("pointermove", (e) => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.transform = `perspective(1400px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg)`;
+      });
+      el.addEventListener("pointerleave", () => { el.style.transform = ""; });
+    });
   }
 }
 
@@ -362,6 +372,11 @@ function animaRolagem() {
       if (fone) gsap.fromTo(fone, { y: 36 * forca }, { y: -36 * forca, ease: "none", scrollTrigger: passagem });
     });
   });
+
+  // o dado: a barra de 80% enche quando aparece
+  const barraDado = document.querySelector(".dado__barra > span");
+  if (barraDado) gsap.fromTo(barraDado, { scaleX: 0 }, { scaleX: 1, duration: 1.8, ease: "power3.inOut",
+    scrollTrigger: { trigger: barraDado, start: "top 90%", once: true } });
 
   // a virada: a primeira frase apaga enquanto a segunda chega (fim de um capítulo, começo do outro)
   gsap.to(".virada__a", { opacity: 0.6, ease: "none",   // 0.22 derrubava o contraste pra 1,6:1

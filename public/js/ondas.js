@@ -148,7 +148,7 @@ void main() {
   }
 
   const temaDe = () => document.documentElement.dataset.tema === "escuro" ? "escuro" : "claro";
-  const oposto = () => (temaDe() === "claro" ? "escuro" : "claro");   // Sistemas tem a cor invertida
+  const oposto = () => "escuro";   // Sistemas é escuro nos dois temas desde o vidro (27/09)
   function comeca() {
     const topo = document.getElementById("topo");
     const sistemas = document.getElementById("sistemas");

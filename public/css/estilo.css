@@ -871,10 +871,9 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   .fone.sistema__fone { width: 26%; }
   /* o número ocupa a largura toda; embaixo, a legenda à esquerda e os textos à direita */
   .dado__grade { grid-template-columns: 7fr 4fr; column-gap: 4rem; row-gap: 0; }
-  .dado__destaque { display: contents; }
-  .dado__numero { grid-column: 1 / -1; }
-  .dado__legenda, .dado__fonte { grid-column: 1; }
-  .dado__textos { grid-column: 2; grid-row: 2 / span 2; align-self: start; margin-top: 1.2rem; }
+  /* vidro (27/09): o número num cartão na largura toda; os textos num cartão menor, à direita */
+  .dado__destaque { grid-column: 1 / -1; }
+  .dado__textos { grid-column: 2; margin-top: 1.2rem; }
   .comparar__grade { grid-template-columns: 4fr 7fr; column-gap: 4rem; align-items: start; }
   .trabalhos__apoio { margin-left: 8vw; }
   .linha--recuo { padding-left: 8vw; }
@@ -884,6 +883,137 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   /* contato: título à esquerda, ação embaixo à direita */
   .contato__grade { grid-template-columns: 7fr 4fr; align-items: end; column-gap: 4rem; }
   .contato__lado { justify-self: end; }
+}
+
+/* ================= VIDRO (27/09, referência: Relay) =================
+   Cartões translúcidos com borda fina e reflexo em cima; o fio de luz aparece DESFOCADO por
+   trás deles (backdrop-filter). Etiquetas em pílula com ponto lima, botões redondos.
+   Celular: sem backdrop-filter (pesa com o canvas animando atrás), vidro mais opaco no lugar. */
+:root {
+  --vidro: rgb(255 255 255 / .035);
+  --vidro-forte: rgb(255 255 255 / .06);
+  --vidro-borda: rgb(255 255 255 / .09);
+  --vidro-luz: rgb(255 255 255 / .07);
+  --vidro-sombra: 0 40px 80px -50px rgb(0 0 0 / .8);
+  --desfoque: blur(18px) saturate(150%);
+  --raio: 18px;
+}
+:root[data-tema="claro"] {
+  --vidro: rgb(255 255 255 / .55);
+  --vidro-forte: rgb(255 255 255 / .75);
+  --vidro-borda: rgb(18 18 18 / .09);
+  --vidro-luz: rgb(255 255 255 / .9);
+  --vidro-sombra: 0 40px 80px -50px rgb(60 55 40 / .35);
+}
+/* Sistemas: escuro nos dois temas (o vidro não funciona no creme) */
+html .capitulo-sistemas {
+  --fundo: #0b0b0b; --fundo-2: #151515; --texto: #f3efe6; --apagado: #a39f96; --linha: #262626; --destaque: var(--limao);
+  --vidro: rgb(255 255 255 / .035); --vidro-forte: rgb(255 255 255 / .06); --vidro-borda: rgb(255 255 255 / .09); --vidro-luz: rgb(255 255 255 / .07);
+  --vidro-sombra: 0 40px 80px -50px rgb(0 0 0 / .8);
+  --guia: rgb(255 255 255 / .045); --brilho: color-mix(in srgb, var(--limao) 10%, transparent);
+  --sombra-peca: 0 60px 120px -50px rgb(0 0 0 / .8), 0 24px 48px -28px rgb(0 0 0 / .7);
+  --grao: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .22 0 0 0 -.06'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* a receita do vidro, aplicada nas peças abaixo */
+.estilo__exemplo, .real__rodape, .capitulo__nota, .sistema__ficha, .passo, .contato__grade,
+.dado__textos, .pontos, .faixa, .etiquetas li, .rotulo, .barra__menu, .tema, .janela__barra,
+.dado__destaque {
+  background: linear-gradient(180deg, var(--vidro-luz), transparent 42%), var(--vidro);
+  border: 1px solid var(--vidro-borda);
+  -webkit-backdrop-filter: var(--desfoque);
+          backdrop-filter: var(--desfoque);
+}
+.estilo__exemplo, .real__rodape, .capitulo__nota, .sistema__ficha, .passo, .contato__grade, .dado__textos, .pontos, .dado__destaque {
+  border-radius: var(--raio);
+  box-shadow: inset 0 1px 0 var(--vidro-luz), var(--vidro-sombra);
+}
+
+/* ---- barra: logo vira o quadrado lima (a abertura voa até ele); botões em pílula de vidro.
+   A barra continua SEM cor (regra 1); a cor mora nos filhos. */
+.barra { mix-blend-mode: normal; color: var(--texto); }
+.barra__marca {
+  display: grid; place-items: center;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: var(--limao);
+  color: var(--sobre-limao);
+  font-size: 1rem;
+  box-shadow: 0 0 30px -6px color-mix(in srgb, var(--limao) 55%, transparent);
+  transition: box-shadow .4s, scale .4s var(--curva);
+}
+.barra__marca:hover { scale: 1.06; box-shadow: 0 0 40px -4px color-mix(in srgb, var(--limao) 75%, transparent); }
+.barra__menu, .tema { border-radius: 999px; }
+.barra__menu:hover, .tema:hover { background: linear-gradient(180deg, var(--vidro-luz), transparent 42%), var(--vidro-forte); border-color: color-mix(in srgb, var(--texto) 25%, transparent); }
+
+/* ---- rótulo de seção: pílula com ponto lima ("● pricing" do Relay) */
+.rotulo {
+  display: inline-flex;
+  width: fit-content;
+  padding: .5rem .85rem .45rem;
+  border-radius: 999px;
+  color: var(--texto);
+  gap: .55rem;
+}
+.rotulo::after { display: none; }
+.rotulo::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--limao); box-shadow: 0 0 10px var(--limao); }
+[data-tema="claro"] .rotulo::before { background: var(--destaque); box-shadow: none; }
+
+/* ---- faixa correndo: tira de vidro */
+.faixa { border-inline: 0; }
+
+/* ---- o dado: cartão com o número e uma barra de 80% que enche */
+.dado__destaque { padding: clamp(1.4rem, 3vw, 2.4rem); }
+.dado__barra { display: block; height: 6px; margin-top: 1.6rem; border-radius: 999px; background: var(--vidro-forte); overflow: hidden; }
+.dado__barra > span { display: block; width: 80%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--limao) 55%, transparent), var(--limao)); box-shadow: 0 0 16px color-mix(in srgb, var(--limao) 60%, transparent); transform-origin: left; }
+.dado__textos { padding: clamp(1.4rem, 3vw, 2rem); align-content: start; }
+
+/* ---- comparação: os 4 pontos num cartão de vidro */
+.pontos { padding: .4rem clamp(1rem, 2.4vw, 1.8rem); }
+.pontos li { background: none; }
+.pontos li + li { border-top: 1px solid var(--vidro-borda); }
+.pontos li:last-child { border-bottom: 0; }
+.pontos .mono { color: var(--destaque); }
+
+/* ---- peças dos sites: a janela ganha moldura de vidro e cantos redondos */
+.projeto__tela, .sistema__tela { border-radius: 14px; }
+.projeto__tela {
+  box-shadow: 0 0 0 1px var(--vidro-borda), 0 0 0 9px var(--vidro), 0 0 0 10px var(--vidro-borda), var(--sombra-peca);
+}
+.projeto__midia:hover .projeto__tela { box-shadow: 0 0 0 1px color-mix(in srgb, var(--limao) 40%, transparent), 0 0 0 9px var(--vidro-forte), 0 0 0 10px color-mix(in srgb, var(--limao) 30%, transparent), var(--sombra-peca); }
+.janela__barra { border-width: 0 0 1px; }
+.projeto__midia, .sistema__visual { transform-style: preserve-3d; transition: transform .9s var(--curva-longa); will-change: transform; }
+.estilo__exemplo, .real__rodape { padding: 1.3rem 1.4rem 1.4rem; }
+.capitulo__nota { padding: 1.4rem 1.6rem; margin-bottom: clamp(4rem, 10vw, 8rem); }
+.etiquetas li { border-radius: 999px; }
+
+/* ---- sistemas: ficha em cartão, janela com moldura de vidro */
+.sistema__ficha { padding: clamp(1.4rem, 3vw, 2.2rem); }
+.sistema__tela { box-shadow: 0 0 0 1px var(--vidro-borda), 0 0 0 9px var(--vidro), 0 0 0 10px var(--vidro-borda), var(--sombra-peca); }
+.sistema__visual:hover .sistema__tela { box-shadow: 0 0 0 1px color-mix(in srgb, var(--limao) 45%, transparent), 0 0 0 9px var(--vidro-forte), 0 0 0 10px color-mix(in srgb, var(--limao) 30%, transparent), var(--sombra-peca); }
+.sistema__visual::before { inset: -22px; }
+.sistema__visual:hover::before { inset: -28px; }
+
+/* ---- como funciona: três cartões */
+.passos__lista { display: grid; gap: .9rem; }
+.passo { padding: 1.4rem 1.4rem 1.6rem; background-image: linear-gradient(180deg, var(--vidro-luz), transparent 42%); }
+.passo:last-child { border-bottom: 1px solid var(--vidro-borda); }
+.passo__n { -webkit-text-stroke-color: var(--destaque); }
+
+/* ---- contato: um painel de vidro grande; botões em pílula */
+.contato__grade { padding: clamp(1.6rem, 4vw, 3.4rem); }
+.botao-zap, .zap-fixo__pilula { border-radius: 999px; }
+.contato__rodape { border-top-color: var(--vidro-borda); }
+
+/* celular: sem desfoque de fundo (caro com o fio animando atrás); o vidro fica mais denso */
+@media (max-width: 759px) {
+  :root { --desfoque: none; --vidro: rgb(24 24 24 / .78); --vidro-forte: rgb(34 34 34 / .85); }
+  :root[data-tema="claro"] { --vidro: rgb(255 255 255 / .85); --vidro-forte: rgb(255 255 255 / .95); }
+  html .capitulo-sistemas { --vidro: rgb(24 24 24 / .78); --vidro-forte: rgb(34 34 34 / .85); }
+}
+@media (min-width: 1000px) {
+  .estilo__exemplo { padding-bottom: 1.4rem; }
+  .passos__lista { grid-template-columns: 1fr; }
 }
 
 /* ---------- quem pediu menos movimento ---------- */
