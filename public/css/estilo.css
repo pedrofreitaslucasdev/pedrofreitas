@@ -234,9 +234,7 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgb(0 0 0 / .5));
 }
 /* fio de luz do site inteiro (luz.js): fixo, transparente, atrás de tudo. SEM cor de fundo (regra 1). */
-/* 100lvh: altura da tela GRANDE do Safari, que não muda quando a barra de endereço aparece/some
-   (com 100% o canvas mudava de tamanho no meio da rolagem e o fio dava tranco) */
-.luz { position: fixed; left: 0; top: 0; z-index: -1; width: 100%; height: 100vh; height: 100lvh; pointer-events: none; opacity: 0; transition: opacity 2s ease; }
+.luz { position: fixed; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 2s ease; }
 .luz--pronta { opacity: 1; }
 
 /* ---------- abertura (primeira visita): quadrado lima com o PF, conta até 100 e recolhe pra barra ---------- */
