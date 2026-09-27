@@ -12,65 +12,79 @@
 
   const VERT = "attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }";
   // p = posição na página em "telas" (0 = topo do site). X em unidades de altura da tela.
+  // Fibras de luz (v2, 27/09: "fluir liso e natural como o Relay"):
+  // - a onda VIAJA pra baixo (fase - t), não vai e volta;
+  // - cada fio tem profundidade: os da frente finos e nítidos, os de trás largos, fracos e macios;
+  // - pulsos de luz correm por dentro dos fios, e faíscas descem ao longo deles;
+  // - espessura medida em PIXELS (px), então o fio fica liso em qualquer resolução.
   const FRAG = `
 precision highp float;
 uniform vec2 r; uniform float t; uniform float rola; uniform vec2 m; uniform float n; uniform float agito;
 uniform vec3 corFio; uniform vec3 corAzul; uniform float forca; uniform float brilho;
 
-float centro(float p) { return 0.72 + 0.20 * sin(p * 1.05 + 0.35) + 0.06 * sin(p * 2.6 + 1.3); }
-float fio(float p, float fi, float k) {
-  // agito (0-1) = velocidade da rolagem: rolar rápido abre e acende a fita
-  float largura = (0.025 + 0.045 * (0.5 + 0.5 * sin(p * 1.6 + t * 0.18))) * (1.0 + agito * 0.9);
-  return centro(p) + largura * sin(p * 2.8 + fi * 0.42 + t * 0.33) * (0.35 + 0.65 * k);
+float centro(float p) { return 0.68 + 0.23 * sin(p * 1.15 + 0.2) + 0.05 * sin(p * 2.1 + 1.3 + t * 0.05); }
+float fio(float p, float fi) {
+  float fase = fi * 2.39996;                        // ângulo de ouro: espalha os fios sem padrão
+  float k = fract(fi * 0.618034);
+  float abre = 0.6 + 0.4 * sin(p * 0.7 + t * 0.08 + fase * 0.3);
+  float onda = sin(p * 1.25 + fase - t * 0.32) + 0.35 * sin(p * 3.05 + fase * 1.7 - t * 0.5);
+  return centro(p) + (k - 0.5) * 0.09 * abre + (0.02 + 0.06 * k) * onda * abre * (1.0 + agito * 0.9);
 }
-float hash(vec2 c) { return fract(sin(dot(c, vec2(127.1, 311.7))) * 43758.5453); }
+
+// o mouse (ou o dedo) abre caminho: lente suave, afasta os fios sem cortar
+float lente(float x, float p) {
+  float dm = x - m.x;
+  return x + 1.1 * dm * exp(-dm * dm * 60.0) * exp(-pow(abs(p - m.y) * 3.0, 2.0));
+}
 
 void main() {
   float asp = r.x / r.y;
+  float px = 1.0 / r.y;                             // 1 pixel, em unidades de altura
   vec2 uv = gl_FragCoord.xy / r;
   float p = rola + (1.0 - uv.y);
   float X = uv.x * asp;
   vec3 cor = vec3(0.0); float alfa = 0.0;
 
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 34; i++) {
     float fi = float(i);
     if (fi >= n) break;
-    float k = fract(fi * 0.618);
-    float x = fio(p, fi, k);
-    float x2 = fio(p + 0.01, fi, k);
-    // o mouse abre caminho (lente suave, sem saltos)
-    float dm = x - m.x;
-    float perto = exp(-pow(abs(p - m.y) * 3.0, 2.0));
-    x += 1.1 * dm * exp(-dm * dm * 60.0) * perto;
-    float incl = (x2 - x) / 0.01 * asp;
+    float z = fract(fi * 0.7548);                   // profundidade: 1 = frente, 0 = fundo
+    // a lente do mouse entra nos DOIS pontos da inclinação; só em um deles, a conta errava
+    // perto do cursor e o fio virava uma mancha larga
+    float x = lente(fio(p, fi), p);
+    float x2 = lente(fio(p + 0.004, fi), p + 0.004);
+    float incl = (x2 - x) / 0.004 * asp;
     float d = abs(X - x * asp) / sqrt(1.0 + incl * incl);
-    float nucleo = smoothstep(0.0022, 0.0, d) * 0.75;
-    float halo = exp(-d * 90.0) * 0.07 * brilho * (1.0 + agito * 1.5);
-    vec3 c = (i == 3 || i == 11) ? corAzul : corFio;
-    float peso = 0.3 + 0.5 * k;
-    cor += c * (nucleo + halo) * peso;
-    alfa += (nucleo + halo) * peso;
+    float largura = mix(3.2, 0.9, z) * px;         // fundo mais largo e macio, frente fina
+    float nucleo = smoothstep(largura * 1.6, 0.0, d);
+    float halo = exp(-d / (px * mix(14.0, 6.0, z))) * 0.10 * brilho * (1.0 + agito * 1.5);
+    // pulso de luz correndo pra baixo dentro do fio
+    float pulso = pow(0.5 + 0.5 * sin(p * 5.0 - t * 1.6 + fi * 1.9), 14.0);
+    float luz = mix(0.18, 0.75, z) * (0.55 + 1.4 * pulso);
+    vec3 c = (i == 4 || i == 17 || i == 27) ? corAzul : corFio;
+    cor += c * (nucleo + halo) * luz;
+    alfa += (nucleo + halo) * luz;
   }
-  // névoa de luz em volta da fita toda
+  // névoa de luz em volta da fita
   float dc = abs(X - centro(p) * asp);
-  float nevoa = exp(-dc * 6.0) * 0.05 * brilho;
+  float nevoa = exp(-dc * 5.5) * 0.05 * brilho;
   cor += corFio * nevoa; alfa += nevoa;
 
-  // partículas: pontinhos que piscam perto da fita
-  vec2 g = vec2(X, p) * 42.0;
-  vec2 cel = floor(g);
-  float h = hash(cel);
-  if (h > 0.93) {
-    vec2 pos = cel + 0.5 + 0.35 * vec2(sin(h * 40.0 + t * 0.5), cos(h * 70.0 + t * 0.4));
-    float dp = length(g - pos);
-    float pisca = 0.5 + 0.5 * sin(t * (1.5 + h * 3.0) + h * 90.0);
-    float junto = exp(-dc * 9.0);
-    float ponto = smoothstep(0.22, 0.0, dp) * pisca * junto * brilho;
-    cor += mix(corFio, vec3(1.0), 0.4) * ponto; alfa += ponto;
+  // faíscas descendo ao longo dos fios
+  for (int j = 0; j < 16; j++) {
+    float fj = float(j);
+    float vel = 0.05 + 0.05 * fract(fj * 0.37);
+    float pp = rola - 0.15 + fract(t * vel + fj * 0.1618) * 1.3;
+    float fiAlvo = mod(fj * 7.0, max(n, 1.0));
+    float xs = fio(pp, fiAlvo) * asp;
+    vec2 dd = vec2(X - xs, p - pp);
+    float e = exp(-dot(dd, dd) / (px * px * 9.0)) * 0.9 + exp(-dot(dd, dd) / (px * px * 120.0)) * 0.12;
+    float nasce = smoothstep(0.0, 0.15, fract(t * vel + fj * 0.1618)) * smoothstep(1.0, 0.8, fract(t * vel + fj * 0.1618));
+    cor += mix(corFio, vec3(1.0), 0.5) * e * nasce * brilho;
+    alfa += e * nasce * brilho;
   }
-  // satura suave (1 - e^-x): muitos fios juntos brilham mais, mas nunca estouram pra branco
-  cor = 1.0 - exp(-cor * forca * 1.2);
-  alfa = clamp(1.0 - exp(-alfa * forca * 1.2), 0.0, 0.85);
+  cor = 1.0 - exp(-cor * forca * 1.3);
+  alfa = clamp(1.0 - exp(-alfa * forca * 1.3), 0.0, 0.9);
   gl_FragColor = vec4(cor, alfa);
 }`;
 
@@ -103,9 +117,10 @@ void main() {
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     const u = {};
     ["r", "t", "rola", "m", "n", "corFio", "corAzul", "forca", "brilho", "agito"].forEach((k) => { u[k] = gl.getUniformLocation(prog, k); });
-    gl.uniform1f(u.n, celular ? 11 : 18);
+    gl.uniform1f(u.n, celular ? 18 : 32);
 
-    const escala = Math.min(devicePixelRatio || 1, 2) * (celular ? 0.45 : 0.55);
+    // mais resolução que antes: o fio agora é medido em pixel e precisa de nitidez pra parecer fibra
+    const escala = Math.min(devicePixelRatio || 1, 2) * (celular ? 0.5 : 0.75);
     function tamanho() {
       const w = Math.max(1, Math.round(innerWidth * escala));
       const h = Math.max(1, Math.round(innerHeight * escala));
@@ -159,13 +174,11 @@ void main() {
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
 
-    let rodando = false, ultimo = 0;
+    let rodando = false;
     function quadro(agora) {
       if (!rodando) return;
       requestAnimationFrame(quadro);
-      if (celular && agora - ultimo < 32) return;
-      ultimo = agora;
-      desenha(agora);
+      desenha(agora);   // 60 quadros também no celular: a 30 o fluxo parecia duro
     }
     function liga() {
       const deve = !document.hidden && !semMovimento;
