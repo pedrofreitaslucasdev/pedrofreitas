@@ -776,7 +776,10 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   transform: translate(-50%, 180%);
   transition: transform .45s var(--curva);
 }
-.zap-fixo.aparece { transform: translate(-50%, 0); }
+/* escondido também some de vista: no iOS 26 a barra de endereço é de vidro e mostrava o botão
+   parado embaixo dela, borrado */
+.zap-fixo:not(.aparece) { opacity: 0; transition: transform .45s var(--curva), opacity .2s .25s; }
+.zap-fixo.aparece { transform: translate(-50%, 0); opacity: 1; transition: transform .45s var(--curva), opacity .15s; }
 .zap-fixo__pilula {
   white-space: normal;
   display: flex;
@@ -1108,14 +1111,6 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   .contato__grade:active, .dado__textos:active, .pontos:active, .dado__destaque:active { scale: .985; }
   .rotulo:active, .barra__menu:active, .tema:active, .botao-zap:active, .zap-fixo:active .zap-fixo__pilula { scale: .95; }
   .projeto__midia, .sistema__visual { transition: transform .25s linear; }
-}
-
-/* texto por cima do fio de luz (tema escuro): um halo escuro largo e fraco, que não se vê como
-   sombra, só impede a luz de apagar as letras quando o fio passa atrás (no celular isso é sempre) */
-[data-tema="escuro"] :is(.topo__titulo, .topo__pergunta, .topo__assinatura, .topo__meta, .topo__baixo, .gigante,
-  .trabalhos__apoio, .capitulo__nome, .capitulo__texto, .estilo__cabeca, .reais__abre, .real__cabeca, .virada,
-  .comparar__titulo, .comparar__textos, .passos__cabeca) {
-  text-shadow: 0 0 18px rgb(5 6 5 / .9), 0 0 42px rgb(5 6 5 / .6);
 }
 
 /* ---------- quem pediu menos movimento ---------- */

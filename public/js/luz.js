@@ -17,7 +17,7 @@
   // quantidade: o celular recebe menos filamentos, mas os mesmos 60 quadros
   const FILAMENTOS = celular ? 150 : 260;
   const SEGMENTOS = celular ? 120 : 180;
-  const POEIRA = celular ? 160 : 320;
+  const POEIRA = celular ? 90 : 320;
   const JANELA = 1.6;   // quantas telas de caminho a geometria cobre (a partir de 0,3 tela acima)
 
   // ---------- caminho do tubo (o mesmo nos dois shaders) ----------
@@ -28,11 +28,12 @@ uniform float t; uniform float rola; uniform float asp; uniform vec2 m; uniform 
 // curva em S que varre a tela: entra no alto à direita, desce cruzando pro meio e volta
 // tela estreita (celular): o caminho corre mais pra direita e curva menos, pra não passar atrás do texto
 float estreito() { return 1.0 - min(1.0, asp * 1.25); }
-float cx(float p) { return 0.64 + 0.36 * estreito() + 0.26 * (1.0 - 0.5 * estreito()) * sin(p * 1.8 + 2.0) + 0.04 * sin(p * 3.1 + 1.3 + t * 0.06); }
+float cx(float p) { return 0.64 + 0.2 * estreito() + 0.26 * (1.0 - 0.1 * estreito()) * sin(p * 1.8 + 2.0) + 0.04 * sin(p * 3.1 + 1.3 + t * 0.06); }
 float raio(float p) {
   // aberto quase sempre; a cada ~2,2 telas aperta RÁPIDO num nó e volta a abrir em leque
   // (com o seno ao quadrado o aperto durava muito e virava um tubo de neon sólido)
-  float c = fract(p * 0.45 + 0.23) - 0.5;   // o 1º nó cai em p = 0,6: no topo, ao lado do título
+  // 1º nó: no computador ao lado do título (p = 0,6); no celular logo abaixo do topo (p = 1,1), longe do texto
+  float c = fract(p * 0.45 + mix(0.23, 0.005, estreito())) - 0.5;
   float aperto = exp(-c * c * 90.0);
   float largo = 0.75 + 0.25 * sin(p * 2.3 + t * 0.07);
   return (0.03 + 0.15 * largo * (1.0 - aperto)) * min(1.0, asp * 1.25) * (1.0 + agito * 0.6);
@@ -69,7 +70,8 @@ void main() {
   // onde o tubo aperta, cada fio brilha menos (a soma dos fios já acende o nó)
   // o NÓ: onde o tubo aperta, os fios esquentam (brilham mais e puxam pro branco), como no Relay
   float quente = 1.0 - smoothstep(0.035, 0.09, raio(p) / max(min(1.0, asp * 1.25), 0.01));
-  float densidade = 1.0 + 0.9 * quente * (1.0 - 0.6 * estreito());
+  quente *= 1.0 - estreito();   // celular: o nó não vira branco (tampava a frase)
+  float densidade = 1.0 + 0.9 * quente;
   // a maioria dos filamentos é fraca e poucos brilham forte (é o que dá a textura de fibra)
   float forte = 0.18 + 0.82 * pow(fract(f.z * 13.73), 3.0);
   v_luz = frente * forte * (0.6 + 1.6 * pulso) * borda * densidade;
@@ -101,11 +103,12 @@ void main() {
   float x = lente(cx(p) + r * cos(ang) / asp, p);
   gl_Position = vec4(naTela(x, p), 0.0, 1.0);
   float bokeh = step(0.86, q.w);
-  gl_PointSize = mix(1.6, 2.6, q.w) * dpr + bokeh * (6.0 + 14.0 * q.w) * dpr;
+  // celular: bokeh menor (as bolas grandes pareciam falsas na tela pequena)
+  gl_PointSize = mix(1.6, 2.6, q.w) * dpr + bokeh * (6.0 + 14.0 * q.w) * mix(1.0, 0.45, estreito()) * dpr;
   float y = p - rola;
   float borda = smoothstep(-0.3, -0.05, y) * smoothstep(1.3, 1.05, y);
   float pisca = 0.55 + 0.45 * sin(t * (1.0 + 3.0 * q.w) + q.x * 50.0);
-  v_luz = borda * pisca * mix(0.9, 0.16, bokeh);
+  v_luz = borda * pisca * mix(0.9, mix(0.16, 0.08, estreito()), bokeh);
   v_mole = bokeh;
 }`;
   const FRAG_PO = `
@@ -135,8 +138,8 @@ void main() {
   const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
   // escuro: luz somada (aditiva) com bloom; claro: tinta verde-oliva por cima do papel, sem bloom
   const PALETA = {
-    escuro: { fio: hex("#c9f23c"), azul: hex("#58b4ff"), ganhoFio: celular ? 0.26 : 0.13, ganhoPo: 0.85, bloom: celular ? [1.5, 1.2] : [1.15, 0.9], aditivo: true },
-    claro: { fio: hex("#557a00"), azul: hex("#2f6fa8"), ganhoFio: celular ? 0.13 : 0.1, ganhoPo: 0.35, bloom: [0, 0], aditivo: false },
+    escuro: { fio: hex("#c9f23c"), azul: hex("#58b4ff"), ganhoFio: celular ? 0.2 : 0.13, ganhoPo: 0.85, bloom: celular ? [1.0, 0.75] : [1.15, 0.9], aditivo: true },
+    claro: { fio: hex("#4a6b00"), azul: hex("#2f6fa8"), ganhoFio: celular ? 0.42 : 0.34, ganhoPo: 0.4, bloom: [0.55, 0.45], aditivo: false },
   };
 
   function comeca() {
@@ -325,11 +328,18 @@ void main() {
         estica(brilho1, pal.bloom[0]);
         cena(t, 1);
       } else {
-        // claro: tinta por cima do papel (sem somar luz, que some no branco)
+        // claro: tinta por cima do papel (somar luz some no branco). O brilho borrado vira uma
+        // aura verde suave em volta do feixe, e as fibras nítidas vão por cima.
+        gl.blendFunc(gl.ONE, gl.ONE);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, brilho1.fb);
+        gl.viewport(0, 0, brilho1.w, brilho1.h);
+        gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+        cena(t, 0.25);
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, canvas.width, canvas.height);
-        gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        estica(brilho1, pal.bloom[0]);
         cena(t, 1);
       }
     }
