@@ -1110,6 +1110,14 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   .projeto__midia, .sistema__visual { transition: transform .25s linear; }
 }
 
+/* texto por cima do fio de luz (tema escuro): um halo escuro largo e fraco, que não se vê como
+   sombra, só impede a luz de apagar as letras quando o fio passa atrás (no celular isso é sempre) */
+[data-tema="escuro"] :is(.topo__titulo, .topo__pergunta, .topo__assinatura, .topo__meta, .topo__baixo, .gigante,
+  .trabalhos__apoio, .capitulo__nome, .capitulo__texto, .estilo__cabeca, .reais__abre, .real__cabeca, .virada,
+  .comparar__titulo, .comparar__textos, .passos__cabeca) {
+  text-shadow: 0 0 18px rgb(5 6 5 / .9), 0 0 42px rgb(5 6 5 / .6);
+}
+
 /* ---------- quem pediu menos movimento ---------- */
 @media (prefers-reduced-motion: reduce) {
   .topo__titulo .linha > span, .topo__meta, .topo__pergunta, .topo__assinatura, .topo__baixo, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }
