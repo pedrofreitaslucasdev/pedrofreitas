@@ -151,7 +151,7 @@ void main() {
   function comeca() {
     const topo = document.getElementById("topo");
     const sistemas = document.getElementById("sistemas");
-    // o topo agora recebe o fio de luz do luz.js (o site inteiro); aqui fica só o capítulo Sistemas
+    // o topo agora recebe o fio de luz do fio.js (o site inteiro); aqui fica só o capítulo Sistemas
     if (sistemas) cria(sistemas, { fundo: temaDe,   // Sistemas acompanha o tema (27/09)
       forca: celular ? 0.5 : 0.72, q: 0.7, incl: -0.14, alto: 0.62 });
   }

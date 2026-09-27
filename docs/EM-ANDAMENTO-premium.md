@@ -12,8 +12,11 @@ trabalhando desde 27/09/2026. O site oficial (pedrofreitasdev.vercel.app) sai do
 
 **O que já tem aqui** (em relação ao oficial)
 - Tema escuro por padrão (preto liso #050605), vidro estilo iPhone (liquid glass) nos cartões.
-- Fio de luz em WebGL no fundo do site inteiro (`public/js/luz.js`) — está na versão
-  `b2c732a`, a que o Pedro achou "100% no computador escuro".
+- Fio de luz em Three.js no fundo do site inteiro (`public/js/fio.js`, Three 0.186 em
+  `public/vendor/three/`): é o fio do teste aprovado (teste-fio.vercel.app, "ficou perfeito"),
+  igualzinho. Canvas transparente: a cena é desenhada sobre #050605 (a névoa verde depende disso)
+  e a última passada desconta esse fundo. No claro a mesma forma vira tinta verde-oliva.
+  O `luz.js` antigo saiu em 27/09 (está no histórico do git).
 - Rolagem suave com Lenis só no computador (`public/vendor/lenis.min.js`).
 - Abertura com o quadrado lima, ondas nos Sistemas (`public/js/ondas.js`), janelas nos prints.
 

@@ -57,7 +57,7 @@ if (raiz.classList.contains("abrindo")) {
 
 // ---------- rolagem suave (Lenis, 27/09) ----------
 // A roda do mouse e o trackpad deslizam com inércia em vez de pular de degrau em degrau; o fio de
-// luz (luz.js lê scrollY a cada quadro) acompanha esse deslizar e fica fluido junto. Só com MOUSE:
+// luz (fio.js lê scrollY a cada quadro) acompanha esse deslizar e fica fluido junto. Só com MOUSE:
 // no toque o Lenis não suaviza nada (a rolagem nativa do celular já tem inércia), e a trava do menu
 // no iPhone (body fixo) confundia ele. Sem "reduzir movimento". Âncoras (#trabalhos etc.) deslizam.
 const lenis = !semMovimento && temMouse && window.Lenis
