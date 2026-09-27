@@ -1113,6 +1113,12 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   .projeto__midia, .sistema__visual { transition: transform .25s linear; }
 }
 
+/* Lenis (vendor/lenis.min.js): regras do lenis.css oficial */
+html.lenis, html.lenis body { height: auto; }
+.lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
 /* ---------- quem pediu menos movimento ---------- */
 @media (prefers-reduced-motion: reduce) {
   .topo__titulo .linha > span, .topo__meta, .topo__pergunta, .topo__assinatura, .topo__baixo, .topo__rolar span, .faixa__trilho { animation: none; transform: none; opacity: 1; }

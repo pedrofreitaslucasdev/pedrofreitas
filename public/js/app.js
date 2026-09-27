@@ -55,6 +55,15 @@ if (raiz.classList.contains("abrindo")) {
   }
 }
 
+// ---------- rolagem suave (Lenis, 27/09) ----------
+// A roda do mouse e o trackpad deslizam com inércia em vez de pular de degrau em degrau; o fio de
+// luz (luz.js lê scrollY a cada quadro) acompanha esse deslizar e fica fluido junto. Só com MOUSE:
+// no toque o Lenis não suaviza nada (a rolagem nativa do celular já tem inércia), e a trava do menu
+// no iPhone (body fixo) confundia ele. Sem "reduzir movimento". Âncoras (#trabalhos etc.) deslizam.
+const lenis = !semMovimento && temMouse && window.Lenis
+  ? new Lenis({ lerp: 0.09, wheelMultiplier: 0.9, anchors: { offset: 0 }, autoRaf: true })
+  : null;
+
 // ---------- WhatsApp ----------
 const linkZap = "https://wa.me/" + CONFIG.numero + "?text=" + encodeURIComponent(CONFIG.mensagem);
 document.querySelectorAll("[data-zap]").forEach((a) => { a.href = linkZap; });
@@ -133,9 +142,13 @@ let yMenu = 0;
 function abreMenu() {
   barra.classList.remove("barra--escondida");
   fundoDoMenu().forEach((el) => { el.inert = true; });
-  yMenu = scrollY;
-  document.body.style.top = `-${yMenu}px`;
-  document.body.classList.add("travado");
+  // computador com Lenis: a trava é a dele; sem Lenis (celular): body fixo, que é o que trava no iPhone
+  if (lenis) lenis.stop();
+  else {
+    yMenu = scrollY;
+    document.body.style.top = `-${yMenu}px`;
+    document.body.classList.add("travado");
+  }
   menu.hidden = false;
   menu.getBoundingClientRect();            // força o navegador a desenhar antes da transição
   menu.classList.add("aberto");
@@ -150,16 +163,29 @@ function fechaMenu(devolverFoco = true) {
   fundoDoMenu().forEach((el) => { el.inert = false; });
   // o botão fixo volta a obedecer à regra dele (inerte enquanto está fora da tela)
   zapFixo.inert = !zapFixo.classList.contains("aparece");
-  document.body.classList.remove("travado");
-  document.body.style.top = "";
-  scrollTo(0, yMenu);                    // antes da âncora: o link do menu navega depois disso
+  if (lenis) lenis.start();
+  else {
+    document.body.classList.remove("travado");
+    document.body.style.top = "";
+    scrollTo(0, yMenu);                  // antes da âncora: o link do menu navega depois disso
+  }
   // some de vez depois da cortina subir: menu escondido com cor não pode ficar na tela (Safari)
   const esconde = () => { if (!menu.classList.contains("aberto")) menu.hidden = true; };
   semMovimento ? esconde() : setTimeout(esconde, 750);
   if (devolverFoco) botaoMenu.focus({ preventScroll: true });
 }
 botaoMenu.addEventListener("click", () => (menu.classList.contains("aberto") ? fechaMenu() : abreMenu()));
-menu.querySelectorAll(".menu__lista a").forEach((a) => a.addEventListener("click", () => fechaMenu(false)));
+menu.querySelectorAll(".menu__lista a").forEach((a) => a.addEventListener("click", (e) => {
+  fechaMenu(false);
+  // com Lenis, o próprio Lenis desliza até a seção (o salto nativo da âncora deixava ele travado)
+  const alvo = lenis && document.querySelector(a.hash);
+  if (!alvo) return;
+  e.preventDefault(); e.stopPropagation();
+  history.replaceState(null, "", a.hash);
+  requestAnimationFrame(() => lenis.scrollTo(alvo, {
+    onComplete: () => { alvo.setAttribute("tabindex", "-1"); alvo.focus({ preventScroll: true }); },   // teclado continua dali
+  }));
+}));
 addEventListener("keydown", (e) => { if (e.key === "Escape" && menu.classList.contains("aberto")) fechaMenu(); });
 
 // ---------- botão fixo: aparece depois do topo, some no contato ----------
@@ -361,6 +387,7 @@ if (!temMouse && !semMovimento) {
 // anda de lado só pra mostrar que anda.
 function animaRolagem() {
   gsap.registerPlugin(ScrollTrigger);
+  lenis?.on("scroll", ScrollTrigger.update);   // as animações de rolagem seguem o deslizar do Lenis
 
   // títulos: cada linha sobe de trás da máscara quando o bloco entra na tela
   document.querySelectorAll(".revela").forEach((bloco) => {
