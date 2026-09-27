@@ -368,8 +368,10 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
 @keyframes faixa { to { transform: translateX(-50%); } }
 
 /* ---------- 2 · o dado: o número é a peça principal, o texto vem em blocos curtos ---------- */
-.dado__grade { display: grid; gap: 3rem; }
-.dado__numero { font-size: min(15vw, 11rem); letter-spacing: -.05em; line-height: .86; }
+.dado__grade { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; }
+/* o número mora dentro do cartão de vidro: a conta desconta as margens de fora e de dentro
+   ("8 em cada 10" mede ~5,8x o tamanho da letra); antes ele empurrava o cartão pra fora da tela */
+.dado__numero { font-size: min(15vw, 11rem, calc((100vw - 2 * var(--lado) - 2 * clamp(1.4rem, 3vw, 2.4rem) - 6px) / 6.4));   /* 6,4 e não 5,8: folga se a fonte reserva (mais larga) aparecer antes */ letter-spacing: -.05em; line-height: .86; }
 .dado__numero .linha { white-space: nowrap; }   /* "8 em cada 10" nunca quebra: é uma coisa só */
 .dado__legenda { margin-top: 1.2rem; font-size: clamp(1.1rem, 2vw, 1.5rem); line-height: 1.35; max-width: 28ch; }
 .dado__fonte { margin-top: 1rem; color: var(--apagado); text-transform: none; letter-spacing: .02em; }   /* citação exatamente como a fonte escreve: "BrightLocal" */
