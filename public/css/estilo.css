@@ -233,6 +233,11 @@ body.travado { position: fixed; left: 0; right: 0; background: transparent; }
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgb(0 0 0 / .5));
 }
+/* ondas de luz (ondas.js): canvas transparente atrás do conteúdo; entra com fade quando fica pronto */
+.ondas { position: absolute; left: 0; top: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.8s ease; }
+.ondas--pronta { opacity: 1; }
+/* nos Sistemas o efeito fica só na abertura do capítulo e some pra baixo */
+.capitulo-sistemas > .ondas { height: min(100svh, 900px); -webkit-mask-image: linear-gradient(#000 60%, transparent); mask-image: linear-gradient(#000 60%, transparent); }
 .topo__meta {
   display: flex;
   flex-wrap: wrap;
