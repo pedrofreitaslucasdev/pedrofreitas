@@ -7,7 +7,7 @@
 // O que muda em relação ao teste, só pra caber no site:
 // - canvas TRANSPARENTE, fixo, atrás do conteúdo (fundo colorido em elemento fixo pinta as barras do Safari do iOS 26);
 //   a última passada desconta o fundo e devolve só a luz, que soma por cima do preto da página;
-// - tema claro: a mesma forma vira tinta verde-oliva (luz somada some no branco);
+// - tema claro: luz somada some no branco, então a forma é repintada (A marca-texto lima, B tinta colorida);
 // - este arquivo é a FONTE: o site recebe public/js/fio-cena.min.js, empacotado só com o pedaço do Three.js
 //   que o fio usa (scripts/empacotar-fio.mjs), e public/js/fio.js só o chama depois que a página carregou;
 // - aba escondida para o laço; sem WebGL, nada acontece.
@@ -180,25 +180,40 @@ void quadro(float u, out vec3 C, out vec3 N, out vec3 B) {
   composer.addPass(bloom);
   // última passada = a do teste (tone mapping + sRGB) e, no fim, desconta o fundo e vira cor pré-multiplicada:
   // escuro: sobra só a luz, com alfa = o canal mais forte; por cima do #050605 da página dá o mesmo pixel do teste;
-  // claro: a mesma luz vira tinta (cor fixa, opacidade = quanto de luz tinha ali).
+  // claro: a mesma luz é repintada pra aparecer no branco (A marca-texto, B tinta colorida).
   const saida = new OutputPass();
-  saida.uniforms.claro = { value: 0 };
-  saida.uniforms.tinta = { value: new THREE.Color("#4d6e00") };
+  saida.uniforms.claro = { value: 0 };   // 0 escuro, 1 claro A (marca-texto), 2 claro B (tinta colorida)
   saida.uniforms.fundo = { value: new THREE.Vector3(5 / 255, 6 / 255, 5 / 255) };   // #050605 já em sRGB, como sai da passada
   saida.material.uniforms = saida.uniforms;
   saida.material.fragmentShader = saida.material.fragmentShader
-    .replace("varying vec2 vUv;", "varying vec2 vUv;\n\t\tuniform float claro; uniform vec3 tinta; uniform vec3 fundo;")
+    .replace("varying vec2 vUv;", "varying vec2 vUv;\n\t\tuniform float claro; uniform vec3 fundo;")
     .replace(/\}\s*$/, `
       vec3 so = max(clamp(gl_FragColor.rgb, 0.0, 1.0) - fundo, 0.0);
       float luz = max(so.r, max(so.g, so.b));
-      gl_FragColor = claro > 0.5 ? vec4(tinta * min(1.0, luz * 1.1), min(1.0, luz * 1.1)) : vec4(so, luz);
+      if (claro < 0.5) { gl_FragColor = vec4(so, luz); return; }
+      vec3 matiz = so / max(luz, 1e-4);                        // a cor da luz, sem a força (lima, azul, branco)
+      if (claro < 1.5) {
+        // A: halo lima de marca-texto em volta; os fios em verde vivo, translúcidos (o cruzamento mostra a trama)
+        float halo = smoothstep(0.05, 0.45, luz) * 0.45;
+        float fio = pow(luz, 1.4) * 0.9;
+        vec3 verde = mix(vec3(0.22, 0.58, 0.0), vec3(0.0, 0.45, 0.70), step(0.9, matiz.b));
+        float a = clamp(fio + halo * (1.0 - fio), 0.0, 0.9);
+        vec3 c = (verde * fio + vec3(0.83, 0.98, 0.18) * halo * (1.0 - fio)) / max(a, 1e-4);
+        gl_FragColor = vec4(c * a, a);
+      } else {
+        // B: só os fios, em tinta saturada na cor de cada um (verde vivo / azul), sem halo
+        vec3 c = clamp(mix(vec3(dot(matiz, vec3(0.3, 0.59, 0.11))), matiz, 1.8), 0.0, 1.0) * 0.6;
+        float a = clamp(pow(luz, 1.2) * 1.1, 0.0, 0.85);
+        gl_FragColor = vec4(c * a, a);
+      }
     }`);
   composer.addPass(saida);
 
   const tema = () => {
     const claro = document.documentElement.dataset.tema === "claro";
-    saida.uniforms.claro.value = claro ? 1 : 0;
-    bloom.strength = claro ? 0.35 : 0.6;   // no claro o brilho vira mancha; mais contido
+    const b = new URLSearchParams(location.search).get("claro") === "b";   // provisório: ?claro=b pro Pedro comparar
+    saida.uniforms.claro.value = !claro ? 0 : b ? 2 : 1;
+    bloom.strength = !claro ? 0.6 : b ? 0.0 : 0.3;
   };
   new MutationObserver(tema).observe(document.documentElement, { attributes: true, attributeFilter: ["data-tema"] });
   tema();
