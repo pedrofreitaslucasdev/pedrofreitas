@@ -43,13 +43,7 @@
   <script src="vendor/lenis.min.js" defer></script>
   <script src="js/app.js" defer></script>
   <script src="js/ondas.js" defer></script>
-  <!-- fio de luz em Three.js (MIT, copiado em vendor/three, sem CDN); o fio.js só baixa o Three depois que a página carregou -->
-  <script type="importmap">
-    { "imports": {
-        "three": "./vendor/three/build/three.module.js",
-        "three/addons/": "./vendor/three/examples/jsm/"
-    } }
-  </script>
+  <!-- fio de luz (Three.js, MIT): o fio.js só baixa o fio-cena.min.js depois que a página carregou -->
   <script type="module" src="js/fio.js"></script>
 </head>
 <body>
